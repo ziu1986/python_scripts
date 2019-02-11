@@ -1,2 +1,11 @@
-# Generally ignore all pdf files
-/*.pdf
+# General ignore
+**/*.pdf
+**/*.nc
+**/__*
+**/*.so
+**/*.c
+**/*.pyc
+# Ignore all "plots" directories
+**/*/plots/
+**/Plots/
+**/mytools/build/
