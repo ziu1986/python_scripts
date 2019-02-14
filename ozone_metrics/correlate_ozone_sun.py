@@ -78,28 +78,29 @@ data_jerg_kara.dropna().plot(ax=ax11, color='orange', ls='None', marker='+', lab
 #(data_ss_jerg_kara/data_ss['1988-04-18':'2010-02-28'].max()['Ntot']).plot(ax=ax11, marker='x', alpha=0.25, color='black', label='sunspots')
 
 ax11t.plot(data_ss_jerg_kara.index, (data_ss_jerg_kara/data_ss_jerg_kara.max()), marker='x', alpha=0.25, color='black', label='sunspots')
-ax11t.plot(solarlow_1, data_ss_jerg_kara[solarlow_1]/data_ss_jerg_kara.max(), ls='None', marker='^', fillstyle='none', color='blue', label='low activity')
-ax11t.plot(solarlow_2, data_ss_jerg_kara[solarlow_2]/data_ss_jerg_kara.max(), ls='None', marker='^', fillstyle='none', color='blue', label='low activity')
-ax11t.plot(solarhigh_1, data_ss_jerg_kara[solarhigh_1]/data_ss_jerg_kara.max(), ls='None', marker='v', fillstyle='none', color='red', label='high activity')
-ax11t.plot(solarhigh_2, data_ss_jerg_kara[solarhigh_2]/data_ss_jerg_kara.max(), ls='None', marker='v', fillstyle='none', color='red', label='high activity')
 
+#ax11t.axvspan(date2num(solarlow_1[0]),date2num(solarlow_1[-1]), alpha=0.10, color='blue')
+#ax11t.axvspan(date2num(solarlow_2[0]),date2num(solarlow_2[-1]), alpha=0.10, color='blue')
+#ax11t.axvspan(date2num(solarhigh_1[0]),date2num(solarhigh_1[-1]), alpha=0.10, color='red')
+#ax11t.axvspan(date2num(solarhigh_2[0]),date2num(solarhigh_2[-1]), alpha=0.10, color='red')
 
 ax11.set_ylabel("[$O_3$] (ppb)", color='orange')
 ax11.tick_params(axis='y', colors='orange')
 ax11.set_xlabel("Time (year)")
-ax11.legend(loc='upper right')
+ax11.legend(loc='upper left')
 
 ax11t.set_ylabel("$N^{ss}_{tot}$ (1/$N^{ss}_{max}$)")
 ax11t.grid(False)
-ax11t.legend(loc=(0.857,0.825))
+ax11t.legend(loc=(0.005,0.885))
 
 ax11.axvspan(date2num(dt.datetime.strptime('1986-09','%Y-%m')),date2num(dt.datetime.strptime('1996-08','%Y-%m')),color='linen')
 ax11.axvspan(date2num(dt.datetime.strptime('2008-12','%Y-%m')),date2num(dt.datetime.strptime('2011-01','%Y-%m')),color='linen')
-#ax11.plot(date2num(dt.datetime.strptime('1989-11','%Y-%m')),(81),ls='',marker='s')
 ax11.text(date2num(dt.datetime.strptime('1989-11','%Y-%m')),(83),"solar cycle 22")
-#ax11.plot(date2num(dt.datetime.strptime('2001-11','%Y-%m')),(81),ls='',marker='s')
+ax11.plot(date2num(dt.datetime.strptime('1989-11','%Y-%m')),(-5),ls='', marker='^', color='red')
+ax11.plot(date2num(dt.datetime.strptime('1996-08','%Y-%m')),(83),ls='', marker='v', color='blue')
 ax11.text(date2num(dt.datetime.strptime('2001-11','%Y-%m')),(83),"solar cycle 23")
-
+ax11.plot(date2num(dt.datetime.strptime('2001-11','%Y-%m')),(-5),ls='', marker='^', color='red')
+ax11.plot(date2num(dt.datetime.strptime('2008-12','%Y-%m')),(83),ls='', marker='v', color='blue')
 
 fig2 = plt.figure(2, figsize=(16,9))
 fig2.canvas.set_window_title("hist-Nsunspots")
