@@ -14,11 +14,10 @@ from scipy.optimize import curve_fit
 
 func = lambda x, p: p[0]*x+p[1]
 
-# Load modules and EBAS reading routine
-execfile('read_ebas.py')
 # Clean up
 plt.close('all')
-#nc_src = os.environ['DATA']+'/astra_data/ozone25/*.nc'
+
+# Data sources
 nc_src = os.environ['DATA']+'/nird_data/results/OsloCTM3/ozone25/ozone25_vmr/vmr_ozone*.nc'
 nc_src_old = os.environ['DATA']+'/astra_data/ctm_results/CTM3_oivind/osloctm_ozone*.nc'
 src_jergul = os.environ['DATA']+'/astra_data/observations/ozone/Jergul/NO0030R.*ozone*.nas'
@@ -27,6 +26,7 @@ src_svanvik = os.environ['DATA']+'/astra_data/observations/ozone/Svanvik/NO0047R
 src_svanvik_2018 = os.environ['DATA']+'/astra_data/observations/ozone/Svanvik/NO0047R.*ozone*.xls'
 
 station_location = {"Jergul":(69.45,24.6),"Karasjok":(69.467,25.217),"Svanvik":(69.45,30.03)}
+
 # Loop through EBAS data and transform them to pandas timeseries
 try:
     data_jergul
@@ -36,16 +36,16 @@ except NameError:
     data_svanvik = []
     for file in sorted(glob.glob(src_jergul)):
         print("Reading file %s" % (file))
-        tmp = read_station_data(file)
-        data_jergul.append(pd.Series(tmp['O3'],index=tmp['time']))   
+        tmp = read_station_data_ebas(file)
+        data_jergul.append(tmp)   
     for file in sorted(glob.glob(src_karasjok)):
         print("Reading file %s" % (file))
-        tmp = read_station_data(file)
-        data_karasjok.append(pd.Series(tmp['O3'],index=tmp['time']))
+        tmp = read_station_data_ebas(file)
+        data_karasjok.append(tmp)
     for file in sorted(glob.glob(src_svanvik)):
         print("Reading file %s" % (file))
-        tmp = read_station_data(file)
-        data_svanvik.append(pd.Series(tmp['O3'],index=tmp['time']))
+        tmp = read_station_data_ebas(file)
+        data_svanvik.append(tmp)
     data_svanvik_2018 = pd.read_excel(glob.glob(src_svanvik_2018)[0], index_col=0, header=0)
     data_svanvik_2018 = data_svanvik_2018['O3_mugm-3'].where(data_svanvik_2018['O3_mugm-3']>=0).dropna()/2.
     
