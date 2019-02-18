@@ -72,9 +72,6 @@ def read_station_data(infile, **kargs):
             data_dic[each] = np.ma.masked_where(data_raw[i+1]>0, data_raw[i])
         #i += 1
     
-   
-            
-    
     return(data_dic)
 
 
