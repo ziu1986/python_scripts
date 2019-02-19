@@ -1,4 +1,9 @@
-execfile('read_ebas.py')
+'''
+Plot observed and modeled O3, NO2, and SO2 for Karasjok.
+Compute climatology.
+'''
+from mytools/met_tools import *
+
 def plot_month_span(ax):
     ax.axvspan(1,31, color='linen')
     ax.axvspan(31+28, 31+28+31, color='linen')
