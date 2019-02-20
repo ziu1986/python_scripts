@@ -71,6 +71,7 @@ std_sh_ozone = np.sqrt((sh_ozone_std_1/np.sqrt(len(data_jerg_kara[solarhigh_1[0]
 # Plot it
 fig1 = plt.figure(1, figsize=(16,9))
 fig1.canvas.set_window_title("timeseries_ozone_and_sunspots")
+plt.subplots_adjust(right=0.95)
 ax11 = plt.subplot()
 ax11t = ax11.twinx()
 
@@ -92,19 +93,22 @@ ax11.legend(loc='upper left')
 ax11t.set_ylabel("$N^{ss}_{tot}$ (1/$N^{ss}_{max}$)")
 ax11t.grid(False)
 ax11t.legend(loc=(0.005,0.885))
+#ax11t.spines['right'].set_position(("axes", 1.1))
+#ax11t.spines["right"].set_edgecolor('blue')
 
 ax11.axvspan(date2num(dt.datetime.strptime('1986-09','%Y-%m')),date2num(dt.datetime.strptime('1996-08','%Y-%m')),color='linen')
 ax11.axvspan(date2num(dt.datetime.strptime('2008-12','%Y-%m')),date2num(dt.datetime.strptime('2011-01','%Y-%m')),color='linen')
-ax11.text(date2num(dt.datetime.strptime('1989-11','%Y-%m')),(83),"solar cycle 22")
+ax11.text(date2num(dt.datetime.strptime('1989-11','%Y-%m')),(83),"solar cycle 22", size='large', color='darkgrey')
 ax11.plot(date2num(dt.datetime.strptime('1989-11','%Y-%m')),(-5),ls='', marker='^', color='red')
 ax11.plot(date2num(dt.datetime.strptime('1996-08','%Y-%m')),(83),ls='', marker='v', color='blue')
-ax11.text(date2num(dt.datetime.strptime('2001-11','%Y-%m')),(83),"solar cycle 23")
+ax11.text(date2num(dt.datetime.strptime('2001-11','%Y-%m')),(83),"solar cycle 23", size='large', color='darkgrey')
 ax11.plot(date2num(dt.datetime.strptime('2001-11','%Y-%m')),(-5),ls='', marker='^', color='red')
 ax11.plot(date2num(dt.datetime.strptime('2008-12','%Y-%m')),(83),ls='', marker='v', color='blue')
 
 fig2 = plt.figure(2, figsize=(16,9))
 fig2.canvas.set_window_title("hist-Nsunspots")
 ax21 = plt.subplot(211)
+plt.subplots_adjust(right=0.7)
 ax21.hist(data_ss_jerg_kara.ravel(), bins=np.arange(-0.5,400,1))
 #ax21.hist(data_ss_jerg_kara.ravel(), bins=range(400), histtype='step')
 ax21.set_ylabel("counts")
@@ -113,6 +117,7 @@ ax21.set_xlim(0,40)
 ax21.set_ylim(0,150)
 
 ax22 = plt.subplot(212)
+plt.subplots_adjust(right=0.85)
 ax22t = ax22.twinx()
 ax22tt = ax22.twinx()
 
@@ -123,12 +128,14 @@ ax22.tick_params(axis='y', colors='blue')
 
 data_ss_cumsum.resample('1M').mean().diff().plot(ax=ax22t, color='red', alpha=0.25, label='$\\nabla \Sigma N^{ss}$')
 
-#ax22t.set_ylabel("$\\nabla$", color='red')
+ax22t.set_ylabel("$\\nabla\Sigma N_{tot}^{ss}$", color='red')
 ax22t.tick_params(axis='y', colors='red')
 ax22t.grid(False)
+ax22t.spines['right'].set_position(("axes", 1.1))
+ax22t.spines["right"].set_edgecolor('red')
 
 data_ss_cumsum.resample('1M').mean().diff().diff().plot(ax=ax22tt, color='black', alpha=0.25, label='$\\nabla^2 \Sigma N^{ss}$')
-#ax22tt.set_ylabel("$\\nabla$", color='black')
+ax22tt.set_ylabel("$\\nabla^2\Sigma N_{tot}^{ss}$", color='black')
 ax22tt.tick_params(axis='y', colors='black')
 ax22tt.grid(False)
 
