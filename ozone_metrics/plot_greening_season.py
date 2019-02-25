@@ -1,3 +1,6 @@
+'''
+Look at change in greening season begin and length for verious stations.
+'''
 import os, glob, sys
 import numpy as np
 import pandas as pd
