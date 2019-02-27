@@ -25,8 +25,6 @@ src_karasjok = os.environ['DATA']+'/astra_data/observations/ozone/Karasjok/NO005
 src_svanvik = os.environ['DATA']+'/astra_data/observations/ozone/Svanvik/NO0047R.*ozone*.nas'
 src_svanvik_2018 = os.environ['DATA']+'/astra_data/observations/ozone/Svanvik/NO0047R.*ozone*.xls'
 
-station_location = {"Jergul":(69.45,24.6),"Karasjok":(69.467,25.217),"Svanvik":(69.45,30.03)}
-
 # Loop through EBAS data and transform them to pandas timeseries
 try:
     data_jergul

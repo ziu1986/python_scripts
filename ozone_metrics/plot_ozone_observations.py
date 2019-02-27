@@ -7,6 +7,7 @@ from scipy import fftpack
 from read_sunspots import *
 from mytools.met_tools import *
 from mytools.netcdf_tools import *
+from station_info import station_location
 
 def load_data(src):
     data = []
@@ -20,7 +21,7 @@ def load_data(src):
     # Round to full hours
     data.index = data.index.round("h")
     return(data)
-    
+
 # Clean up
 plt.close('all')
 
@@ -109,7 +110,7 @@ ax31 = plt.subplot()
 data[0].groupby(data[0].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Esrange (SWE)', color='blue')
 data[4].groupby(data[4].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Pallas (FIN)', color='black')
 data_jergkara.groupby(data_jergkara.index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Jergul/Karasjok (NOR)', color='orange')
-data_prestebakke.groupby(data_prestebakke.index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Prestebakke (NOR)', color='red')
+#data_prestebakke.groupby(data_prestebakke.index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Prestebakke (NOR)', color='red')
 data[-1].groupby(data[-1].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Svanvik (NOR)', color='blueviolet')
 data[1].groupby(data[1].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Janiskoski (RUS)', color='grey')
 
@@ -134,6 +135,62 @@ if(False):
     ax21.set_xlabel("Frequency (years)")
 
     ax21.legend()
+
+# Show the stations
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+import cartopy.io.img_tiles as cimgt
+from matplotlib.transforms import offset_copy
+
+fig4 = plt.figure(4)
+stamen_terrain = cimgt.Stamen('terrain-background')
+ax41 = fig4.add_subplot(1,1,1, projection=stamen_terrain.crs) #ccrs.PlateCarree()
+ax41.set_extent([18,32,67,72], crs=ccrs.PlateCarree())
+ax41.add_image(stamen_terrain, 8)
+ax41.plot(station_location['Jergul'].lon, station_location['Jergul'].lat, fillstyle='none', marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+ax41.plot(station_location['Karasjok'].lon, station_location['Karasjok'].lat, marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+ax41.plot(station_location['Svanvik'].lon, station_location['Svanvik'].lat, marker='o', color='blueviolet', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+ax41.plot(station_location['Esrange'].lon, station_location['Esrange'].lat, marker='o', color='blue', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+ax41.plot(station_location['Pallas'].lon, station_location['Pallas'].lat, marker='o', color='black', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+ax41.plot(station_location['Janiskoski'].lon, station_location['Janiskoski'].lat, marker='o', color='grey', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax41)
+text_transform = offset_copy(geodetic_transform, units='dots', x=-25)
+text_transform_2 = offset_copy(geodetic_transform, units='dots', y=25)
+
+# Add text.
+ax41.text(station_location['Jergul'].lon, station_location['Jergul'].lat, u'Jergul',
+          verticalalignment='center', horizontalalignment='right',
+          transform=text_transform,
+          bbox=dict(facecolor='orange', alpha=0.5, boxstyle='round'))
+ax41.text(station_location['Karasjok'].lon, station_location['Karasjok'].lat, u'Karasjok',
+          verticalalignment='center', horizontalalignment='right',
+          transform=text_transform_2,
+          bbox=dict(facecolor='orange', alpha=0.5, boxstyle='round'))
+ax41.text(station_location['Svanvik'].lon, station_location['Svanvik'].lat, u'Svanvik',
+          verticalalignment='center', horizontalalignment='right',
+          transform=text_transform,
+          bbox=dict(facecolor='blueviolet', alpha=0.5, boxstyle='round'))
+ax41.text(station_location['Esrange'].lon, station_location['Esrange'].lat, u'Esrange',
+          verticalalignment='center', horizontalalignment='right',
+          transform=text_transform,
+          bbox=dict(facecolor='blue', alpha=0.5, boxstyle='round'))
+ax41.text(station_location['Pallas'].lon, station_location['Pallas'].lat, u'Pallas',
+          verticalalignment='center', horizontalalignment='right',
+          transform=text_transform,
+          bbox=dict(facecolor='black', alpha=0.5, boxstyle='round'))
+ax41.text(station_location['Janiskoski'].lon, station_location['Janiskoski'].lat, u'Janiskoski',
+          verticalalignment='center', horizontalalignment='right',
+          transform=text_transform,
+          bbox=dict(facecolor='grey', alpha=0.5, boxstyle='round'))
+
+
+#ax41.add_feature(cfeature.LAND)
+#ax41.add_feature(cfeature.OCEAN)
+#ax41.add_feature(cfeature.COASTLINE)
+ax41.add_feature(cfeature.BORDERS, linestyle=':')
+#ax41.add_feature(cfeature.LAKES, alpha=0.5)
+#ax41.add_feature(cfeature.RIVERS)
+#ax41.coastlines(resolution='10m')
 # Show it
 plt.show(block=False)
 
