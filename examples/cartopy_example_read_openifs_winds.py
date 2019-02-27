@@ -66,9 +66,7 @@ v = data['V']
 # Correcting the longitudinal coordinates
 v.coords['lon'] = np.linspace(data.lon[0], data.lon[-1], data.lon.size)
 
-X,Y = np.meshgrid(lats, v10.lon) 
-
-
+U,V = np.meshgrid(u10, v10) 
 
 # Plotting the data pressure
 #fig1 = plt.figure(1, figsize=(16,9))
@@ -80,7 +78,7 @@ X,Y = np.meshgrid(lats, v10.lon)
 
 fig1 = plt.figure(1, figsize=(16,9))
 ax11 = plt.subplot(projection=cp.crs.PlateCarree())
-ax11.barbs(X[:,:], Y[:,:], u10, v10, transform=cp.crs.PlateCarree(), cmap=plt.cm.RdYlBu_r, length=5, linewidth=1.5)
+ax11.barbs(u.lon, u.lat, U, V, transform=cp.crs.PlateCarree(), cmap=plt.cm.RdYlBu_r, length=5, linewidth=1.5)
 #(v10).plot(ax=ax11, transform=cp.crs.PlateCarree(), cmap=plt.cm.RdYlBu_r)
 
 
