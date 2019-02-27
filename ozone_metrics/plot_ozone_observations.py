@@ -7,7 +7,9 @@ from scipy import fftpack
 from read_sunspots import *
 from mytools.met_tools import *
 from mytools.netcdf_tools import *
+#from mytools.cartopy_tools import scale_bar
 from station_info import station_location
+
 
 def load_data(src):
     data = []
@@ -29,6 +31,7 @@ plt.close('all')
 #execfile("../BrXplo/read_station_data.py")
 #from read_station_data import read_station_data_noaa
 src = os.environ['DATA']+'/astra_data/observations/ozone/'
+src_svanvik_2018 = os.environ['DATA']+'/astra_data/observations/ozone/Svanvik/NO0047R.*ozone*.xls'
 src_stations = ('Barrow', 'Esrange', 'Janiskoski', 'Jergul', 'Karasjok', 'Pallas', 'Prestebakke', 'Svanvik')
 
 try:
@@ -51,13 +54,14 @@ except NameError:
 try:
     data
 except NameError:
-    data = []
+    data = {}
     for station in src_stations[1:]:
-        data.append(load_data(src+station+'/*.nas'))
+            data.update({station:load_data(src+station+'/*.nas')})
         
-data_prestebakke = data[5]
-data_jergkara = pd.concat(data[2:4])
-    
+data_prestebakke = data['Prestebakke']
+data_jergkara = pd.concat((data['Jergul'], data['Karasjok']))
+data_svanvik_2018 = pd.read_excel(glob.glob(src_svanvik_2018)[0], index_col=0, header=0)
+data_svanvik_2018 = data_svanvik_2018['O3_mugm-3'].where(data_svanvik_2018['O3_mugm-3']>=0).dropna()/2.    
 # Spectral analysis
 from scipy import fftpack
 fft_barrow = fftpack.fft(data_barrow.resample('1M').mean().fillna(method='ffill'))
@@ -88,17 +92,20 @@ for ax in fig1.axes:
 
 fig2 = plt.figure(2, figsize=(16,9))
 fig2.canvas.set_window_title("ozone_timeseries_fenoscandicobs")
-ax21 = plt.subplot(411)
-ax22 = plt.subplot(412, sharex=ax21)
-ax23 = plt.subplot(413, sharex=ax21)
-ax24 = plt.subplot(414, sharex=ax21)
-ax21.plot(data[0].index, data[0], ls='None', marker='+', label='Esrange (SWE)', color='blue')
-ax22.plot(data[4].index, data[4], ls='None', marker='+', label='Pallas (FIN)', color='black')
+ax21 = plt.subplot(511)
+ax22 = plt.subplot(512, sharex=ax21)
+ax23 = plt.subplot(513, sharex=ax21)
+ax24 = plt.subplot(514, sharex=ax21)
+ax25 = plt.subplot(515, sharex=ax21)
+ax21.plot(data['Esrange'].index, data['Esrange'], ls='None', marker='+', label='Esrange (SWE)', color='blue')
+ax22.plot(data['Pallas'].index, data['Pallas'], ls='None', marker='+', label='Pallas (FIN)', color='black')
 data_jergkara.plot(ax=ax23, ls='None', marker='+', label='Jergul/Karasjok (NOR)', color='orange')
-ax24.plot(data[-1].index, data[-1], ls='None', marker='+', label='Svanvik (NOR)', color='blueviolet')
+ax24.plot(data['Svanvik'].index, data['Svanvik'], ls='None', marker='+', label='Svanvik (NOR)', color='blueviolet')
+ax24.plot(data_svanvik_2018.index, data_svanvik_2018, ls='None', marker='x', label='Svanvik, 2018 (NOR)', color='blueviolet')
+ax25.plot(data['Janiskoski'].index, data['Janiskoski'], ls='None', marker='+', label='Janiskoski (RUS)', color='grey')
 
-ax24.set_xlabel("Time (year)")
-ax22.set_ylabel("[$O_3$] (ppb)", y=1)
+ax25.set_xlabel("Time (year)")
+ax23.set_ylabel("[$O_3$] (ppb)", y=1)
 for ax in fig2.axes:
     ax.set_ylim(0,100)
     ax.legend()
@@ -107,12 +114,12 @@ fig3 = plt.figure(3, figsize=(16,9))
 fig3.canvas.set_window_title("ozone_climatology_fenoscandicobs")
 ax31 = plt.subplot()
 
-data[0].groupby(data[0].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Esrange (SWE)', color='blue')
-data[4].groupby(data[4].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Pallas (FIN)', color='black')
+data['Esrange'].groupby(data['Esrange'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Esrange (SWE)', color='blue')
+data['Pallas'].groupby(data['Pallas'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Pallas (FIN)', color='black')
 data_jergkara.groupby(data_jergkara.index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Jergul/Karasjok (NOR)', color='orange')
 #data_prestebakke.groupby(data_prestebakke.index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Prestebakke (NOR)', color='red')
-data[-1].groupby(data[-1].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Svanvik (NOR)', color='blueviolet')
-data[1].groupby(data[1].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Janiskoski (RUS)', color='grey')
+data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Svanvik (NOR)', color='blueviolet')
+data['Janiskoski'].groupby(data['Janiskoski'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Janiskoski (RUS)', color='grey')
 
 ax31.set_xlabel("Time (day of year)")
 ax31.set_ylabel("[$O_3$] (ppb)")
@@ -143,12 +150,14 @@ import cartopy.io.img_tiles as cimgt
 from matplotlib.transforms import offset_copy
 
 fig4 = plt.figure(4)
+fig4.canvas.set_window_title("station_map_fennoscandia")
 stamen_terrain = cimgt.Stamen('terrain-background')
 ax41 = fig4.add_subplot(1,1,1, projection=stamen_terrain.crs) #ccrs.PlateCarree()
-ax41.set_extent([18,32,67,72], crs=ccrs.PlateCarree())
+ax41.set_extent([19.4,31.4,67.6,71.4], crs=ccrs.PlateCarree())
 ax41.add_image(stamen_terrain, 8)
-ax41.plot(station_location['Jergul'].lon, station_location['Jergul'].lat, fillstyle='none', marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-ax41.plot(station_location['Karasjok'].lon, station_location['Karasjok'].lat, marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+
+ax41.plot(station_location['Jergul'].lon, station_location['Jergul'].lat, fillstyle='left', marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+ax41.plot(station_location['Karasjok'].lon, station_location['Karasjok'].lat, fillstyle='right', marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
 ax41.plot(station_location['Svanvik'].lon, station_location['Svanvik'].lat, marker='o', color='blueviolet', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
 ax41.plot(station_location['Esrange'].lon, station_location['Esrange'].lat, marker='o', color='blue', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
 ax41.plot(station_location['Pallas'].lon, station_location['Pallas'].lat, marker='o', color='black', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
@@ -184,13 +193,68 @@ ax41.text(station_location['Janiskoski'].lon, station_location['Janiskoski'].lat
           bbox=dict(facecolor='grey', alpha=0.5, boxstyle='round'))
 
 
-#ax41.add_feature(cfeature.LAND)
-#ax41.add_feature(cfeature.OCEAN)
-#ax41.add_feature(cfeature.COASTLINE)
-ax41.add_feature(cfeature.BORDERS, linestyle=':')
-#ax41.add_feature(cfeature.LAKES, alpha=0.5)
-#ax41.add_feature(cfeature.RIVERS)
-#ax41.coastlines(resolution='10m')
+fig5 = plt.figure(5, figsize=(16,9))
+ax51 = plt.subplot(221)
+ax52 = plt.subplot(222)
+ax53 = plt.subplot(223)
+ax54 = plt.subplot(224)
+bins = range(81)
+ax51.hist2d(data['Esrange'].dropna(), data_jergkara[data['Esrange'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
+ax52.hist2d(data['Pallas'].dropna(), data_jergkara[data['Pallas'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
+ax53.hist2d(data['Esrange'].dropna(), data['Svanvik'][data['Esrange'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
+ax54.hist2d(data['Pallas'].dropna(), data['Svanvik'][data['Pallas'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
+
+ax51.set_ylabel("$[O_3]_{Jergul/Karasjok}$ (ppb)")
+ax53.set_ylabel("$[O_3]_{Svanvik}$ (ppb)")
+ax53.set_xlabel("$[O_3]_{Esrange}$ (ppb)")
+ax54.set_xlabel("$[O_3]_{Pallas}$ (ppb)")
+for ax in fig5.axes:
+    ax.plot(bins, bins, color='grey',ls='--')
+
+ax51.text(60,75, "$r^2 = %1.2f$" % (data['Esrange'].corr(data_jergkara)), size='large')
+ax52.text(60,75, "$r^2 = %1.2f$" % (data['Pallas'].corr(data_jergkara)), size='large')
+ax53.text(60,75, "$r^2 = %1.2f$" % (data['Esrange'].corr(data['Svanvik'])), size='large')
+ax54.text(60,75, "$r^2 = %1.2f$" % (data['Pallas'].corr(data['Svanvik'])), size='large')
+
+fig6 = plt.figure(6, figsize=(16,9))
+fig6.canvas.set_window_title("time_lag_correlation")
+time_lag = range(-48,49)
+lag_1 = []
+lag_2 = []
+lag_3 = []
+lag_4 = []
+lag_5 = []
+lag_6 = []
+lag_7 = []
+for i in time_lag:
+    #print("%d %1.2f" % (i, time_lagged_corr(data_jergkara, data['Esrange'], lag=i, pandas=True)))
+    lag_1.append(time_lagged_corr(data_jergkara, data['Esrange'], lag=i, pandas=True))
+    lag_2.append(time_lagged_corr(data_jergkara, data['Pallas'], lag=i, pandas=True))
+    lag_3.append(time_lagged_corr(data['Svanvik'], data['Esrange'], lag=i, pandas=True))
+    lag_4.append(time_lagged_corr(data['Svanvik'], data['Pallas'], lag=i, pandas=True))
+    lag_5.append(time_lagged_corr(data['Svanvik'], data_jergkara, lag=i, pandas=True))
+    lag_6.append(time_lagged_corr(data['Svanvik'], data['Janiskoski'], lag=i, pandas=True))
+    lag_7.append(time_lagged_corr(data_jergkara, data['Janiskoski'], lag=i, pandas=True))
+ax61 = plt.subplot(121)
+ax62 = plt.subplot(122)
+#ax63 = plt.subplot(133)
+ax61.set_title("Jergul/Karasjok")
+ax62.set_title("Svanvik")
+#ax63.set_title("Svanvik")
+ax61.plot(time_lag, lag_1, color='blue', label='Esrange')
+ax61.plot(time_lag, lag_2, color='black', label='Pallas')
+ax61.plot(np.array(time_lag)*(-1), lag_5, color='blueviolet', label='Svanvik')
+ax61.plot(time_lag, lag_7, color='grey', label='Janiskoski')
+ax62.plot(time_lag, lag_3, color='blue', label='Esrange')
+ax62.plot(time_lag, lag_4, color='black', label='Pallas')
+ax62.plot(time_lag, lag_5, color='orange', label='Jergul/Karasjok')
+ax62.plot(time_lag, lag_6, color='grey', label='Janiskoski')
+
+for ax in fig6.axes:
+    ax.set_xlabel('Lag (hours)')
+    #ax.set_ylim(0,1)
+    ax.legend()
+ax61.set_ylabel('Correlation Coefficient')
 # Show it
 plt.show(block=False)
 
