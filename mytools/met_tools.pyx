@@ -549,14 +549,22 @@ def time_lagged_corr(test_data, truth, **kargs):
     '''
     lag = kargs.pop('lag',0)
     verbose = kargs.pop('v', False)
-    if lag >= 0:
-        corr_coef = np.ma.corrcoef(np.roll(test_data, lag)[lag:], truth[lag:])
+    pandas = kargs.pop('pandas', False)
+    if pandas:
+        corr_coef = truth.corr(test_data.shift(lag))
+        if verbose:
+            corr_sign = corr_coef*np.sqrt((len(test_data)-np.fabs(lag)-2)/(1-corr_coef**2))
+            print "%d %d %1.2f -> %2.2f" % (lag, len(test_data), corr_coef, corr_sign)
+        return(corr_coef)
     else:
-        corr_coef = np.ma.corrcoef(np.roll(test_data, lag)[:lag], truth[:lag])
-    corr_sign = corr_coef[0,1]*np.sqrt((len(test_data)-np.fabs(lag)-2)/(1-corr_coef[0,1]**2))
-    if verbose:
-        print "%d %d %1.2f -> %2.2f" % (lag, len(test_data), corr_coef[0,1], corr_sign)
-    return corr_coef
+        if lag >= 0:
+            corr_coef = np.ma.corrcoef(np.roll(test_data, lag)[lag:], truth[lag:])
+        else:
+            corr_coef = np.ma.corrcoef(np.roll(test_data, lag)[:lag], truth[:lag])
+        corr_sign = corr_coef[0,1]*np.sqrt((len(test_data)-np.fabs(lag)-2)/(1-corr_coef[0,1]**2))
+        if verbose:
+            print "%d %d %1.2f -> %2.2f" % (lag, len(test_data), corr_coef[0,1], corr_sign)
+        return corr_coef
 
 def read_station_data_noaa(infile, **kargs):
     '''
