@@ -45,7 +45,8 @@ stamen_terrain = cimgt.Stamen('terrain-background')
 ax11 = fig1.add_subplot(1,1,1, projection=stamen_terrain.crs) #ccrs.PlateCarree()
 ax11.set_extent([19.4,31.4,67.6,71.4], crs=ccrs.PlateCarree())
 ax11.add_image(stamen_terrain, 8)
-ax11.barbs(u10_fenno.lon.data, u10_fenno.lat.data, u10_fenno.data, v10_fenno.data, transform=cp.crs.PlateCarree())
+#ax11.barbs(u10_fenno.lon.data, u10_fenno.lat.data, u10_fenno.data, v10_fenno.data, transform=cp.crs.PlateCarree())
+ax11.quiver(u10_fenno.lon.data, u10_fenno.lat.data, u10_fenno.data, v10_fenno.data, transform=cp.crs.PlateCarree())
 
 # Plotting the data wind
 
