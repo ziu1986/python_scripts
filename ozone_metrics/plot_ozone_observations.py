@@ -147,6 +147,7 @@ if(False):
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import cartopy.io.img_tiles as cimgt
+#import cartopy.geodesic as cgeo
 from matplotlib.transforms import offset_copy
 
 fig4 = plt.figure(4)
@@ -243,11 +244,12 @@ ax62.set_title("Svanvik")
 #ax63.set_title("Svanvik")
 ax61.plot(time_lag, lag_1, color='blue', label='Esrange')
 ax61.plot(time_lag, lag_2, color='black', label='Pallas')
-ax61.plot(np.array(time_lag)*(-1), lag_5, color='blueviolet', label='Svanvik')
-ax61.plot(time_lag, lag_7, color='grey', label='Janiskoski')
-ax62.plot(time_lag, lag_3, color='blue', label='Esrange')
-ax62.plot(time_lag, lag_4, color='black', label='Pallas')
-ax62.plot(time_lag, lag_5, color='orange', label='Jergul/Karasjok')
+ax61.plot(np.array(time_lag)*(-1), lag_5, ls='--', color='blueviolet', label='Svanvik')
+ax61.plot(time_lag, lag_7, color='grey', ls='--', label='Janiskoski')
+
+ax62.plot(time_lag, lag_3, color='blue', ls='--', label='Esrange')
+ax62.plot(time_lag, lag_4, color='black', ls='--', label='Pallas')
+ax62.plot(time_lag, lag_5, color='orange', ls='--', label='Jergul/Karasjok')
 ax62.plot(time_lag, lag_6, color='grey', label='Janiskoski')
 
 for ax in fig6.axes:
