@@ -60,10 +60,10 @@ def hist_hist_diagram(wd, ws, title, xlabel, ylabel, fig1, **kwargs):
 def windrose(wd, ws, title, fig2, **kwargs):
     model = kwargs.pop('model', True)
     fig2.canvas.set_window_title(title)
-
+    # Shift wind directions
     if model:
         wd[np.where(wd>360)] = wd[np.where(wd>360)]-360
-    # Shift wind directions [-180:180] -> [0:360]
+   
     ax21 = WindroseAxes.from_ax(fig=fig2)
     ax21.bar(wd, ws, normed=True, opening=0.8, edgecolor='white', cmap=plt.cm.viridis)
     ax21.set_legend()
@@ -75,15 +75,16 @@ plt.close('all')
 
 # Path to the file
 #src_dir = os.environ['DATA'] + '/CTM3_input_data' + '/metdataOpenIFS/cy38r1nc4_2012/T159N80L60/*/*.nc'
-src_dir = os.environ['HOME'] +"/bin/wind*1990.nc"
-src_dir_obs = os.environ['DATA'] + '/astra_data/observations/wind/Svanvik_2018.txt'
-
+src_dir = os.environ['HOME'] +"/bin/wind*200[0-8].nc"
+src_dir_obs = os.environ['DATA'] + '/astra_data/observations/wind/Svanvik/Svanvik_*.txt'
+obs_header = {'Svanvik':{2009:16,2010:13,2011:13,2012:13,2013:13,2014:13,2015:13,2016:13,2017:13,2018:13}}
+obs_footer = {'Svanvik':{2009:8,2010:2,2011:2,2012:2,2013:2,2014:2,2015:2,2016:2,2017:2,2018:2}}
 # Read the data only once in interactive mode
 try:
     data
 except NameError:
-    #u10_fenno = []
-    #v10_fenno = []
+    u10_list = []
+    v10_list = []
     for each in sorted(glob.glob(src_dir)):
         print("Reading file %s" % (each))
         data = xr.open_dataset(each)
@@ -99,11 +100,22 @@ except NameError:
         v10.coords['lon'] = lons
         v10.coords['time'] = time
         # Select an area
-        u10 = u10.sel(lat=slice(67.6,71.4),lon=slice(19.4,31.4))
-        v10 = v10.sel(lat=slice(67.6,71.4),lon=slice(19.4,31.4))
-
+        u10_list.append(u10.sel(lat=slice(67.6,71.4),lon=slice(19.4,31.4)))
+        v10_list.append(v10.sel(lat=slice(67.6,71.4),lon=slice(19.4,31.4)))
+    u10 = xr.concat(u10_list, dim='time')
+    v10 = xr.concat(v10_list, dim='time')
 # Observation data
-data_obs = pd.read_csv(src_dir_obs,';', header=13)
+try:
+    data_obs
+except NameError:
+    data_obs = []
+    for each in sorted(glob.glob(src_dir_obs)):
+        year = int(each[each.rfind('_')+1:-4])
+        data = pd.read_csv(each,';', header=obs_header['Svanvik'][year], skipfooter=obs_footer['Svanvik'][year], na_values=(-9999,-9999.0,), parse_dates=[[1,2,3,4]], date_parser=lambda y,m,d,h : pd.datetime(int(y), int(m), int(d), int(h)-1))
+        data = data.set_index(['Year_Mnth_Date_Time(NMT)'])
+        data_obs.append(data) #
+        
+    data_obs = pd.concat(data_obs)
 
 # Select station
 selection = "Svanvik"
@@ -135,7 +147,7 @@ hist_hist_diagram(data_obs['DD'].where(data_obs['FF']>0.8), data_obs['FF'].where
 
 
 fig4 = plt.figure(4)
-windrose(data_obs['DD'].where(data_obs['FF']>0.8), data_obs['FF'].where(data_obs['FF']>0.8), "%s_obs_windrose" % selection, fig4, model=False)
+windrose(data_obs.dropna().where(data_obs.dropna()['FF']>0.8).dropna()['DD'], data_obs.dropna().where(data_obs.dropna()['FF']>0.8).dropna()['FF'], "%s_obs_windrose" % selection, fig4, model=False)
 
 
 # Show it

@@ -195,22 +195,38 @@ ax41.text(station_location['Janiskoski'].lon, station_location['Janiskoski'].lat
 
 
 fig5 = plt.figure(5, figsize=(16,9))
+fig5.canvas.set_window_title("")
 ax51 = plt.subplot(221)
 ax52 = plt.subplot(222)
 ax53 = plt.subplot(223)
 ax54 = plt.subplot(224)
 bins = range(81)
-ax51.hist2d(data['Esrange'].dropna(), data_jergkara[data['Esrange'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
-ax52.hist2d(data['Pallas'].dropna(), data_jergkara[data['Pallas'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
-ax53.hist2d(data['Esrange'].dropna(), data['Svanvik'][data['Esrange'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
-ax54.hist2d(data['Pallas'].dropna(), data['Svanvik'][data['Pallas'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
+hist2d_1 = ax51.hist2d(data['Esrange'].dropna(), data_jergkara[data['Esrange'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
+hist2d_2 = ax52.hist2d(data['Pallas'].dropna(), data_jergkara[data['Pallas'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
+hist2d_3 = ax53.hist2d(data['Esrange'].dropna(), data['Svanvik'][data['Esrange'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
+hist2d_4 = ax54.hist2d(data['Pallas'].dropna(), data['Svanvik'][data['Pallas'].dropna().index], bins=(bins), cmap=plt.cm.hot_r)
+
+for ax in fig5.axes:
+    ax.plot(bins, bins, color='grey',ls='--')
+    
+# Placeing the colorbar
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+for ax,hist in zip(fig5.axes, (hist2d_1,hist2d_2,hist2d_3,hist2d_4)):
+    axins = inset_axes(ax,
+                       width="2.5%",  # width = 50% of parent_bbox width
+                       height="70%",  # height : 5%
+                       loc='lower right',
+                       #bbox_to_anchor=(1, 0., 1, 1),
+                       #bbox_transform=ax.transAxes,
+                       #borderpad=0,
+    )
+    fig5.colorbar(hist[-1], cax=axins, orientation='vertical')
+    axins.set_ylabel("Counts")
 
 ax51.set_ylabel("$[O_3]_{Jergul/Karasjok}$ (ppb)")
 ax53.set_ylabel("$[O_3]_{Svanvik}$ (ppb)")
 ax53.set_xlabel("$[O_3]_{Esrange}$ (ppb)")
 ax54.set_xlabel("$[O_3]_{Pallas}$ (ppb)")
-for ax in fig5.axes:
-    ax.plot(bins, bins, color='grey',ls='--')
 
 ax51.text(60,75, "$r^2 = %1.2f$" % (data['Esrange'].corr(data_jergkara)), size='large')
 ax52.text(60,75, "$r^2 = %1.2f$" % (data['Pallas'].corr(data_jergkara)), size='large')
