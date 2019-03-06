@@ -195,7 +195,7 @@ ax41.text(station_location['Janiskoski'].lon, station_location['Janiskoski'].lat
 
 
 fig5 = plt.figure(5, figsize=(16,9))
-fig5.canvas.set_window_title("")
+fig5.canvas.set_window_title("density_distribution")
 ax51 = plt.subplot(221)
 ax52 = plt.subplot(222)
 ax53 = plt.subplot(223)
@@ -235,7 +235,7 @@ ax54.text(60,75, "$r^2 = %1.2f$" % (data['Pallas'].corr(data['Svanvik'])), size=
 
 fig6 = plt.figure(6, figsize=(16,9))
 fig6.canvas.set_window_title("time_lag_correlation")
-time_lag = range(-48,49)
+time_lag = range(-17,18)
 lag_1 = []
 lag_2 = []
 lag_3 = []
@@ -252,6 +252,10 @@ for i in time_lag:
     lag_5.append(time_lagged_corr(data['Svanvik'], data_jergkara, lag=i, pandas=True))
     lag_6.append(time_lagged_corr(data['Svanvik'], data['Janiskoski'], lag=i, pandas=True))
     lag_7.append(time_lagged_corr(data_jergkara, data['Janiskoski'], lag=i, pandas=True))
+# Print maximum in lag
+for i,lag in zip(range(1,8),(lag_1, lag_2, lag_3, lag_4, lag_5, lag_6, lag_7)):
+    print("lag_%d max at %d h" % (i, np.array(time_lag)[np.where(np.array(lag)==np.array(lag).max())[0]]))
+    
 ax61 = plt.subplot(121)
 ax62 = plt.subplot(122)
 #ax63 = plt.subplot(133)
