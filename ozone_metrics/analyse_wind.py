@@ -69,7 +69,9 @@ def hist_hist_diagram(wd, ws, title, xlabel, ylabel, fig1, **kwargs):
         axScatter.axhspan(0,ff_threashold, facecolor='grey', hatch='///')
     # Add some stats
     axHistx.text(1.05, 0.65, "$N = %d$" % (wd.size), size='x-large', transform=axHistx.transAxes)
-   
+    if ff_threashold:
+        axScatter.text(-25, ff_threashold, "%1.2f" % (ff_threashold), size='x-large')
+    
 def windrose(wd, ws, title, fig2, **kwargs):
     model = kwargs.pop('model', True)
     fig2.canvas.set_window_title(title)
@@ -87,16 +89,33 @@ def windrose(wd, ws, title, fig2, **kwargs):
     else:
         ax21.text(0.05, 0.95,"%s" % ('observation'), size='x-large', transform=ax21.transAxes)
 
+def test_wind_treashold(data, **kwargs):
+    start = kwargs.pop('start',0)
+    end = kwargs.pop('end',2)
+    steps = kwargs.pop('stepwidth', 0.5)
+    result = []
+    for min_wind_speed in np.arange(start, end, steps):
+        hist_wd = np.histogram(data['DD'].where(data['FF']>=min_wind_speed), bins=np.arange(-0.5,361), normed=True)
+        bin_0 = hist_wd[0][0]
+        bin_360 = hist_wd[0][-1]
+        nn_0 = hist_wd[0][1:11]
+        nn_360 = hist_wd[0][-11:-1]
+        result.append((bin_0-nn_0.mean(), bin_360-nn_360.mean()))
+    
+    return(np.arange(start, end, steps), (np.array(result).T.reshape(2,len(result))))
 
 # Closing plots from previous runs
 plt.close('all')
-
+#*************************************************************Begin of script*********************************************
 # Path to the file
+selection = "Karasjok"
 #src_dir = os.environ['DATA'] + '/CTM3_input_data' + '/metdataOpenIFS/cy38r1nc4_2012/T159N80L60/*/*.nc'
 src_dir = os.environ['HOME'] +"/bin/wind*.nc"
-src_dir_obs = os.environ['DATA'] + '/astra_data/observations/wind/Svanvik/Svanvik_*.txt'
-obs_header = {'Svanvik':{2009:16,2010:13,2011:13,2012:13,2013:13,2014:13,2015:13,2016:13,2017:13,2018:13}}
-obs_footer = {'Svanvik':{2009:8,2010:2,2011:2,2012:2,2013:2,2014:2,2015:2,2016:2,2017:2,2018:2}}
+src_dir_obs = os.environ['DATA'] + '/astra_data/observations/wind/%s/%s_*.txt' % (selection, selection)
+obs_header = {'Svanvik':{2009:16,'default':13},
+              'Karasjok':{2004:16, 'default':13}}#2010:13,2011:13,2012:13,2013:13,2014:13,2015:13,2016:13,2017:13,2018:13}}
+obs_footer = {'Svanvik':{2009:8, 'default':2},
+              'Karasjok':{2004:8, 'default':2}}#2010:2,2011:2,2012:2,2013:2,2014:2,2015:2,2016:2,2017:2,2018:2}}
 # Read the data only once in interactive mode
 try:
     data
@@ -126,19 +145,24 @@ except NameError:
     v10 = xr.concat(v10_list, dim='time')
 # Observation data
 try:
-    data_obs
+    data_ob
 except NameError:
     data_obs = []
     for each in sorted(glob.glob(src_dir_obs)):
         year = int(each[each.rfind('_')+1:-4])
-        data = pd.read_csv(each,';', header=obs_header['Svanvik'][year], skipfooter=obs_footer['Svanvik'][year], na_values=(-9999,-9999.0,), parse_dates=[[1,2,3,4]], date_parser=lambda y,m,d,h : pd.datetime(int(y), int(m), int(d), int(h)-1))
+        if each==sorted(glob.glob(src_dir_obs))[0]:
+            data = pd.read_csv(each,';', header=obs_header[selection][year], skipfooter=obs_footer[selection][year], na_values=(-9999,-9999.0,), parse_dates=[[1,2,3,4]], date_parser=lambda y,m,d,h : pd.datetime(int(y), int(m), int(d), int(h)-1))
+        else:
+            data = pd.read_csv(each,';', header=obs_header[selection]['default'], skipfooter=obs_footer[selection]['default'], na_values=(-9999,-9999.0,), parse_dates=[[1,2,3,4]], date_parser=lambda y,m,d,h : pd.datetime(int(y), int(m), int(d), int(h)-1))
         data = data.set_index(['Year_Mnth_Date_Time(NMT)'])
         data_obs.append(data) #
         
     data_obs = pd.concat(data_obs)
+    if selection=='Svanvik':
+        data_obs = data_obs['2012-02-22':]
 
 # Select station
-selection = "Svanvik"
+
 u10_selection = u10.sel(lat=station_location[selection].lat, lon=station_location[selection].lon, method='nearest')
 v10_selection = v10.sel(lat=station_location[selection].lat, lon=station_location[selection].lon, method='nearest')
 # Plot it
@@ -153,8 +177,11 @@ ws_selection = (np.sqrt(u10_selection**2+v10_selection**2)).data.ravel()
 # By checking the probability density function of wind directions
 # (probability of 0 or 360 should be about the same as for the directions close-by),
 # I set the threshold to 0.8 ms-1.
-ff_threashold = 0.8
-data_obs_filtered = data_obs['2012-02-22':].where(data_obs['2012-02-22':]['FF']>=0.8).dropna()
+# ff_threashold = 0.8
+# Used brute-force minimazation to get a more precise answer test_wind_threashold
+test = test_wind_treashold(data_obs,end=1.1,stepwidth=0.01)
+ff_threashold = test[0][np.where(((test[1][0]*test[1][1])**2)==((test[1][0]*test[1][1])**2).min())][0]
+data_obs_filtered = data_obs.where(data_obs['FF']>=ff_threashold).dropna()
 #mask = (data_obs_filtered.index>='2012-01') & (data_obs_filtered.index<='2012-02-21')
 #data_obs_filtered = data_obs_filtered.loc[~mask]
  
@@ -171,16 +198,26 @@ windrose(wd_selection, ws_selection, "%s_windrose" % selection, fig2)
 
 
 fig3 = plt.figure(3)
-hist_hist_diagram(data_obs_filtered['DD'], data_obs_filtered.dropna()['FF'], "%s_obs_wind" % selection, xlabel, ylabel, fig3, model=False, ff_threashold=ff_threashold)
+hist_hist_diagram(data_obs_filtered['DD'], data_obs_filtered.dropna()['FF'], "%s_obs_wind" % selection, xlabel, ylabel, fig3, model=False, ff_threashold=ff_threashold) #
 
 
 fig4 = plt.figure(4)
 windrose(data_obs_filtered['DD'], data_obs_filtered['FF'], "%s_obs_windrose" % selection, fig4, model=False)
 
-#for i, iyear in zip(range(5,5+len(glob.glob(src_dir_obs))), data_obs_filtered.index.year.unique()):
-  #fig = plt.figure(i)  
-  #hist_hist_diagram(data_obs_filtered['DD']['%d' % (iyear)], data_obs_filtered['FF']['%d' % (iyear)], "%s_obs_wind_%d" % (selection, iyear), xlabel, ylabel, fig, model=False)
+for i, iyear in zip(range(5,5+len(glob.glob(src_dir_obs))), data_obs_filtered.index.year.unique()):
+  fig = plt.figure(i)  
+  hist_hist_diagram(data_obs_filtered['DD']['%d' % (iyear)], data_obs_filtered['FF']['%d' % (iyear)], "%s_obs_wind_%d" % (selection, iyear), xlabel, ylabel, fig, model=False)
 
+#fig5 = plt.figure(5, figsize=(16,9))
+#ax51 = plt.subplot(211)
+#ax52 = plt.subplot(212)
+
+#ax51.plot(test[0], test[1][0], label="bin 0deg")
+#ax51.plot(test[0], test[1][1], label="bin 360deg")
+#ax52.plot(test[0], , label="bin 360deg")
+#ax51.set_xlabel("Windspeed ($ms^{-1}$)")
+#ax51.set_ylabel("Residual prob. denisity")
+#ax51.legend()
 # Show it
 plt.show(block=False)
 

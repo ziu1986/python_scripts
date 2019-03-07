@@ -545,7 +545,12 @@ def get_month_name(mid,**karg):
 
 def time_lagged_corr(test_data, truth, **kargs):
     '''
-    Compute time lagged correlation.
+    Compute time lagged correlation and returns correlation cooeficient.
+    Takes test_data, truth as arguments. test_data is the one that gets shifted.
+    kwargs:
+       lag (0) - the time-lag in hours (can be positive or negative)
+       v (False) - be a bit more verbose
+       pandas (False) - use pandas dataframe object as input instead of numpy arrays
     '''
     lag = kargs.pop('lag',0)
     verbose = kargs.pop('v', False)
