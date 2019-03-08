@@ -182,8 +182,11 @@ ws_selection = (np.sqrt(u10_selection**2+v10_selection**2)).data.ravel()
 test = test_wind_treashold(data_obs,end=1.1,stepwidth=0.01)
 ff_threashold = test[0][np.where(((test[1][0]*test[1][1])**2)==((test[1][0]*test[1][1])**2).min())][0]
 data_obs_filtered = data_obs.where(data_obs['FF']>=ff_threashold).dropna()
-#mask = (data_obs_filtered.index>='2012-01') & (data_obs_filtered.index<='2012-02-21')
-#data_obs_filtered = data_obs_filtered.loc[~mask]
+if selection == 'Svanvik':
+    mask = (data_obs_filtered.index>='2012-01') & (data_obs_filtered.index<='2012-02-21')
+elif selection == 'Karasjok':
+    mask = ((data_obs_filtered.index>='2010-07-13') & (data_obs_filtered.index<='2010-09-01')) | ((data_obs_filtered.index>='2012-10-13') & (data_obs_filtered.index<='2013-02-07'))
+    data_obs_filtered = data_obs_filtered.loc[~mask]
  
 xlabel = "Met. wind direction (deg)"
 ylabel = "Wind strength ($ms^{-1}$)"
@@ -204,9 +207,16 @@ hist_hist_diagram(data_obs_filtered['DD'], data_obs_filtered.dropna()['FF'], "%s
 fig4 = plt.figure(4)
 windrose(data_obs_filtered['DD'], data_obs_filtered['FF'], "%s_obs_windrose" % selection, fig4, model=False)
 
-for i, iyear in zip(range(5,5+len(glob.glob(src_dir_obs))), data_obs_filtered.index.year.unique()):
-  fig = plt.figure(i)  
-  hist_hist_diagram(data_obs_filtered['DD']['%d' % (iyear)], data_obs_filtered['FF']['%d' % (iyear)], "%s_obs_wind_%d" % (selection, iyear), xlabel, ylabel, fig, model=False)
+#fig5 = plt.figure(5)
+#fig5.canvas.set_window_title("%s_manually_identify_bad_periodes" % (selection))
+#ax51 = plt.subplot()
+#data_obs_filtered.dropna()['DD']['2010':'2013'].plot(ax=ax51, ls='None', marker='.')
+#data_obs_filtered.where(data_obs_filtered['DD']==236).dropna()['DD']['2010':'2013'].plot(ax=ax51, ls='None', marker='x')
+#data_obs_filtered.loc[~mask].dropna()['DD']['2010':'2013'].plot(ax=ax51, ls='None', marker='+')
+
+#for i, iyear in zip(range(5,5+len(glob.glob(src_dir_obs))), data_obs_filtered.index.year.unique()):
+#  fig = plt.figure(i)  
+#  hist_hist_diagram(data_obs_filtered['DD']['%d' % (iyear)], data_obs_filtered['FF']['%d' % (iyear)], "%s_obs_wind_%d" % (selection, iyear), xlabel, ylabel, fig, model=False)
 
 #fig5 = plt.figure(5, figsize=(16,9))
 #ax51 = plt.subplot(211)

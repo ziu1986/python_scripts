@@ -46,7 +46,7 @@ def f4(start_height, rate):
 
 lat = range(61,74)
 # plot it
-fig1 = plt.figure(1) #figsize=(16,9)
+fig1 = plt.figure(1, figsize=(16,9)) #figsize=(16,9)
 fig1.canvas.set_window_title("tree_height")
 ax11 = plt.subplot()
 #ax11.scatter([60,]+lat+[74,], f1(20,0.05)+[6,], label='exp')

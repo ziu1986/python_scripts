@@ -26,9 +26,9 @@ plt.close('all')
 nc_src_o3 = os.environ['DATA']+'/astra_data/ctm_results/CTM3_oivind/osloctm_ozone*.nc'
 nc_src_so2 = os.environ['DATA']+'/astra_data/ctm_results/CTM3_oivind/osloctm_so2*.nc'
 nc_src_no2 = os.environ['DATA']+'/astra_data/ctm_results/CTM3_oivind/osloctm_no2*.nc'
-src_karasjok_o3 = os.environ['DATA']+'/processed_data/observations/Karasjok/NO0055R.*ozone*.nas'
-src_karasjok_so2 = os.environ['DATA']+'/processed_data/observations/Karasjok/NO0055R.*pack*.nas'
-src_karasjok_no2 = os.environ['DATA']+'/processed_data/observations/Karasjok/NO0055R.*nitrogen_dioxide*.nas'
+src_karasjok_o3 = os.environ['DATA']+'/astra_data/observations/ozone/Karasjok/NO0055R.*ozone*.nas'
+src_karasjok_so2 = os.environ['DATA']+'/astra_data/observations/sulfur_dioxide/Karasjok/NO0055R.*pack*.nas'
+src_karasjok_no2 = os.environ['DATA']+'/astra_data/observations/nitrogen_dioxide/Karasjok/NO0055R.*nitrogen_dioxide*.nas'
 
 
 try:

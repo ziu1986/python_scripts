@@ -11,6 +11,7 @@ from scipy.constants import *     # Get physics constants
 from mytools.met_tools import *
 from mytools.netcdf_tools import *
 from scipy.optimize import curve_fit
+from station_info import station_location
 
 func = lambda x, p: p[0]*x+p[1]
 
@@ -65,14 +66,14 @@ except NameError:
     for ifile in sorted(glob.glob(nc_src)):
         print("Reading %s" % (ifile))
         data = xr.open_dataset(ifile).isel(lev=0)
-        data_list_finnmark.append(data['O3'].sel(lat=station_location['Karasjok'][0],method='nearest').sel(lon=station_location['Karasjok'][1],method='nearest')*1e9)
-        data_list_svan.append(data['O3'].sel(lat=station_location['Svanvik'][0],method='nearest').sel(lon=station_location['Svanvik'][1],method='nearest')*1e9)
+        data_list_finnmark.append(data['O3'].sel(lat=station_location['Karasjok'].lat,method='nearest').sel(lon=station_location['Karasjok'].lon,method='nearest')*1e9)
+        data_list_svan.append(data['O3'].sel(lat=station_location['Svanvik'].lat,method='nearest').sel(lon=station_location['Svanvik'].lon,method='nearest')*1e9)
         
     
-    data_old = read_data(nc_src_old,var='O3',lev=(1,1))
+    #data_old = read_data(nc_src_old,var='O3',lev=(1,1))
     # Shifting old data time stemp by 3 hours
     # since there seems to be something off with the daily cycle of ozone
-    data_old['time'] = data_old.time.data+np.timedelta64(-3,'h')
+    #data_old['time'] = data_old.time.data+np.timedelta64(-3,'h')
 # Save selections for multiple use
 try:
     data_finnmark
@@ -80,25 +81,25 @@ except NameError:
     print("Concatenating...")
     data_finnmark = xr.concat(data_list_finnmark,dim='time')
     data_svan = xr.concat(data_list_svan,dim='time')    
-    data_old_finnmark = (data_old.sel(lat=station_location['Karasjok'][0],method='nearest').sel(lon=station_location['Karasjok'][1],method='nearest')*1e9)
+    #data_old_finnmark = (data_old.sel(lat=station_location['Karasjok'].lat,method='nearest').sel(lon=station_location['Karasjok'].lon,method='nearest')*1e9)
    
-    data_old_svan = (data_old.sel(lat=station_location['Svanvik'][0],method='nearest').sel(lon=station_location['Svanvik'][1],method='nearest')*1e9)
+    #data_old_svan = (data_old.sel(lat=station_location['Svanvik'].lat,method='nearest').sel(lon=station_location['Svanvik'].lon,method='nearest')*1e9)
 # Selection of winter and summer data
 data_finnmark_winter = data_finnmark.where((data_finnmark.time.dt.month<4) | (data_finnmark.time.dt.month>=10))
 data_finnmark_summer = data_finnmark.where((data_finnmark.time.dt.month>=4) & (data_finnmark.time.dt.month<10))
-data_old_finnmark_winter = data_old_finnmark.where((data_finnmark.time.dt.month<4) | (data_finnmark.time.dt.month>=10))
-data_old_finnmark_summer = data_old_finnmark.where((data_finnmark.time.dt.month>=4) & (data_finnmark.time.dt.month<10))
+#data_old_finnmark_winter = data_old_finnmark.where((data_finnmark.time.dt.month<4) | (data_finnmark.time.dt.month>=10))
+#data_old_finnmark_summer = data_old_finnmark.where((data_finnmark.time.dt.month>=4) & (data_finnmark.time.dt.month<10))
 data_svan_winter = data_svan.where((data_svan.time.dt.month<4) | (data_svan.time.dt.month>=10))
 data_svan_summer = data_svan.where((data_svan.time.dt.month>=4) & (data_svan.time.dt.month<10))
-data_old_svan_winter = data_old_svan.where((data_old_svan.time.dt.month<4) | (data_old_svan.time.dt.month>=10))
-data_old_svan_summer = data_old_svan.where((data_old_svan.time.dt.month>=4) & (data_old_svan.time.dt.month<10))
+#data_old_svan_winter = data_old_svan.where((data_old_svan.time.dt.month<4) | (data_old_svan.time.dt.month>=10))
+#data_old_svan_summer = data_old_svan.where((data_old_svan.time.dt.month>=4) & (data_old_svan.time.dt.month<10))
 
-data_jergul_winter = data_jergul.where((data_jergul.index.month<4) | (data_jergul.index.month>=10))
-data_jergul_summer = data_jergul.where((data_jergul.index.month>=4) & (data_jergul.index.month<10))
-data_karasjok_winter = data_karasjok.where((data_karasjok.index.month<4) | (data_karasjok.index.month>=10))
-data_karasjok_summer = data_karasjok.where((data_karasjok.index.month>=4) & (data_karasjok.index.month<10))
-data_svanvik_winter = data_svanvik.where((data_svanvik.index.month<4) | (data_svanvik.index.month>=10))
-data_svanvik_summer = data_svanvik.where((data_svanvik.index.month>=4) & (data_svanvik.index.month<10))
+data_jergul_winter = data_jergul.loc[(data_jergul.index.month<4) | (data_jergul.index.month>=10)]
+data_jergul_summer = data_jergul.loc[(data_jergul.index.month>=4) & (data_jergul.index.month<10)]
+data_karasjok_winter = data_karasjok.loc[(data_karasjok.index.month<4) | (data_karasjok.index.month>=10)]
+data_karasjok_summer = data_karasjok.loc[(data_karasjok.index.month>=4) & (data_karasjok.index.month<10)]
+data_svanvik_winter = data_svanvik.loc[(data_svanvik.index.month<4) | (data_svanvik.index.month>=10)]
+data_svanvik_summer = data_svanvik.loc[(data_svanvik.index.month>=4) & (data_svanvik.index.month<10)]
 
 # Is the year 2018 exceptional?
 delta_svanvik = ((data_svanvik_2018).groupby(data_svanvik_2018.index.dayofyear).apply(np.nanmean)-data_svanvik.groupby(data_svanvik.index.dayofyear).apply(np.nanmean))
@@ -107,7 +108,7 @@ delta_svanvik = ((data_svanvik_2018).groupby(data_svanvik_2018.index.dayofyear).
 fig1 = plt.figure(1, figsize=(16,9))
 fig1.canvas.set_window_title("ozone_time_series")
 data_finnmark.plot(ls="None", marker='o', fillstyle='none', color='black',label='OsloCTM3 v1.0')
-data_old_finnmark.plot(ls="None", marker='d', fillstyle='none', color='blue',label="OsloCTM3 v0.1")
+#data_old_finnmark.plot(ls="None", marker='d', fillstyle='none', color='blue',label="OsloCTM3 v0.1")
 data_jergul.plot(marker='x', ls='none', color='red', alpha=0.15, label='Jergul')
 data_karasjok.plot(marker='+', ls='none', color='orange', alpha=0.15, label='Karasjok')
 data_svanvik.plot(marker='v', fillstyle='none', ls='none', color='blueviolet', alpha=0.15, label='Svanvik')
@@ -132,16 +133,16 @@ bins = np.arange(0,80)
 ax21.hist(data_finnmark, density=True, bins=bins, histtype='step', color='black', label='OsloCTM3 v1.0')
 #ax21.hist(data_finnmark_winter, density=True, bins=bins, histtype='step', color='black', hatch='\\\\', label='OsloCTM3 v1.0 - winter')
 #ax21.hist(data_finnmark_summer, density=True, bins=bins, histtype='step', color='black', hatch='//', label='OsloCTM3 v1.0 - summer')
-ax21.hist(data_old_finnmark.data.flatten(), density=True, bins=bins, histtype='step', color='blue',label='OsloCTM3 v0.1')
+#ax21.hist(data_old_finnmark.data.flatten(), density=True, bins=bins, histtype='step', color='blue',label='OsloCTM3 v0.1')
 
 
 ax22.hist(data_svan, density=True, bins=bins, histtype='step', color='black', label='OsloCTM3 v1.0')
-ax22.hist(data_old_svan.data.flatten(), density=True, bins=bins, histtype='step', color='blue', label='OsloCTM3 v0.1')
+#ax22.hist(data_old_svan.data.flatten(), density=True, bins=bins, histtype='step', color='blue', label='OsloCTM3 v0.1')
 
-ax23.hist(data_jergul.dropna(), bins=bins, density=True, histtype="step", color='red', label='Jergul')
-ax23.hist(data_karasjok.dropna(), bins=bins, density=True, histtype="step", color='orange', label='Karasjok')
+ax23.hist(data_jergul['O3'], bins=bins, density=True, histtype="step", color='red', label='Jergul')
+ax23.hist(data_karasjok['O3'].dropna(), bins=bins, density=True, histtype="step", color='orange', label='Karasjok')
 
-ax24.hist(data_svanvik.dropna(), bins=bins, density=True, histtype="step", color='blueviolet', label='Svanvik')
+ax24.hist(data_svanvik['O3'].dropna(), bins=bins, density=True, histtype="step", color='blueviolet', label='Svanvik')
 ax24.hist(data_svanvik_2018.dropna(), bins=bins, density=True, histtype="step", color='fuchsia', label='Svanvik 2018')
 
 for ax in fig2.axes:
@@ -159,20 +160,20 @@ data_finnmark.groupby('time.hour').mean().plot(ax=ax31, ls="None", marker='o', f
 data_finnmark_winter.groupby('time.hour').mean().plot(ax=ax31, ls="--", color='black', alpha=0.5, label='OsloCTM3 v1.0 - winter')
 data_finnmark_summer.groupby('time.hour').mean().plot(ax=ax31, ls="-.", color='black', alpha=0.5, label='OsloCTM3 v1.0 - summer')
 # OsloCTM3 v0.1
-data_old_finnmark.groupby('time.hour').mean().plot(ax=ax31, ls="None", marker='d', fillstyle='none',color='blue', label='OsloCTM3 v0.1')
+#data_old_finnmark.groupby('time.hour').mean().plot(ax=ax31, ls="None", marker='d', fillstyle='none',color='blue', label='OsloCTM3 v0.1')
 # Split into summer and winter
-data_old_finnmark_winter.groupby('time.hour').mean().plot(ax=ax31, ls="--", color='blue', alpha=0.5, label='OsloCTM3 v0.1 - winter')
-data_old_finnmark_summer.groupby('time.hour').mean().plot(ax=ax31, ls="-.", color='blue', alpha=0.5, label='OsloCTM3 v0.1 - summer')
+#data_old_finnmark_winter.groupby('time.hour').mean().plot(ax=ax31, ls="--", color='blue', alpha=0.5, label='OsloCTM3 v0.1 - winter')
+#data_old_finnmark_summer.groupby('time.hour').mean().plot(ax=ax31, ls="-.", color='blue', alpha=0.5, label='OsloCTM3 v0.1 - summer')
 # Observations Jergul
 data_jergul.groupby(data_jergul.index.hour).apply(np.nanmean).plot(marker='x', ls='none', color='red', label='Jergul')
 # Split into summer and winter
-data_jergul_winter.groupby(data_jergul.index.hour).apply(np.nanmean).plot(ax=ax31, ls="--", color='red', alpha=0.5, label='Jergul - winter')
-data_jergul_summer.groupby(data_jergul.index.hour).apply(np.nanmean).plot(ax=ax31, ls="-.", color='red', alpha=0.5, label='Jergul - summer')
+data_jergul_winter.groupby(data_jergul_winter.index.hour).apply(np.nanmean).plot(ax=ax31, ls="--", color='red', alpha=0.5, label='Jergul - winter')
+data_jergul_summer.groupby(data_jergul_summer.index.hour).apply(np.nanmean).plot(ax=ax31, ls="-.", color='red', alpha=0.5, label='Jergul - summer')
 # Observations Karasjok
 data_karasjok.groupby(data_karasjok.index.hour).apply(np.nanmean).plot(marker='+', ls='none', color='orange', label='Karasjok')
 # Split into summer and winter
-data_karasjok_winter.groupby(data_karasjok.index.hour).apply(np.nanmean).plot(ax=ax31, ls="--", color='orange', alpha=0.5, label='Karasjok - winter')
-data_karasjok_summer.groupby(data_karasjok.index.hour).apply(np.nanmean).plot(ax=ax31, ls="-.", color='orange', alpha=0.5, label='Karasjok - summer')
+data_karasjok_winter.groupby(data_karasjok_winter.index.hour).apply(np.nanmean).plot(ax=ax31, ls="--", color='orange', alpha=0.5, label='Karasjok - winter')
+data_karasjok_summer.groupby(data_karasjok_summer.index.hour).apply(np.nanmean).plot(ax=ax31, ls="-.", color='orange', alpha=0.5, label='Karasjok - summer')
 
 #ax31.set_xlabel("Time (UTC)")
 #ax31.set_ylabel("[$O_3$] (ppb)")
@@ -186,15 +187,15 @@ data_svan.groupby('time.hour').mean().plot(ax=ax32, ls="None", marker='o', fills
 data_svan_winter.groupby('time.hour').mean().plot(ax=ax32, ls="--", color='black', alpha=0.5, label='OsloCTM3 v1.0 - winter')
 data_svan_summer.groupby('time.hour').mean().plot(ax=ax32, ls="-.", color='black', alpha=0.5, label='OsloCTM3 v1.0 - summer')
 # OsloCTM3 v0.1
-data_old_svan.groupby('time.hour').mean().plot(ax=ax32, ls="None", marker='d', fillstyle='none',color='blue', label='OsloCTM3 v0.1')
+#data_old_svan.groupby('time.hour').mean().plot(ax=ax32, ls="None", marker='d', fillstyle='none',color='blue', label='OsloCTM3 v0.1')
 # Split into summer and winter
-data_old_svan_winter.groupby('time.hour').mean().plot(ax=ax32, ls="--", color='blue', alpha=0.5, label='OsloCTM3 v0.1 - winter')
-data_old_svan_summer.groupby('time.hour').mean().plot(ax=ax32, ls="-.", color='blue', alpha=0.5, label='OsloCTM3 v0.1 - summer')
+#data_old_svan_winter.groupby('time.hour').mean().plot(ax=ax32, ls="--", color='blue', alpha=0.5, label='OsloCTM3 v0.1 - winter')
+#data_old_svan_summer.groupby('time.hour').mean().plot(ax=ax32, ls="-.", color='blue', alpha=0.5, label='OsloCTM3 v0.1 - summer')
 # Observations Svanvik
 data_svanvik.groupby(data_svanvik.index.hour).apply(np.nanmean).plot(marker='v', fillstyle='none', ls='none', color='blueviolet', label='Svanvik')
 # Split into summer and winter
-data_svanvik_winter.groupby(data_svanvik.index.hour).apply(np.nanmean).plot(ax=ax32, ls="--", color='blueviolet', alpha=0.5, label='Svanvik - winter')
-data_svanvik_summer.groupby(data_svanvik.index.hour).apply(np.nanmean).plot(ax=ax32, ls="-.", color='blueviolet', alpha=0.5, label='Svanvik - summer')
+data_svanvik_winter.groupby(data_svanvik_winter.index.hour).apply(np.nanmean).plot(ax=ax32, ls="--", color='blueviolet', alpha=0.5, label='Svanvik - winter')
+data_svanvik_summer.groupby(data_svanvik_summer.index.hour).apply(np.nanmean).plot(ax=ax32, ls="-.", color='blueviolet', alpha=0.5, label='Svanvik - summer')
 
 ax32.set_xlabel("Time (UTC)")
 ax32.set_ylabel("[$O_3$] (ppb)", y=1)
@@ -210,7 +211,7 @@ data_svanvik.groupby(data_svanvik.index.dayofyear).apply(np.nanmean).plot(ls='No
 (data_svanvik.groupby(data_svanvik.index.dayofyear).apply(np.nanmean)+data_svanvik.groupby(data_svanvik.index.dayofyear).apply(np.std)).plot(color='blueviolet', alpha=0.25, label='_')
 (data_svanvik.groupby(data_svanvik.index.dayofyear).apply(np.nanmean)-data_svanvik.groupby(data_svanvik.index.dayofyear).apply(np.std)).plot(color='blueviolet', alpha=0.25, label='_')
 (data_svan.groupby('time.dayofyear').mean()).plot(marker='o', fillstyle='none', ls='None', color='black', label='OsloCTM3 v1.0')
-(data_old_svan.groupby('time.dayofyear').mean()).plot(marker='d', fillstyle='none', ls='None', color='blue', label='OsloCTM3 v0.1')
+#(data_old_svan.groupby('time.dayofyear').mean()).plot(marker='d', fillstyle='none', ls='None', color='blue', label='OsloCTM3 v0.1')
 #(data_svanvik).groupby(data_svanvik.index.dayofyear).apply(np.nanmean).rolling(15).mean().plot()
 ax41.set_ylabel("[$O_3$] (ppb)")
 ax41.set_xlabel("Time (day of year)")
@@ -231,7 +232,7 @@ ax42.set_xlabel("count")
 fig5 = plt.figure(5, figsize=(16,9))
 fig5.canvas.set_window_title("surface_ozone_obsvsmodel_svanvik1993")
 ax52 = plt.subplot(121)
-hist_svanvik = ax52.hist2d(data_svan.sel(time=data_svanvik['1993'][::3].dropna().index).data, data_svanvik['1993'][::3].dropna().data.flatten(), bins=range(71), cmap=plt.cm.hot_r)
+hist_svanvik = ax52.hist2d(data_svan.sel(time=data_svanvik['1993'][::3].dropna().index), data_svanvik['1993'][::3].dropna(), bins=range(71), cmap=plt.cm.hot_r)
 ax52.plot(np.arange(0,71),np.arange(0,71), color='grey', ls=':')
 #ax52.plot(np.arange(0,71),np.arange(0,71)-simple_bias_corr.data, color='blue', ls=':')
 cb = fig5.colorbar(hist_svanvik[3], ax=ax52)
