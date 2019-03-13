@@ -85,21 +85,21 @@ except NameError:
    
     #data_old_svan = (data_old.sel(lat=station_location['Svanvik'].lat,method='nearest').sel(lon=station_location['Svanvik'].lon,method='nearest')*1e9)
 # Selection of winter and summer data
-data_finnmark_winter = data_finnmark.where((data_finnmark.time.dt.month<4) | (data_finnmark.time.dt.month>=10))
-data_finnmark_summer = data_finnmark.where((data_finnmark.time.dt.month>=4) & (data_finnmark.time.dt.month<10))
+data_finnmark_winter = data_finnmark.where((data_finnmark.time.dt.month<6) | (data_finnmark.time.dt.month>=9))
+data_finnmark_summer = data_finnmark.where((data_finnmark.time.dt.month>=6) & (data_finnmark.time.dt.month<9))
 #data_old_finnmark_winter = data_old_finnmark.where((data_finnmark.time.dt.month<4) | (data_finnmark.time.dt.month>=10))
 #data_old_finnmark_summer = data_old_finnmark.where((data_finnmark.time.dt.month>=4) & (data_finnmark.time.dt.month<10))
-data_svan_winter = data_svan.where((data_svan.time.dt.month<4) | (data_svan.time.dt.month>=10))
-data_svan_summer = data_svan.where((data_svan.time.dt.month>=4) & (data_svan.time.dt.month<10))
+data_svan_winter = data_svan.where((data_svan.time.dt.month<6) | (data_svan.time.dt.month>=9))
+data_svan_summer = data_svan.where((data_svan.time.dt.month>=6) & (data_svan.time.dt.month<9))
 #data_old_svan_winter = data_old_svan.where((data_old_svan.time.dt.month<4) | (data_old_svan.time.dt.month>=10))
 #data_old_svan_summer = data_old_svan.where((data_old_svan.time.dt.month>=4) & (data_old_svan.time.dt.month<10))
 
-data_jergul_winter = data_jergul.loc[(data_jergul.index.month<4) | (data_jergul.index.month>=10)]
-data_jergul_summer = data_jergul.loc[(data_jergul.index.month>=4) & (data_jergul.index.month<10)]
-data_karasjok_winter = data_karasjok.loc[(data_karasjok.index.month<4) | (data_karasjok.index.month>=10)]
-data_karasjok_summer = data_karasjok.loc[(data_karasjok.index.month>=4) & (data_karasjok.index.month<10)]
-data_svanvik_winter = data_svanvik.loc[(data_svanvik.index.month<4) | (data_svanvik.index.month>=10)]
-data_svanvik_summer = data_svanvik.loc[(data_svanvik.index.month>=4) & (data_svanvik.index.month<10)]
+data_jergul_winter = data_jergul.loc[(data_jergul.index.month<6) | (data_jergul.index.month>=9)]
+data_jergul_summer = data_jergul.loc[(data_jergul.index.month>=6) & (data_jergul.index.month<9)]
+data_karasjok_winter = data_karasjok.loc[(data_karasjok.index.month<6) | (data_karasjok.index.month>=9)]
+data_karasjok_summer = data_karasjok.loc[(data_karasjok.index.month>=6) & (data_karasjok.index.month<9)]
+data_svanvik_winter = data_svanvik.loc[(data_svanvik.index.month<6) | (data_svanvik.index.month>=9)]
+data_svanvik_summer = data_svanvik.loc[(data_svanvik.index.month>=6) & (data_svanvik.index.month<9)]
 
 # Is the year 2018 exceptional?
 delta_svanvik = ((data_svanvik_2018).groupby(data_svanvik_2018.index.dayofyear).apply(np.nanmean)-data_svanvik.groupby(data_svanvik.index.dayofyear).apply(np.nanmean))
@@ -154,11 +154,7 @@ ax23.set_xlabel("[$O_3$] (ppb)", x=1.1)
 fig3 = plt.figure(3, figsize=(16,9))
 fig3.canvas.set_window_title('ozone_daily_cycle')
 ax31 = plt.subplot(211)
-# OsloCTM3 v1.0
-data_finnmark.groupby('time.hour').mean().plot(ax=ax31, ls="None", marker='o', fillstyle='none',color='black', label='OsloCTM3 v1.0')
-# Split into summer and winter
-data_finnmark_winter.groupby('time.hour').mean().plot(ax=ax31, ls="--", color='black', alpha=0.5, label='OsloCTM3 v1.0 - winter')
-data_finnmark_summer.groupby('time.hour').mean().plot(ax=ax31, ls="-.", color='black', alpha=0.5, label='OsloCTM3 v1.0 - summer')
+
 # OsloCTM3 v0.1
 #data_old_finnmark.groupby('time.hour').mean().plot(ax=ax31, ls="None", marker='d', fillstyle='none',color='blue', label='OsloCTM3 v0.1')
 # Split into summer and winter
@@ -232,7 +228,7 @@ ax42.set_xlabel("count")
 fig5 = plt.figure(5, figsize=(16,9))
 fig5.canvas.set_window_title("surface_ozone_obsvsmodel_svanvik1993")
 ax52 = plt.subplot(121)
-hist_svanvik = ax52.hist2d(data_svan.sel(time=data_svanvik['1993'][::3].dropna().index), data_svanvik['1993'][::3].dropna(), bins=range(71), cmap=plt.cm.hot_r)
+hist_svanvik = ax52.hist2d(data_svan.sel(time=data_svanvik['1993'][::3].dropna().index), data_svanvik['1993'][::3].dropna()['O3'], bins=range(71), cmap=plt.cm.hot_r)
 ax52.plot(np.arange(0,71),np.arange(0,71), color='grey', ls=':')
 #ax52.plot(np.arange(0,71),np.arange(0,71)-simple_bias_corr.data, color='blue', ls=':')
 cb = fig5.colorbar(hist_svanvik[3], ax=ax52)
@@ -255,7 +251,7 @@ ax51.set_xlabel("Time (month)")
 ax51.set_ylabel("[$O_3$] (ppb)")
 ax51.legend()
 
-print("Correlation: %s" % np.corrcoef(data_svanvik['1993'][::3].dropna().data.flatten(), data_svan.sel(time=data_svanvik['1993'][::3].dropna().index).data))
+print("Correlation: %s" % np.corrcoef(data_svanvik['1993'][::3].dropna()['O3'], data_svan.sel(time=data_svanvik['1993'][::3].dropna().index).data))
 
 from scipy import fftpack
 fig11 = plt.figure(11,figsize=(16,9))
@@ -324,7 +320,7 @@ ax124.set_xlabel("Time (year)")
 fig13 = plt.figure(13, figsize=(16,9))
 fig13.canvas.set_window_title("surface_ozone_correlation_obs_model")
 ax131 = plt.subplot(211)
-data_sel_jerg_kara = data_jerg_kara[data_finnmark.sel(time=slice('1991-01-01T00','2010-02-28T23')).time.data].dropna()
+data_sel_jerg_kara = data_jerg_kara['O3'][pd.to_datetime(data_finnmark.sel(time=slice('1991-01-01T00','2010-02-28T23')).time.data)].dropna()
 data_sel_finnmark = data_finnmark.sel(time=data_sel_jerg_kara.index)
 hist_sel = ax131.hist2d(data_sel_finnmark, data_sel_jerg_kara, bins=range(0,70), cmap=plt.cm.hot_r)
 
@@ -336,7 +332,7 @@ print("Correlation: %s" % np.corrcoef(data_sel_finnmark, data_sel_jerg_kara))
 
 ax132 = plt.subplot(212)
 ax132.set_title("Corrected", x=0.9, y=0.9)
-rm_data_sel_jerg_kara = (data_jerg_kara-rm_data_jerg_kara)[(data_finnmark).sel(time=slice('1991-04-02T06','2009-08-31T12')).time.data].dropna()
+rm_data_sel_jerg_kara = (data_jerg_kara-rm_data_jerg_kara)['O3'][(data_finnmark).sel(time=slice('1991-04-02T06','2009-08-31T12')).time.data].dropna()
 rm_data_sel_finnmark = (data_finnmark).sel(time=rm_data_sel_jerg_kara.index)
 try:
     hist_jerg_kara

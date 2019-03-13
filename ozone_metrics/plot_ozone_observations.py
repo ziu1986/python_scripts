@@ -101,7 +101,7 @@ ax21.plot(data['Esrange'].index, data['Esrange'], ls='None', marker='+', label='
 ax22.plot(data['Pallas'].index, data['Pallas'], ls='None', marker='+', label='Pallas (FIN)', color='black')
 data_jergkara.plot(ax=ax23, ls='None', marker='+', label='Jergul/Karasjok (NOR)', color='orange')
 ax24.plot(data['Svanvik'].index, data['Svanvik'], ls='None', marker='+', label='Svanvik (NOR)', color='blueviolet')
-ax24.plot(data_svanvik_2018.index, data_svanvik_2018, ls='None', marker='x', label='Svanvik, 2018 (NOR)', color='blueviolet')
+#ax24.plot(data_svanvik_2018.index, data_svanvik_2018, ls='None', marker='x', label='Svanvik, 2018 (NOR)', color='blueviolet')
 ax25.plot(data['Janiskoski'].index, data['Janiskoski'], ls='None', marker='+', label='Janiskoski (RUS)', color='grey')
 
 ax25.set_xlabel("Time (year)")
