@@ -19,7 +19,7 @@ func = lambda x, p: p[0]*x+p[1]
 plt.close('all')
 
 # Data sources
-nc_src = os.environ['DATA']+'/nird_data/results/OsloCTM3/ozone25/ozone25_vmr/vmr_ozone*.nc'
+nc_src = os.environ['DATA']+'/nird_data/results/OsloCTM3/ozone25/vmr/vmr_ozone*.nc'
 nc_src_old = os.environ['DATA']+'/astra_data/ctm_results/CTM3_oivind/osloctm_ozone*.nc'
 src_jergul = os.environ['DATA']+'/astra_data/observations/ozone/Jergul/NO0030R.*ozone*.nas'
 src_karasjok = os.environ['DATA']+'/astra_data/observations/ozone/Karasjok/NO0055R.*ozone*.nas'
