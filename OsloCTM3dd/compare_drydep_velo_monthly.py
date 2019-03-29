@@ -15,7 +15,7 @@ from collections import OrderedDict
 # Read the data points from Hardacre et al. 2015
 execfile("hardacre_data.py")
 
-b_norm = False
+b_norm = True
 
 # Data source
 scav_dir = "scavenging_monthly/regrid_hardacre/"
@@ -32,7 +32,7 @@ experiment = ('C3RUN_oDD/',
               'C3RUN_emep_ppgs_2005/')
 data_dir = os.environ['DATA']+'/astra_data/ctm_results/' 
 
-pft_data_dir = "./pft_landusedyn.3x3.nc"
+pft_data_dir = os.environ['DATA']+'/astra_data/processed_data/pft_landusedyn.3x3.nc'
 
 labels = ('OsloCTM3: Wesely type',
           #'OsloCTM3: EMEP/MEGAN_corr','OsloCTM3: EMEP','OsloCTM3: EMEP_swgd',
@@ -383,6 +383,8 @@ if b_norm:
     ax5.legend(ncol=3)
 
     # Surface ozone split by month
+    lat = 69.47
+    lon = 25.22
     fig6 = plt.figure(6, figsize=(16,9))
     fig6.canvas.set_window_title("final-norm_diff_surfaceozone_monthly")
     rows, col = 4, 3
@@ -392,7 +394,8 @@ if b_norm:
         for j, (name,linestyle) in enumerate(linestyles.items()):
             if j < len(ozone_raw_data):
                 ((ozone_raw_data[j]-ozone_raw_data[0]).mean(dim='lon').isel(time=i-1)/ozone_raw_data[0].mean(dim='lon').isel(time=i-1)).plot(label=labels[j], color=colors[j], ls=linestyle)
-                               
+        test = ((ozone_raw_data[-2]-ozone_raw_data[-3])/ozone_raw_data[-3]).sel(lat=lat,lon=lon, method='nearest').isel(time=i-1)
+        print(i, test.data)
         ax.set_xlabel("")
         ax.set_ylabel("")
         ax.set_ylim(-0.1,2)
