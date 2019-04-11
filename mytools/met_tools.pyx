@@ -440,8 +440,9 @@ import xarray as xr
 def addcyclicpoint(data, lon):
     '''
     Wrapps cartopy.util.add_cyclic_point() to xarray.
+    Works only on 1-level data.
     '''
-    cyclic_data, cyclic_lon = ccrs_util.add_cyclic_point(data.data, lon)
+    cyclic_data, cyclic_lon = ccrs_util.add_cyclic_point(data.values, lon)
     cyclic_da = xr.DataArray(cyclic_data, coords=[data['time'], data['lat'], cyclic_lon], dims=['time','lat', 'lon'])
     
     return cyclic_da

@@ -445,27 +445,48 @@ plt.show(block=False)
 
 # Print total annual ozone dry deposition
 outfile = open("ozone_dry_deposition.txt", 'w')
+outfile2 = open("ozone_dry_deposition_landfrac.txt", 'w')
 # Write file line by line
 outfile.write("Ocean: NH - SH - Global (Tg a-1)\n")
+
 for each,label in zip(dry_dep_raw_data,labels):
-    nh = (each.where((pft_oc>=98)&(each.lat>=0),drop=True)).sum()*1e-9
-    sh = (each.where((pft_oc>=98)&(each.lat<0),drop=True)).sum()*1e-9
-    gl = each.where(pft_oc>=98).sum()*1e-9
+    #nh = (each.where((pft_oc>=98)&(each.lat>=0),drop=True)).sum()*1e-9
+    #sh = (each.where((pft_oc>=98)&(each.lat<0),drop=True)).sum()*1e-9
+    weighted = (each*np.abs(pft_oc)/100.)*1e-9
+    nh = weighted.where(each.lat>=0, drop=True).sum()
+    sh = weighted.where(each.lat<0, drop=True).sum()
+    gl = weighted.sum()
     outfile.write("%3.1f %3.1f %3.1f %s\n" % (nh, sh, gl, label))
 
 outfile.write("Ice: NH - SH - Global (Tg a-1)\n")
 for each,label in zip(dry_dep_raw_data,labels):
-    nh = (each.where((pft_is>=98)&(each.lat>=0),drop=True)).sum()*1e-9
-    sh = (each.where((pft_is>=98)&(each.lat<0),drop=True)).sum()*1e-9
-    gl = each.where(pft_is>=98).sum()*1e-9
+    #nh = (each.where((pft_is>=98)&(each.lat>=0),drop=True)).sum()*1e-9
+    #sh = (each.where((pft_is>=98)&(each.lat<0),drop=True)).sum()*1e-9
+    weighted = (each*np.abs(pft_is)/100.)*1e-9
+    nh = weighted.where(each.lat>=0, drop=True).sum()
+    sh = weighted.where(each.lat<0, drop=True).sum()
+    gl = weighted.sum()
     outfile.write("%3.1f %3.1f %3.1f %s\n" % (nh, sh, gl, label))
 
-outfile.write("Land: NH - SH - Global (Tg a-1\n)")
+outfile.write("Land: NH - SH - Global (Tg a-1)\n")
+outfile2.write("cf - df - tf - ac - fr - tu - de (Tg a-1)\n")
+
 for each,label in zip(dry_dep_raw_data,labels):
-    nh = (each.where((pft_cf+pft_df+pft_tf+pft_ac+pft_gr+pft_tu+pft_de>=98)&(each.lat>=0),drop=True)).sum()*1e-9
-    sh = (each.where((pft_cf+pft_df+pft_tf+pft_ac+pft_gr+pft_tu+pft_de>=98)&(each.lat<0),drop=True)).sum()*1e-9
-    gl = each.where(pft_cf+pft_df+pft_tf+pft_ac+pft_gr+pft_tu+pft_de>=98).sum()*1e-9
+    #nh = (each.where((pft_cf+pft_df+pft_tf+pft_ac+pft_gr+pft_tu+pft_de>=98)&(each.lat>=0),drop=True)).sum()*1e-9
+    #sh = (each.where((pft_cf+pft_df+pft_tf+pft_ac+pft_gr+pft_tu+pft_de>=98)&(each.lat<0),drop=True)).sum()*1e-9
+    weighted = (each*np.abs(pft_cf+pft_df+pft_tf+pft_ac+pft_gr+pft_tu+pft_de)/100.)*1e-9
+    nh = weighted.where(each.lat>=0, drop=True).sum()
+    sh = weighted.where(each.lat<0, drop=True).sum()
+    gl = weighted.sum()
     outfile.write("%3.1f %3.1f %3.1f %s\n" % (nh, sh, gl, label))
+    gl_cf = (each*np.abs(pft_cf)/100.)*1e-9
+    gl_df = (each*np.abs(pft_df)/100.)*1e-9
+    gl_tf = (each*np.abs(pft_tf)/100.)*1e-9
+    gl_ac = (each*np.abs(pft_ac)/100.)*1e-9
+    gl_gr = (each*np.abs(pft_gr)/100.)*1e-9
+    gl_tu = (each*np.abs(pft_tu)/100.)*1e-9
+    gl_de = (each*np.abs(pft_de)/100.)*1e-9
+    outfile2.write("%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %s\n" % (gl_cf.sum(), gl_df.sum(), gl_tf.sum(), gl_ac.sum(), gl_gr.sum(), gl_tu.sum(), gl_de.sum(), label))
     
 outfile.write("Ocean, ice, land: NH - SH - Global (Tg a-1)\n")
 for each,label in zip(dry_dep_raw_data,labels):
@@ -476,5 +497,8 @@ for each,label in zip(dry_dep_raw_data,labels):
 
 outfile.write("\n\n")
 outfile.close()
+
+outfile2.write("\n\n")
+outfile2.close()
 
 print("Written global sums to %s" % ("ozone_dry_deposition.txt"))

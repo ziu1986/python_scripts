@@ -1,33 +1,33 @@
 Ocean: NH - SH - Global (Tg a-1)
-88.7 110.3 199.0 OsloCTM3: Wesely type
-67.1 84.7 151.8 OsloCTM3: EMEP_full
-66.6 84.1 150.7 OsloCTM3: EMEP_offLight
-67.1 84.6 151.7 OsloCTM3: EMEP_offPhen
-68.1 86.1 154.2 OsloCTM3: EMEP_SWVL4
-67.1 84.6 151.7 OsloCTM3: EMEP_ppgs
-67.0 84.5 151.6 OsloCTM3: EMEP_ppgssh
-66.5 84.8 151.3 OsloCTM3: EMEP_ppgssh_ice
-66.8 83.5 150.4 OsloCTM3: EMEP_ppgs_2005
+159.7 147.8 307.5 OsloCTM3: Wesely type
+107.6 105.2 212.8 OsloCTM3: EMEP_full
+110.0 105.8 215.8 OsloCTM3: EMEP_offLight
+108.0 105.3 213.2 OsloCTM3: EMEP_offPhen
+109.2 107.0 216.2 OsloCTM3: EMEP_SWVL4
+107.6 105.2 212.7 OsloCTM3: EMEP_ppgs
+108.3 105.4 213.6 OsloCTM3: EMEP_ppgssh
+107.4 105.3 212.7 OsloCTM3: EMEP_ppgssh_ice
+106.9 103.5 210.4 OsloCTM3: EMEP_ppgs_2005
 Ice: NH - SH - Global (Tg a-1)
-0.7 5.0 5.7 OsloCTM3: Wesely type
-0.6 4.4 5.0 OsloCTM3: EMEP_full
-0.6 4.4 5.0 OsloCTM3: EMEP_offLight
-0.6 4.4 5.0 OsloCTM3: EMEP_offPhen
-0.6 4.5 5.1 OsloCTM3: EMEP_SWVL4
-0.6 4.4 5.0 OsloCTM3: EMEP_ppgs
-0.6 4.4 5.0 OsloCTM3: EMEP_ppgssh
-0.2 1.3 1.4 OsloCTM3: EMEP_ppgssh_ice
-0.6 4.4 5.0 OsloCTM3: EMEP_ppgs_2005
-Land: NH - SH - Global (Tg a-1
-)346.1 153.5 499.6 OsloCTM3: Wesely type
-236.0 112.3 348.2 OsloCTM3: EMEP_full
-267.8 129.8 397.6 OsloCTM3: EMEP_offLight
-239.9 116.0 355.9 OsloCTM3: EMEP_offPhen
-241.8 115.0 356.8 OsloCTM3: EMEP_SWVL4
-238.7 112.6 351.3 OsloCTM3: EMEP_ppgs
-243.9 119.4 363.3 OsloCTM3: EMEP_ppgssh
-240.3 120.4 360.7 OsloCTM3: EMEP_ppgssh_ice
-237.8 110.0 347.8 OsloCTM3: EMEP_ppgs_2005
+3.6 6.3 9.9 OsloCTM3: Wesely type
+2.5 5.5 8.0 OsloCTM3: EMEP_full
+2.5 5.4 7.9 OsloCTM3: EMEP_offLight
+2.5 5.5 8.0 OsloCTM3: EMEP_offPhen
+2.6 5.5 8.1 OsloCTM3: EMEP_SWVL4
+2.5 5.5 8.0 OsloCTM3: EMEP_ppgs
+2.5 5.5 8.0 OsloCTM3: EMEP_ppgssh
+1.2 1.6 2.8 OsloCTM3: EMEP_ppgssh_ice
+2.6 5.4 8.0 OsloCTM3: EMEP_ppgs_2005
+Land: NH - SH - Global (Tg a-1)
+446.6 193.7 640.3 OsloCTM3: Wesely type
+296.6 135.0 431.6 OsloCTM3: EMEP_full
+337.1 156.0 493.0 OsloCTM3: EMEP_offLight
+301.6 139.1 440.7 OsloCTM3: EMEP_offPhen
+303.6 138.2 441.8 OsloCTM3: EMEP_SWVL4
+299.5 135.3 434.9 OsloCTM3: EMEP_ppgs
+306.8 142.8 449.6 OsloCTM3: EMEP_ppgssh
+303.0 144.1 447.2 OsloCTM3: EMEP_ppgssh_ice
+297.9 131.8 429.7 OsloCTM3: EMEP_ppgs_2005
 Ocean, ice, land: NH - SH - Global (Tg a-1)
 612.4 347.9 960.2 OsloCTM3: Wesely type
 408.6 245.6 654.2 OsloCTM3: EMEP_full

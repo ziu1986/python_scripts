@@ -243,15 +243,18 @@ ax42 = plt.subplot(312)
 ax43 = plt.subplot(313)
 hist_o3 = ax41.hist2d(sel_data_o3.sel(time=data_karasjok_o3[2::3].dropna().index)['O3'], data_karasjok_o3[2::3].dropna()['O3'], bins=np.arange(0,81), cmap=plt.cm.hot_r)
 
-hist_so2 = ax42.hist2d(sel_data_so2.resample(time='1D').mean().sel(time=data_karasjok_so2.dropna().index.date)['SO2'], data_karasjok_so2.dropna()['SO2'], bins=(np.arange(0,2,0.01), np.arange(0,20,0.1)), cmap=plt.cm.hot_r)
+hist_so2 = ax42.hist2d(sel_data_so2.resample(time='1D').mean().sel(time=data_karasjok_so2.dropna().index.date)['SO2'], data_karasjok_so2.dropna()['SO2'], bins=(np.arange(0,0.205,0.01), np.arange(0,0.205,0.01)), cmap=plt.cm.hot_r)
 
-#hist_no2 = ax43.hist2d(sel_data_no2.sel(time=data_karasjok_no2[2::3].dropna().index)['NO2'], data_karasjok_no2[2::3].dropna()['NO2'], bins=np.arange(0,81), cmap=plt.cm.hot_r)
+hist_no2 = ax43.hist2d(sel_data_no2.resample(time='1D').mean().sel(time=data_karasjok_no2.dropna().index.date)['NO2'], data_karasjok_no2.dropna()['NO2'], bins=(np.arange(0,2.01,0.1), np.arange(0,2.01,0.1)), cmap=plt.cm.hot_r)
+
 
 ax41.plot(np.arange(0,81),np.arange(0,81), color='grey', ls=':')
 cb = fig4.colorbar(hist_o3[3], ax=ax41)
 cb.set_label("counts")
-ax42.plot(np.arange(0,20),np.arange(0,20), color='grey', ls=':')
+ax42.plot(np.arange(0,2),np.arange(0,2), color='grey', ls=':')
 cb = fig4.colorbar(hist_so2[3], ax=ax42)
+cb.set_label("counts")
+cb = fig4.colorbar(hist_no2[3], ax=ax43)
 cb.set_label("counts")
 ax41.set_ylabel("$[O_3]_{obs}$ (ppb)")
 ax41.set_xlabel("$[O_3]_{model} (ppb)$")
