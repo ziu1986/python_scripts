@@ -10,10 +10,11 @@ from scipy.constants import *     # Get physics constants
 import datetime as dt
 from mytools.met_tools import *
 from mytools.netcdf_tools import *
+from mytools.line_styles import linestyles
 from collections import OrderedDict
 
 
-b_norm = False
+b_norm = True
 # Data source
 b_original_resolution = True
 if b_original_resolution:
@@ -23,46 +24,48 @@ else:
     scav_dir = "scavenging_monthly/regrid_hardacre/"
     mm_dir = "VMR/regrid_hardacre/"
        
-experiment = ('C3RUN_oDD/',
-              'C3RUN_emep_full/',
-              'C3RUN_emep_offLight/',
-              'C3RUN_emep_offPhen/',
-              'C3RUN_emep_SWVL4/',
-              'C3RUN_emep_ppgs/',
-              'C3RUN_emep_ppgssh/',
-              'C3RUN_emep_ppgssh_ice/',
-              'C3RUN_emep_ppgs_2005/')
+experiment = ('C3RUN_default/',
+              'C3RUN_mOSaic/',
+              'C3RUN_mOSaic_offLight/',
+              'C3RUN_mOSaic_offPhen/',
+              'C3RUN_mOSaic_SWVL1/',
+              'C3RUN_mOSaic_ice/',
+              'C3RUN_mOSaic_desert/',
+              'C3RUN_mOSaic_emis2014/',
+              'C3RUN_mOSaic_hough/'
+              #'C3RUN_oDD/',
+              #'C3RUN_emep_full/',
+              #'C3RUN_emep_offLight/',
+              #'C3RUN_emep_offPhen/',
+              #'C3RUN_emep_SWVL4/',
+              #'C3RUN_emep_ppgs/',
+              #'C3RUN_emep_ppgssh/',
+              #'C3RUN_emep_ppgssh_ice/',
+              #'C3RUN_emep_ppgs_2005/'
+)
 data_dir = os.environ['DATA']+'/astra_data/ctm_results/'
 
     
-labels = ('OsloCTM3: Wesely type',
-          'OsloCTM3: EMEP_full','OsloCTM3: EMEP_offLight','OsloCTM3: EMEP_offPhen','OsloCTM3: EMEP_SWVL4',
-          'OsloCTM3: EMEP_ppgs','OsloCTM3: EMEP_ppgssh',
-          'OsloCTM3: EMEP_ppgssh_ice',
-          'OsloCTM3: EMEP_ppgs_2005')
+labels = ('Wesely_type',
+          'mOSaic',
+          'mOSaic_offLight','mOSaic_offPhen','mOSaic_SWVL1',
+          'mOSaic_ice',
+          'mOSaic_desert',
+          'mOSaic_emis2014',
+          'mOSaic_hough'
+          #'OsloCTM3: Wesely type',
+          #'OsloCTM3: EMEP_full','OsloCTM3: EMEP_offLight','OsloCTM3: EMEP_offPhen','OsloCTM3: EMEP_SWVL4',
+          #'OsloCTM3: EMEP_ppgs','OsloCTM3: EMEP_ppgssh',
+          #'OsloCTM3: EMEP_ppgssh_ice',
+          #'OsloCTM3: EMEP_ppgs_2005'
+)
+
 colors = np.concatenate((('black',),
                          ('blue',),
                          np.repeat('cornflowerblue',3),
                          np.repeat('purple',2),
                          ('grey',),
                          ('orange',)) )
-linestyles = OrderedDict(
-    [('solid',               (0, ())),
-     #('loosely dotted',      (0, (1, 10))),
-     ('dotted',              (0, (1, 3))),
-     ('densely dotted',      (0, (1, 1))),
-
-     #('loosely dashed',      (0, (5, 10))),
-     ('dashed',              (0, (5, 5))),
-     ('densely dashed',      (0, (5, 1))),
-
-     #('loosely dashdotted',  (0, (3, 10, 1, 10))),
-     ('dashdotted',          (0, (3, 5, 1, 5))),
-     ('densely dashdotted',  (0, (3, 1, 1, 1))),
-
-     #('loosely dashdotdotted', (0, (3, 10, 1, 10, 1, 10))),
-     ('dashdotdotted',         (0, (3, 5, 1, 5, 1, 5))),
-     ('densely dashdotdotted', (0, (3, 1, 1, 1, 1, 1)))])
 
 # Read the data
 try:
@@ -131,8 +134,8 @@ except NameError:
 plt.close('all')
 surface_ozone = ozone_raw_data
 test = xr.concat(surface_ozone[1:], dim='test')
-print("Global - SH - NH")
-print((test.mean(dim='test')-surface_ozone[0]).mean(dim='lon').mean(), (test.mean(dim='test')-surface_ozone[0]).mean(dim='lon').sel(lat=slice(-90,0)).mean(), (test.mean(dim='test')-surface_ozone[0]).mean(dim='lon').sel(lat=slice(0,90)).mean())
+weights = np.cos(surface_ozone[0].lat*np.pi/180)
+
 # Surface ozone
 surface_ozone = [each.isel(lev=0) for each in ozone_raw_data]
 fig1 = plt.figure(1, figsize=(16,9))
@@ -290,3 +293,10 @@ cbaxes.yaxis.set_ticks_position('left')
 #ax61.legend(ncol=3)
 # Show it
 plt.show(block=False)
+
+print("%s - %s (ppb)" % (labels[1], labels[0]))
+print((((surface_ozone[1]-surface_ozone[0])*1e9).mean(dim='lon')*weights).mean(dim=('lat','time')))
+
+print("Global - SH - NH")
+zonal_weighted = ((test.mean(dim='test')-surface_ozone[0]).mean(dim='lon')*weights)*1e9
+print(zonal_weighted.mean(), zonal_weighted.sel(lat=slice(-90,0)).mean(), zonal_weighted.sel(lat=slice(0,90)).mean())

@@ -12,7 +12,7 @@ from mytools.met_tools import *
 from mytools.netcdf_tools import *
 from collections import OrderedDict
 
-b_norm = True
+b_norm = False
 species = 'O_3'
 names = {'O_3':'ozone', 'HNO_3':'nitric_acid', 'SO_2':'sulfur_dioxid', 'NH_3':'ammonia', 'SO_4':'sulfate'}
 title_name = names[species]
@@ -23,26 +23,45 @@ if b_original_resolution:
     scav_dir = "scavenging_monthly/"
     mm_dir = "monthly_means/"
 else:
-    scav_dir = "scavenging_monthly/regrid_hardacre/"
-    mm_dir = "monthly_means/regrid_hardacre/"
-experiment = ('C3RUN_oDD/',
-              'C3RUN_emep_full/',
-              'C3RUN_emep_offLight/',
-              'C3RUN_emep_offPhen/',
-              'C3RUN_emep_SWVL4/',
-              'C3RUN_emep_ppgs/',
-              'C3RUN_emep_ppgssh/',
-              'C3RUN_emep_ppgssh_ice/',
-              'C3RUN_emep_ppgs_2005/')
+    scav_dir = "scavenging_monthly/hardacre_grid/"
+    mm_dir = "monthly_means/hardacre_grid/"
+experiment = ('C3RUN_default/',
+              'C3RUN_mOSaic/',
+              'C3RUN_mOSaic_offLight/',
+              'C3RUN_mOSaic_offPhen/',
+              'C3RUN_mOSaic_SWVL1/',
+              'C3RUN_mOSaic_ice/',
+              'C3RUN_mOSaic_desert/',
+              'C3RUN_mOSaic_emis2014/',
+              'C3RUN_mOSaic_hough/'
+              #'C3RUN_oDD/',
+              #'C3RUN_emep_full/',
+              #'C3RUN_emep_offLight/',
+              #'C3RUN_emep_offPhen/',
+              #'C3RUN_emep_SWVL4/',
+              #'C3RUN_emep_ppgs/',
+              #'C3RUN_emep_ppgssh/',
+              #'C3RUN_emep_ppgssh_ice/',
+              #'C3RUN_emep_ppgs_2005/'
+)
+
 data_dir = os.environ['DATA']+'/astra_data/ctm_results/' 
     
-labels = ('OsloCTM3: Wesely type',
+labels = ('Wesely_type',
+          'mOSaic',
+          'mOSaic_offLight','mOSaic_offPhen','mOSaic_SWVL1',
+          'mOSaic_ice',
+          'mOSaic_desert',
+          'mOSaic_emis2014',
+          'mOSaic_hough'
+    #'OsloCTM3: Wesely type',
           #'OsloCTM3: EMEP_swgd',
-          'OsloCTM3: EMEP_full',
-          'OsloCTM3: EMEP_offLight','OsloCTM3: EMEP_offPhen','OsloCTM3: EMEP_SWVL4',
-          'OsloCTM3: EMEP_ppgs','OsloCTM3: EMEP_ppgssh',
-          'OsloCTM3: EMEP_ppgssh_ice',
-          'OsloCTM3: EMEP_ppgs_2005')
+          #'OsloCTM3: EMEP_full',
+          #'OsloCTM3: EMEP_offLight','OsloCTM3: EMEP_offPhen','OsloCTM3: EMEP_SWVL4',
+          #'OsloCTM3: EMEP_ppgs','OsloCTM3: EMEP_ppgssh',
+          #'OsloCTM3: EMEP_ppgssh_ice',
+          #'OsloCTM3: EMEP_ppgs_2005'
+)
 colors = np.concatenate((('black',),
                          ('blue',),
                          np.repeat('cornflowerblue',3),
@@ -56,7 +75,7 @@ try:
 except NameError:
     raw_data = []
     for iexp in experiment:
-        subdir = data_dir+iexp+scav_dir+'*.nc'
+        subdir = data_dir+iexp+scav_dir+'sum*.nc'
         print("Reading from path %s" % (os.path.abspath(subdir)))
         data_list = []
         # Open dataset
@@ -94,7 +113,7 @@ tot_surface_area = gridarea.sum()
 gridarea_faction = gridarea/tot_surface_area
 molarweight = get_molarweight(raw_data[0].isel(time=0))/31.
 
-weights = 1
+weights = np.cos(raw_data[0].lat*np.pi/180) #1
 
 # Clean up
 plt.close('all')
@@ -108,7 +127,7 @@ plt.close('all')
 linestyles = OrderedDict(
     [('solid',               (0, ())),
      #('loosely dotted',      (0, (1, 10))),
-     ('dotted',              (0, (1, 3))),
+     ('dotted',              (0, (1, 2))),
      ('densely dotted',      (0, (1, 1))),
 
      #('loosely dashed',      (0, (5, 10))),
@@ -169,7 +188,7 @@ else:
         ax1.set_ylim(0,3)
     elif species=="SO_4":
         ax1.set_ylim(0,1)
-ax1.legend(ncol=3)
+ax1.legend(ncol=2)
 # Total ozone dry deposition over latitudes split by month
 fig2 = plt.figure(2, figsize=(16,9))
 if b_norm:
@@ -243,9 +262,10 @@ ax31 = plt.subplot(131)
 for j, (name,linestyle) in enumerate(linestyles.items()):
             if j < len(ozone_zonal):
                 if b_norm:
-                    ((ozone_zonal[j]*weights).sel(lat=slice(30,90)).sum(dim='lat')/(ozone_zonal[j]*weights).sel(lat=slice(30,90)).sum()).plot(label=labels[j], color=colors[j], ls=linestyle)
+                    ((ozone_zonal[j]).sel(lat=slice(30,90)).sum(dim='lat')/(ozone_zonal[j]).sel(lat=slice(30,90)).sum()).plot(label=labels[j], color=colors[j], ls=linestyle)
                 else:
-                    (ozone_zonal[j]*weights).sel(lat=slice(30,90)).sum(dim='lat').plot(label=labels[j], color=colors[j], ls=linestyle)
+                    (ozone_zonal[j]).sel(lat=slice(30,90)).sum(dim='lat').plot(label=labels[j], color=colors[j], ls=linestyle)
+                    print(labels[j], ((ozone_zonal[j]-ozone_zonal[0])/ozone_zonal[0]).sel(lat=slice(30,90)).sum(dim='lat').mean(dim='time'))
 ax31.set_title("NH (30N-90N)")
 if b_norm:
     ax31.set_ylabel("$%s^{DD}/\Sigma %s^{DD}$" % (species, species))
@@ -256,9 +276,10 @@ ax32 = plt.subplot(132)
 for j, (name,linestyle) in enumerate(linestyles.items()):
             if j < len(ozone_zonal):
                 if b_norm:
-                    ((ozone_zonal[j]*weights).sel(lat=slice(-30,30)).sum(dim='lat')/(ozone_zonal[j]*weights).sel(lat=slice(-30,30)).sum()).plot(label=labels[j], color=colors[j], ls=linestyle)
+                    ((ozone_zonal[j]).sel(lat=slice(-30,30)).sum(dim='lat')/(ozone_zonal[j]).sel(lat=slice(-30,30)).sum()).plot(label=labels[j], color=colors[j], ls=linestyle)
                 else:
-                    (ozone_zonal[j]*weights).sel(lat=slice(-30,30)).sum(dim='lat').plot(label=labels[j], color=colors[j], ls=linestyle)
+                    (ozone_zonal[j]).sel(lat=slice(-30,30)).sum(dim='lat').plot(label=labels[j], color=colors[j], ls=linestyle)
+                    print(labels[j], ((ozone_zonal[j]-ozone_zonal[0])/ozone_zonal[0]).sel(lat=slice(-30,30)).sum(dim='lat').mean(dim='time'))
 ax32.set_title("TR (30S-30N)")
 ax32.set_ylabel("")
 
@@ -266,9 +287,10 @@ ax33 = plt.subplot(133)
 for j, (name,linestyle) in enumerate(linestyles.items()):
             if j < len(ozone_zonal):
                 if b_norm:
-                    ((ozone_zonal[j]*weights).sel(lat=slice(-90,-30)).sum(dim='lat')/(ozone_zonal[j]*weights).sel(lat=slice(-90,-30)).sum()).plot(label=labels[j], color=colors[j], ls=linestyle)
+                    ((ozone_zonal[j]).sel(lat=slice(-90,-30)).sum(dim='lat')/(ozone_zonal[j]).sel(lat=slice(-90,-30)).sum()).plot(label=labels[j], color=colors[j], ls=linestyle)
                 else:
-                    (ozone_zonal[j]*weights).sel(lat=slice(-90,-30)).sum(dim='lat').plot(label=labels[j], color=colors[j], ls=linestyle)
+                    (ozone_zonal[j]).sel(lat=slice(-90,-30)).sum(dim='lat').plot(label=labels[j], color=colors[j], ls=linestyle)
+                    print(labels[j], ((ozone_zonal[j]-ozone_zonal[0])/ozone_zonal[0]).sel(lat=slice(-90,-30)).sum(dim='lat').mean(dim='time'))
 ax33.set_title("SH (90S-30S)")
 ax33.set_ylabel("")
 
@@ -299,7 +321,7 @@ for ax, hardacre in zip(fig3.axes, hardacre_data['dd_hem']):
         
 #ax32.legend(bbox_to_anchor=(0.45, -0.55), loc=8, borderaxespad=0.,ncol=5)    
 #ax32.set_xlabel("Time (months)")
-ax32.legend(bbox_to_anchor=(0.45, -0.15),loc=8, borderaxespad=0., ncol=5)
+ax32.legend(bbox_to_anchor=(0.45, -0.12),loc=8, borderaxespad=0., ncol=5)
 
 if b_norm:
     # Surface ozone

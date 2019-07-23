@@ -1,42 +1,42 @@
 Ocean: NH - SH - Global (Tg a-1)
-159.7 147.8 307.5 OsloCTM3: Wesely type
-107.6 105.2 212.8 OsloCTM3: EMEP_full
-110.0 105.8 215.8 OsloCTM3: EMEP_offLight
-108.0 105.3 213.2 OsloCTM3: EMEP_offPhen
-109.2 107.0 216.2 OsloCTM3: EMEP_SWVL4
-107.6 105.2 212.7 OsloCTM3: EMEP_ppgs
-108.3 105.4 213.6 OsloCTM3: EMEP_ppgssh
-107.4 105.3 212.7 OsloCTM3: EMEP_ppgssh_ice
-106.9 103.5 210.4 OsloCTM3: EMEP_ppgs_2005
+160.5 147.7 308.2 Wesely_type
+108.1 105.3 213.4 mOSaic
+110.5 106.3 216.8 mOSaic_offLight
+108.3 105.3 213.6 mOSaic_offPhen
+108.1 105.2 213.3 mOSaic_SWVL1
+105.6 103.0 208.6 mOSaic_ice
+109.1 105.5 214.6 mOSaic_desert
+108.9 107.0 215.9 mOSaic_emis2014
+133.3 131.1 264.4 mOSaic_hough
 Ice: NH - SH - Global (Tg a-1)
-3.6 6.3 9.9 OsloCTM3: Wesely type
-2.5 5.5 8.0 OsloCTM3: EMEP_full
-2.5 5.4 7.9 OsloCTM3: EMEP_offLight
-2.5 5.5 8.0 OsloCTM3: EMEP_offPhen
-2.6 5.5 8.1 OsloCTM3: EMEP_SWVL4
-2.5 5.5 8.0 OsloCTM3: EMEP_ppgs
-2.5 5.5 8.0 OsloCTM3: EMEP_ppgssh
-1.2 1.6 2.8 OsloCTM3: EMEP_ppgssh_ice
-2.6 5.4 8.0 OsloCTM3: EMEP_ppgs_2005
+7.0 6.4 13.4 Wesely_type
+4.3 3.1 7.4 mOSaic
+4.3 3.0 7.4 mOSaic_offLight
+4.3 3.1 7.4 mOSaic_offPhen
+4.3 3.1 7.4 mOSaic_SWVL1
+2.6 1.0 3.6 mOSaic_ice
+4.3 3.1 7.4 mOSaic_desert
+4.3 3.1 7.3 mOSaic_emis2014
+4.9 3.6 8.4 mOSaic_hough
 Land: NH - SH - Global (Tg a-1)
-446.6 193.7 640.3 OsloCTM3: Wesely type
-296.6 135.0 431.6 OsloCTM3: EMEP_full
-337.1 156.0 493.0 OsloCTM3: EMEP_offLight
-301.6 139.1 440.7 OsloCTM3: EMEP_offPhen
-303.6 138.2 441.8 OsloCTM3: EMEP_SWVL4
-299.5 135.3 434.9 OsloCTM3: EMEP_ppgs
-306.8 142.8 449.6 OsloCTM3: EMEP_ppgssh
-303.0 144.1 447.2 OsloCTM3: EMEP_ppgssh_ice
-297.9 131.8 429.7 OsloCTM3: EMEP_ppgs_2005
+417.3 190.8 608.2 Wesely_type
+236.2 130.3 366.4 mOSaic
+263.1 145.3 408.4 mOSaic_offLight
+246.9 132.2 379.1 mOSaic_offPhen
+234.6 128.8 363.4 mOSaic_SWVL1
+232.7 130.2 362.9 mOSaic_ice
+250.4 132.6 383.0 mOSaic_desert
+238.3 133.8 372.1 mOSaic_emis2014
+265.8 132.0 397.8 mOSaic_hough
 Ocean, ice, land: NH - SH - Global (Tg a-1)
-612.4 347.9 960.2 OsloCTM3: Wesely type
-408.6 245.6 654.2 OsloCTM3: EMEP_full
-451.3 267.2 718.6 OsloCTM3: EMEP_offLight
-413.9 249.9 663.7 OsloCTM3: EMEP_offPhen
-417.2 250.7 667.9 OsloCTM3: EMEP_SWVL4
-411.4 246.0 657.4 OsloCTM3: EMEP_ppgs
-419.4 253.6 673.0 OsloCTM3: EMEP_ppgssh
-413.0 251.1 664.1 OsloCTM3: EMEP_ppgssh_ice
-409.2 240.7 649.9 OsloCTM3: EMEP_ppgs_2005
+613.4 344.9 958.3 Wesely_type
+368.3 238.6 606.9 mOSaic
+399.9 254.7 654.6 mOSaic_offLight
+379.5 240.5 620.0 mOSaic_offPhen
+366.6 237.1 603.7 mOSaic_SWVL1
+358.3 234.2 592.6 mOSaic_ice
+383.4 241.2 624.6 mOSaic_desert
+370.8 243.9 614.7 mOSaic_emis2014
+423.6 266.7 690.3 mOSaic_hough
 
 

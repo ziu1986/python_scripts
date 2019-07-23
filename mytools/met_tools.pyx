@@ -443,7 +443,10 @@ def addcyclicpoint(data, lon):
     Works only on 1-level data.
     '''
     cyclic_data, cyclic_lon = ccrs_util.add_cyclic_point(data.values, lon)
-    cyclic_da = xr.DataArray(cyclic_data, coords=[data['time'], data['lat'], cyclic_lon], dims=['time','lat', 'lon'])
+    try:
+        cyclic_da = xr.DataArray(cyclic_data, coords=[data['time'], data['lat'], cyclic_lon], dims=['time','lat', 'lon'])
+    except KeyError:
+        cyclic_da = xr.DataArray(cyclic_data, coords=[data['time'], data['latitude'], cyclic_lon], dims=['time','lat', 'lon'])
     
     return cyclic_da
 

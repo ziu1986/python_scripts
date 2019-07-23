@@ -15,32 +15,34 @@ from collections import OrderedDict
 # Read the data points from Hardacre et al. 2015
 execfile("hardacre_data.py")
 
-b_norm = True
+b_norm = False
 
 # Data source
-scav_dir = "scavenging_monthly/regrid_hardacre/"
-mm_dir = "monthly_means/regrid_hardacre/"
+scav_dir = "scavenging_monthly/hardacre_grid/"
+mm_dir = "monthly_means/hardacre_grid/"
 
-experiment = ('C3RUN_oDD/',
-              'C3RUN_emep_full/',
-              'C3RUN_emep_offLight/',
-              'C3RUN_emep_offPhen/',
-              'C3RUN_emep_SWVL4/',
-              'C3RUN_emep_ppgs/',
-              'C3RUN_emep_ppgssh/',
-              'C3RUN_emep_ppgssh_ice/',
-              'C3RUN_emep_ppgs_2005/')
+experiment = ('C3RUN_default/',
+              'C3RUN_mOSaic/',
+              'C3RUN_mOSaic_offLight/',
+              'C3RUN_mOSaic_offPhen/',
+              'C3RUN_mOSaic_SWVL1/',
+              'C3RUN_mOSaic_ice/',
+              'C3RUN_mOSaic_desert/',
+              'C3RUN_mOSaic_emis2014/',
+              'C3RUN_mOSaic_hough/'
+)
 data_dir = os.environ['DATA']+'/astra_data/ctm_results/' 
 
 pft_data_dir = os.environ['DATA']+'/astra_data/processed_data/pft_landusedyn.3x3.nc'
 
-labels = ('OsloCTM3: Wesely type',
-          #'OsloCTM3: EMEP/MEGAN_corr','OsloCTM3: EMEP','OsloCTM3: EMEP_swgd',
-          'OsloCTM3: EMEP_full',
-          'OsloCTM3: EMEP_offLight','OsloCTM3: EMEP_offPhen','OsloCTM3: EMEP_SWVL4',
-          'OsloCTM3: EMEP_ppgs','OsloCTM3: EMEP_ppgssh',
-          'OsloCTM3: EMEP_ppgssh_ice',
-          'OsloCTM3: EMEP_ppgs_2005')
+labels = ('Wesely_type',
+          'mOSaic',
+          'mOSaic_offLight','mOSaic_offPhen','mOSaic_SWVL1',
+          'mOSaic_ice',
+          'mOSaic_desert',
+          'mOSaic_emis2014',
+          'mOSaic_hough'
+)
 colors = np.concatenate((('black',),
                          ('blue',),
                          np.repeat('cornflowerblue',3),
@@ -54,7 +56,7 @@ try:
 except NameError:
     dry_dep_raw_data = []
     for iexp in experiment:
-        subdir = data_dir+iexp+scav_dir+'*.nc'
+        subdir = data_dir+iexp+scav_dir+'sum*.nc'
         print("Reading from path %s" % (os.path.abspath(subdir)))
         data_list = []
         # Open dataset
@@ -90,7 +92,7 @@ except NameError:
             print("Reading %s" % (os.path.basename(file)))
             data = xr.open_dataset(file)
             # Define new time coordinates and drop the old one
-            data.coords['time'] = ([dt.datetime.strptime(os.path.basename(file)[23:31], '%Y%M%d'),])
+            data.coords['time'] = ([dt.datetime.strptime(os.path.basename(file)[-20:-12], '%Y%M%d'),]) #23:31
             if (data.lat.ndim > 1):
                 print("Changing coordinates...")
                 data.coords['x'] = data.lat.lon[0].data
@@ -157,8 +159,8 @@ except NameError:
 #"15: Crop1";
 #"16: Crop2";
 
-pft_de = pft_sel[0].where((pft_sel[0].lat >=-60) & (pft_sel[0].lat <= 70))
-pft_is = pft_sel[0].where(~((pft_sel[0].lat >=-60) & (pft_sel[0].lat <= 70)))
+pft_de = pft_sel[0].where((pft_sel[0].lat >=-60) & (pft_sel[0].lat <= 60))
+pft_is = pft_sel[0].where(~((pft_sel[0].lat >=-60) & (pft_sel[0].lat <= 60)))
 pft_oc = (xr.concat(pft_sel,dim='pft').sum(dim='pft')-100)*-1
 pft_cf = xr.concat(pft_sel[1:4], dim='pft').sum(dim='pft') #xr.concat(pft_sel[10], dim='pft')
 pft_df = xr.concat(pft_sel[7:11], dim='pft').sum(dim='pft') #xr.concat(pft_sel[11:13], dim='pft')
@@ -216,7 +218,7 @@ else:
     ax1.set_ylabel("$v^{O_3}_{DD}$ (%s)" % ("$cm\,s^{-1}$"))
     ax1.scatter(hardacre_lat, hardacre_ddvel, label='mmm Hardacre (2015)', color='red')
     ax1.set_ylim(0,0.4)
-    ax1.legend(ncol=3)
+    ax1.legend(ncol=2)
 
 # Total ozone dry deposition veloscity over latitudes split by month
 fig2 = plt.figure(2, figsize=(16,9))
@@ -278,47 +280,50 @@ ax49 = plt.subplot(339)
 # Coniferous forest
 for j, (name,linestyle) in enumerate(linestyles.items()):
     if j < len(dd_velo):
-        (dd_velo[j].where((pft_cf>=96),drop=True).mean(dim='lat').mean(dim='lon')).plot(ax=ax41, label=labels[j], color=colors[j], ls=linestyle)
+        (dd_velo[j].where((pft_cf>=96),drop=True).mean(dim=('lat','lon'))).plot(ax=ax41, label=labels[j], color=colors[j], ls=linestyle)
         
 # Decidous forest
 for j, (name,linestyle) in enumerate(linestyles.items()):
     if j < len(dd_velo):
-        (dd_velo[j].where((pft_df>=72),drop=True).mean(dim='lat').mean(dim='lon')).plot(ax=ax42, label=labels[j], color=colors[j], ls=linestyle)
+        (dd_velo[j].where((pft_df>=72),drop=True).mean(dim=('lat','lon'))).plot(ax=ax42, label=labels[j], color=colors[j], ls=linestyle)
         
 # Tropical forest
 for j, (name,linestyle) in enumerate(linestyles.items()):
     if j < len(dd_velo):
-        (dd_velo[j].where((pft_tf>=100),drop=True).mean(dim='lat').mean(dim='lon')).plot(ax=ax43, label=labels[j], color=colors[j], ls=linestyle)
+        (dd_velo[j].where((pft_tf>=100),drop=True).mean(dim=('lat','lon'))).plot(ax=ax43, label=labels[j], color=colors[j], ls=linestyle)
+        print((dd_velo[j].where((pft_tf>=100),drop=True).mean(dim=('lat','lon'))).mean(dim='time'))
         
 # Cropland
 for j, (name,linestyle) in enumerate(linestyles.items()):
     if j < len(dd_velo):
-        (dd_velo[j].where((pft_ac>=70)&(dd_velo[j].lat>=40),drop=True).mean(dim='lat').mean(dim='lon')).plot(ax=ax44, label=labels[j], color=colors[j], ls=linestyle)
+        (dd_velo[j].where((pft_ac>=70)&(dd_velo[j].lat>=40),drop=True).mean(dim=('lat','lon'))).plot(ax=ax44, label=labels[j], color=colors[j], ls=linestyle)
         
 # Grassland
 for j, (name,linestyle) in enumerate(linestyles.items()):
     if j < len(dd_velo):
-        (dd_velo[j].where((pft_gr>=77)&(dd_velo[j].lat>=0),drop=True).mean(dim='lat').mean(dim='lon')).plot(ax=ax45, label=labels[j], color=colors[j], ls=linestyle)
+        (dd_velo[j].where((pft_gr>=77)&(dd_velo[j].lat>=0),drop=True).mean(dim=('lat','lon'))).plot(ax=ax45, label=labels[j], color=colors[j], ls=linestyle)
+        print((dd_velo[j].where((pft_gr>=77)&(dd_velo[j].lat>=0),drop=True).mean(dim=('lat','lon'))).mean(dim='time'))
                 
 # Tundra
 for j, (name,linestyle) in enumerate(linestyles.items()):
     if j < len(dd_velo):
-        (dd_velo[j].where((pft_tu>=80)&(dd_velo[j].lat>=0),drop=True).mean(dim='lat').mean(dim='lon')).plot(ax=ax46, label=labels[j], color=colors[j], ls=linestyle)
+        (dd_velo[j].where((pft_tu>=80)&(dd_velo[j].lat>=0),drop=True).mean(dim=('lat','lon'))).plot(ax=ax46, label=labels[j], color=colors[j], ls=linestyle)
         
 # Snow and ice (some other barren ground?)
 for j, (name,linestyle) in enumerate(linestyles.items()):
     if j < len(dd_velo):
-        (dd_velo[j].where((pft_is>=100),drop=True).mean(dim='lat').mean(dim='lon')).plot(ax=ax47, label=labels[j], color=colors[j], ls=linestyle)
+        (dd_velo[j].where((pft_is>=100)&(dd_velo[j].lat>=0),drop=True).mean(dim=('lat','lon'))).plot(ax=ax47, label=labels[j], color=colors[j], ls=linestyle)
             
 # Ocean
 for j, (name,linestyle) in enumerate(linestyles.items()):
     if j < len(dd_velo):
-        (dd_velo[j].where((pft_oc>=100),drop=True).mean(dim='lat').mean(dim='lon')).plot(ax=ax48, label=labels[j], color=colors[j], ls=linestyle)
+        (dd_velo[j].where((pft_oc>=100),drop=True).mean(dim=('lat','lon'))).plot(ax=ax48, label=labels[j], color=colors[j], ls=linestyle)
         
 # Desert
 for j, (name,linestyle) in enumerate(linestyles.items()):
     if j < len(dd_velo):
-        (dd_velo[j].where((pft_de>=100),drop=True).mean(dim='lat').mean(dim='lon')).plot(ax=ax49, label=labels[j], color=colors[j], ls=linestyle)
+        (dd_velo[j].where((pft_de>=100)&(dd_velo[j].lat>=0),drop=True).mean(dim=('lat','lon'))).plot(ax=ax49, label=labels[j], color=colors[j], ls=linestyle)
+        print((dd_velo[j].where((pft_de>=100)&(dd_velo[j].lat>=0),drop=True).mean(dim=('lat','lon'))).mean(dim='time'))
         
        
 ax41.scatter(dd_velo[0].time.data, hardacre_cf, label='Hardacre (2015)', color='red')
@@ -350,6 +355,7 @@ for ax in fig4.axes:
     ax.set_xlabel("")
     ax.set_ylabel("")
     ax.set_ylim(0,1.5)
+    ax.set_xticklabels("")
 for ax in fig4.axes[-3:]:
     ax.set_ylim(0,0.3)
     
@@ -358,7 +364,7 @@ ax44.set_ylabel("$v^{O_3}_{DD}$ (%s)" % ("$cm\,s^{-1}$"))
 ax47.set_xticklabels([get_month_name(i, length=1) for i in range(1,13)])
 ax48.set_xticklabels([get_month_name(i, length=1) for i in range(1,13)])
 ax49.set_xticklabels([get_month_name(i, length=1) for i in range(1,13)])
-ax48.legend(bbox_to_anchor=(0.45, -0.55), loc=8, borderaxespad=0.,ncol=5)
+ax48.legend(bbox_to_anchor=(0.45, -0.4), loc=8, borderaxespad=0.,ncol=5)
 #if b_nh:
 #    ax42.set_title("Northern hemisphere", weight='bold')
 #else:
@@ -380,7 +386,7 @@ if b_norm:
     ax5.set_ylabel("$\Delta O_3 / O_3^{ref}$")
     #ax5.scatter(hardacre_lat, hardacre_ddvel/hardacre_ddvel.sum(), label='mmm Hardacre (2015)', color='red')
     ax5.set_ylim(-0.05, 1)
-    ax5.legend(ncol=3)
+    ax5.legend(ncol=2)
 
     # Surface ozone split by month
     lat = 69.47
@@ -411,9 +417,9 @@ ax71 = plt.subplot(311, projection=cp.crs.PlateCarree())
 ax72 = plt.subplot(312, projection=cp.crs.PlateCarree())
 ax73 = plt.subplot(313, projection=cp.crs.PlateCarree())
 levels = np.arange(-1,1.1,0.1)
-((ozone_raw_data[-3]-ozone_raw_data[0])/ozone_raw_data[0]).mean(dim='time').plot(ax=ax71, transform=cp.crs.PlateCarree(), vmin=-1, vmax=1, cmap=plt.cm.RdYlBu_r)
-((dd_velo[-3]-dd_velo[0])/dd_velo[0]).mean(dim='time').plot(ax=ax72, transform=cp.crs.PlateCarree(), vmin=-1, vmax=1, cmap=plt.cm.RdYlBu_r)
-((dry_dep_raw_data[-3].sum(dim='time')-dry_dep_raw_data[0].sum(dim='time'))/dry_dep_raw_data[0].sum(dim='time')).plot(ax=ax73, transform=cp.crs.PlateCarree(), vmin=-1, vmax=1, cmap=plt.cm.RdYlBu_r)
+((ozone_raw_data[1]-ozone_raw_data[0])/ozone_raw_data[0]).mean(dim='time').plot(ax=ax71, transform=cp.crs.PlateCarree(), vmin=-1, vmax=1, cmap=plt.cm.RdYlBu_r)
+((dd_velo[1]-dd_velo[0])/dd_velo[0]).mean(dim='time').plot(ax=ax72, transform=cp.crs.PlateCarree(), vmin=-1, vmax=1, cmap=plt.cm.RdYlBu_r)
+((dry_dep_raw_data[1].sum(dim='time')-dry_dep_raw_data[0].sum(dim='time'))/dry_dep_raw_data[0].sum(dim='time')).plot(ax=ax73, transform=cp.crs.PlateCarree(), vmin=-1, vmax=1, cmap=plt.cm.RdYlBu_r)
 
 for ax in fig7.axes[:-3]:
     ax.set_global()

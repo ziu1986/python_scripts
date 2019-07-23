@@ -56,7 +56,7 @@ src_karasjok_o3 = os.environ['DATA']+'/astra_data/observations/ozone/Karasjok/NO
 src_karasjok_so2 = os.environ['DATA']+'/astra_data/observations/sulfur_dioxide/Karasjok/NO0055R.*pack*.nas'
 src_karasjok_no2 = os.environ['DATA']+'/astra_data/observations/nitrogen_dioxide/Karasjok/NO0055R.*nitrogen_dioxide*.nas'
 
-
+# Read the data
 try:
     data_karasjok_o3
 except NameError:
@@ -81,6 +81,8 @@ except NameError:
     data_karasjok_o3.index = data_karasjok_o3.index.round("h")
     data_karasjok_so2.index = data_karasjok_so2.index.round("h")
     data_karasjok_no2.index = data_karasjok_no2.index.round("h")
+    
+# Read and select the data for Karasjok
 try:
     data_o3
 except NameError:
@@ -119,28 +121,32 @@ scale = []
 for iyear in np.unique(sel_data_o3.time.dt.year):
     test = pd.Series(1-ozone_rescale(), index=pd.date_range('%s-01-01' % (iyear), periods=12, freq=pd.offsets.MonthBegin(1)))
     dates = pd.date_range('%s-01-01' % (iyear), '%s-12-31 21' % (iyear), freq='3H')
-    scale.append(test.reindex(dates, method='ffill'))
+    scale.append(test.reindex(dates, method='nearest'))
 scale = pd.concat(scale)
-
+# Compute climatology
+# Model
 clim_o3 = (sel_data_o3*scale.values).groupby('time.dayofyear').mean()
 clim_so2 = sel_data_so2.resample(time='1D').mean().groupby('time.dayofyear').mean()
 clim_no2 = sel_data_no2.groupby('time.dayofyear').mean()
 climerr_o3 = (sel_data_o3*scale.values).groupby('time.dayofyear').std()/np.sqrt((sel_data_o3*scale.values).groupby('time.dayofyear').sum()/clim_o3)
 climerr_so2 = sel_data_so2.resample(time='1D').mean().groupby('time.dayofyear').std()/np.sqrt(sel_data_so2.groupby('time.dayofyear').sum()/clim_so2)
 climerr_no2 = sel_data_no2.groupby('time.dayofyear').std()/np.sqrt(sel_data_no2.groupby('time.dayofyear').sum()/clim_no2)
-anom_o3 = (sel_data_o3*scale.values).groupby('time.dayofyear')-clim_o3
-anom_so2 = sel_data_so2.resample(time='1D').mean().groupby('time.dayofyear')-clim_so2
-anom_no2 = sel_data_no2.groupby('time.dayofyear')-clim_no2
-
+# Data
 clim_karasjok_o3 = data_karasjok_o3.groupby(data_karasjok_o3.index.dayofyear).mean()
 clim_karasjok_so2 = data_karasjok_so2.groupby(data_karasjok_so2.index.dayofyear).mean()
 clim_karasjok_no2 = data_karasjok_no2.groupby(data_karasjok_no2.index.dayofyear).mean()
 climerr_karasjok_o3 = data_karasjok_o3.groupby(data_karasjok_o3.index.dayofyear).std()/np.sqrt(data_karasjok_o3.groupby(data_karasjok_o3.index.dayofyear).sum()/clim_karasjok_o3)
 climerr_karasjok_so2 = data_karasjok_so2.groupby(data_karasjok_so2.index.dayofyear).std()/np.sqrt(data_karasjok_so2.groupby(data_karasjok_so2.index.dayofyear).sum()/clim_karasjok_so2)
 climerr_karasjok_no2 = data_karasjok_no2.groupby(data_karasjok_no2.index.dayofyear).std()/np.sqrt(data_karasjok_no2.groupby(data_karasjok_no2.index.dayofyear).sum()/clim_karasjok_no2)
-#anom_karasjok_o3 = data_karasjok_o3.groupby(data_karasjok_o3.index.dayofyear).apply(lambda x: x - clim_karasjok_o3)
-#anom_karasjok_so2 = data_karasjok_so2.apply(lambda x: x - clim_karasjok_so2)
-#anom_karasjok_no2 = data_karasjok_no2.apply(lambda x: x - clim_karasjok_no2)
+# Compute anomalies with respect to climatology
+# Model
+anom_o3 = (sel_data_o3*scale.values).groupby('time.dayofyear')-clim_o3
+anom_so2 = sel_data_so2.resample(time='1D').mean().groupby('time.dayofyear')-clim_so2
+anom_no2 = sel_data_no2.groupby('time.dayofyear')-clim_no2
+# Data
+anom_karasjok_o3 = data_karasjok_o3.groupby(data_karasjok_o3.index.dayofyear).apply(lambda x: x - x.mean())
+anom_karasjok_so2 = data_karasjok_so2.groupby(data_karasjok_so2.index.dayofyear).apply(lambda x: x - x.mean())
+anom_karasjok_no2 = data_karasjok_no2.groupby(data_karasjok_no2.index.dayofyear).apply(lambda x: x - x.mean())
 
 # Plotting
 fig1 = plt.figure(1,figsize=(16,9))
@@ -217,25 +223,32 @@ ax23.set_ylim(0,3)
 fig3 = plt.figure(3, figsize=(16,9))
 fig3.canvas.set_window_title("ebas_anomalies")
 ax31 = plt.subplot(311)
-ax32 = plt.subplot(312, sharex=ax31)
-ax33 = plt.subplot(313, sharex=ax31)
-anom_o3['O3'].plot(ax=ax31, color='blue', label='OsloCTM3')
-anom_so2['SO2'].plot(ax=ax32, color='blue', label='OsloCTM3')
-anom_no2['NO2'].plot(ax=ax33, color='blue', label='OsloCTM3')
+ax32 = plt.subplot(312)
+ax33 = plt.subplot(313)
+#anom_o3['O3'].plot(ax=ax31, color='blue', label='OsloCTM3')
+#anom_so2['SO2'].plot(ax=ax32, color='blue', label='OsloCTM3')
+#anom_no2['NO2'].plot(ax=ax33, color='blue', label='OsloCTM3')
+anom_o3['O3'].plot.hist(ax=ax31, bins=np.arange(-20,20), histtype='step', color='blue', label='OsloCTM3')
+anom_so2['SO2'].plot.hist(ax=ax32, bins=np.arange(-2,2,0.1), histtype='step', color='blue', label='OsloCTM3')
+anom_no2['NO2'].plot.hist(ax=ax33, bins=np.arange(-2,2,0.1), histtype='step', color='blue', label='OsloCTM3')
 #anom_karasjok_o3.plot(ax=ax31, marker='.', ls='none', color='grey', label='Karasjok')
 #anom_karasjok_so2.plot(ax=ax32, marker='.', ls='none', color='grey', label='Karasjok')
 #anom_karasjok_no2.plot(ax=ax33, marker='.', ls='none', color='grey', label='Karasjok')
+print("Test")
+anom_karasjok_o3.dropna().hist(ax=ax31, bins=np.arange(-20,20), histtype='step', color='grey', label='Karasjok')
+anom_karasjok_so2.dropna().hist(ax=ax32, bins=np.arange(-2,2,0.1), histtype='step', color='grey', label='Karasjok')
+anom_karasjok_no2.dropna().hist(ax=ax33, bins=np.arange(-2,2,0.1), histtype='step', color='grey', label='Karasjok')
 
-for ax in fig3.axes[:-1]:
-    ax.set_xlabel('')
-    ax.set_xticklabels('')
+#for ax in fig3.axes[:-1]:
+#    ax.set_xlabel('')
+#    ax.set_xticklabels('')
 for ax in fig3.axes:   
     ax.set_title('')
-    ax.set_ylabel('%s (ppb)' % ax.get_ylabel())
+    ax.set_ylabel('counts')
     ax.legend()
 
 
-fig4 = plt.figure(4, figsize=(9,16))
+fig4 = plt.figure(4, figsize=(9,18))
 fig4.canvas.set_window_title("ebas_corr_dens")
 
 ax41 = plt.subplot(311)
@@ -262,6 +275,7 @@ ax42.set_ylabel("$[SO_2]_{obs}$ (ppb)")
 ax42.set_xlabel("$[SO_2]_{model} (ppb)$")
 ax43.set_ylabel("$[NO_2]_{obs}$ (ppb)")
 ax43.set_xlabel("$[NO_2]_{model} (ppb)$")
+
 
 # Show it
 plt.show(block=False)

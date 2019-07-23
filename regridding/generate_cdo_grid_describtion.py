@@ -60,7 +60,7 @@ def write_grid(lat, lon, outname):
     outfile.write("\n\n")
     outfile.close()
 
-nc_src = os.environ['DATA']+'/astra_data/ctm_results/C3RUN_emep_ppgs_2005/scavenging_daily/scavenging_daily_2d_20050101.nc'
+nc_src = os.environ['DATA']+'/astra_data/ECMWF/MACC_reanalysis/netcdf/monthly_mean/mm_vmr_macc_r_o3_ml60_200501.nc'
 # Read the data
 try:
     input_resolution
@@ -69,13 +69,15 @@ except NameError:
 
 #write_grid(input_resolution['dry_O3'].lat.data, input_resolution['dry_O3'].lon.data,"osloctm3_grid.txt")
 
+write_grid(input_resolution['go3'].latitude.data, input_resolution['go3'].longitude.data,"macc_grid.txt")
+
 #hardacre_lat = np.arange(-88.5,89,3, dtype=np.float64)
 #hardacre_lon = np.arange(1.5,360,3, dtype=np.float64)
 
 #write_grid(hardacre_lat, hardacre_lon,"hardacre_grid.txt")
 
-pft_pct_lat = np.arange(-89.8,90,0.5, dtype=np.float64)
-pft_pct_lon = np.arange(-179.8,180,0.5, dtype=np.float64)
+#pft_pct_lat = np.arange(-89.8,90,0.5, dtype=np.float64)
+#pft_pct_lon = np.arange(-179.8,180,0.5, dtype=np.float64)
 
-write_grid(pft_pct_lat, pft_pct_lon,"pft_pct_grid.txt")
+#write_grid(pft_pct_lat, pft_pct_lon,"pft_pct_grid.txt")
 
