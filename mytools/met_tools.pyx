@@ -681,3 +681,24 @@ def read_station_data_ebas(infile, **kargs):
         #i += 1
     pd_frame = pd.DataFrame(data_dic, index=x_time_station)
     return (pd_frame)
+
+def plot_month_span(ax, **kargs):
+    year = kargs.pop('year', 2006)
+    fill = kargs.pop('fill', True)
+    daysinmonth = np.array([calendar.monthrange(year, imonth)[1] for imonth in range(1,13)])
+    if fill:
+        for i in np.arange(0,12,2):
+            ax.axvspan(daysinmonth[:i].sum(), daysinmonth[:i+1].sum(), color='linen')
+    else:
+        for i in np.arange(0,12):
+            ax.axvline(daysinmonth[:i+1].sum(), color='grey', ls='--')
+            
+def plot_month_name(ax, **kargs):
+    year = kargs.pop('year', 2006)
+    ypos = kargs.pop('ypos', ax.yaxis.get_ticklocs()[-1]+ax.yaxis.get_tick_space()*0.1)
+    mlength = kargs.pop('mlength', 3)
+    size = kargs.pop('size', 'medium')
+    daysinmonth = np.array([calendar.monthrange(year, imonth)[1] for imonth in range(1,13)])
+    xpos = [daysinmonth[:i].sum() for i in np.arange(0,12)]
+    for i in range(1,13):
+        ax.text(xpos[i-1]+1, ypos, get_month_name(i, length=mlength), size=size)

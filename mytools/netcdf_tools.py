@@ -113,17 +113,4 @@ def read_data(src,**karg):
     return(data_list)
 
 
-def plot_month_span(ax):
-    ax.axvspan(1,31, color='linen')
-    ax.axvspan(31+28, 31+28+31, color='linen')
-    ax.axvspan(31+28+31+30, 31+28+31+30+31, color='linen')
-    ax.axvspan(31+28+31+30+31+30, 31+28+31+30+31+30+31, color='linen')
-    ax.axvspan(31+28+31+30+31+30+31+31, 31+28+31+30+31+30+31+31+30, color='linen')
-    ax.axvspan(31+28+31+30+31+30+31+31+30+31, 31+28+31+30+31+30+31+31+30+31+30, color='linen')
-    
-def plot_month_name(ax, ypos):
-    xpos = (1, 31, 31+28, 31+28+31, 31+28+31+30, 31+28+31+30+31,
-            31+28+31+30+31+30, 31+28+31+30+31+30+31, 31+28+31+30+31+30+31+31,
-            31+28+31+30+31+30+31+31+30, 31+28+31+30+31+30+31+31+30+31, 31+28+31+30+31+30+31+31+30+31+30)
-    for i in range(1,13):
-        ax.text(xpos[i-1], ypos, get_month_name(i, length=3))
+

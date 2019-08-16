@@ -3,7 +3,9 @@ import numpy as np
 import pandas as pd             # Timeseries data
 import datetime as dt           # Time manipulation
 import matplotlib.pyplot as plt # Plotting
+from matplotlib.dates import date2num # Convert dates to matplotlib axis coords
 from scipy import fftpack
+from scipy import stats
 from read_sunspots import *
 from mytools.met_tools import *
 from mytools.netcdf_tools import *
@@ -31,7 +33,7 @@ plt.close('all')
 #execfile("../BrXplo/read_station_data.py")
 #from read_station_data import read_station_data_noaa
 src = os.environ['DATA']+'/astra_data/observations/ozone/'
-src_svanvik_2018 = os.environ['DATA']+'/astra_data/observations/ozone/Svanvik/NO0047R.*ozone*.xls'
+src_svanvik_OzoNorClim = os.environ['DATA']+'/astra_data/observations/ozone/Svanvik/NO0047R.*ozone*.xls'
 src_stations = ('Barrow', 'Esrange', 'Janiskoski', 'Jergul', 'Karasjok', 'Pallas', 'Prestebakke', 'Svanvik')
 
 try:
@@ -60,8 +62,18 @@ except NameError:
         
 data_prestebakke = data['Prestebakke']
 data_jergkara = pd.concat((data['Jergul'], data['Karasjok']))
-data_svanvik_2018 = pd.read_excel(glob.glob(src_svanvik_2018)[0], index_col=0, header=0)
-data_svanvik_2018 = data_svanvik_2018['O3_mugm-3'].where(data_svanvik_2018['O3_mugm-3']>=0).dropna()/2.    
+
+# Read and convert xls file data
+data_svanvik_OzoNorClim = []
+for file in sorted(glob.glob(src_svanvik_OzoNorClim)):
+    tmp_data_svanvik = pd.read_excel(file, index_col=0, header=0)
+    data_svanvik_OzoNorClim.append(tmp_data_svanvik['O3_mugm-3'].where(tmp_data_svanvik['O3_mugm-3']>=0).dropna()/2.)
+# Concat data
+data_svanvik_OzoNorClim = pd.concat(data_svanvik_OzoNorClim)
+# Resample
+svanvik_daily = data['Svanvik'].resample('1d').apply(np.nanmean)
+svanvik_daily_2018 = data_svanvik_OzoNorClim['2018'].resample('1d').apply(np.nanmean)
+
 # Spectral analysis
 from scipy import fftpack
 fft_barrow = fftpack.fft(data_barrow.resample('1M').mean().fillna(method='ffill'))
@@ -80,9 +92,12 @@ ax11 = plt.subplot(311)
 ax12 = plt.subplot(312, sharex=ax11)
 ax13 = plt.subplot(313, sharex=ax11)
 data_barrow.plot(ax=ax11, ls='None', marker='x', label='Utqiagvik (USA)')
-data_prestebakke.plot(ax=ax12, ls='None', marker='.', label='Prestebakke (NOR)', color='red')
-data_jergkara.plot(ax=ax13, ls='None', marker='+', label='Jergul/Karasjok (NOR)', color='orange')
+data_prestebakke.plot(ax=ax12, zorder=2, ls='None', marker='.', label='Prestebakke (NOR)', color='red')
+data_jergkara.plot(ax=ax13, zorder=2, ls='None', marker='+', label='Jergul/Karasjok (NOR)', color='orange')
 
+
+ax12.axvspan(date2num(data_prestebakke.index[0].date()), date2num(dt.datetime.strptime('1996-12','%Y-%m')), zorder=3, facecolor='None', edgecolor='black', hatch='//')
+ax13.axvspan(date2num(data_jergkara.index[0].date()), date2num(dt.datetime.strptime('1996-12','%Y-%m')), zorder=3, facecolor='None', edgecolor='black', hatch='//')
 ax13.set_xlabel("Time (year)")
 ax12.set_ylabel("[$O_3$] (ppb)")
 
@@ -101,8 +116,13 @@ ax21.plot(data['Esrange'].index, data['Esrange'], ls='None', marker='+', label='
 ax22.plot(data['Pallas'].index, data['Pallas'], ls='None', marker='+', label='Pallas (FIN)', color='black')
 data_jergkara.plot(ax=ax23, ls='None', marker='+', label='Jergul/Karasjok (NOR)', color='orange')
 ax24.plot(data['Svanvik'].index, data['Svanvik'], ls='None', marker='+', label='Svanvik (NOR)', color='blueviolet')
-#ax24.plot(data_svanvik_2018.index, data_svanvik_2018, ls='None', marker='x', label='Svanvik, 2018 (NOR)', color='blueviolet')
+ax24.plot(data_svanvik_OzoNorClim.index, data_svanvik_OzoNorClim, ls='None', marker='x', label='Svanvik, 2018 (NOR)', color='blueviolet')
 ax25.plot(data['Janiskoski'].index, data['Janiskoski'], ls='None', marker='+', label='Janiskoski (RUS)', color='grey')
+
+ax23.axvspan(date2num(data_jergkara.index[0].date()), date2num(dt.datetime.strptime('1996-12','%Y-%m')), zorder=3, facecolor='None', edgecolor='black', hatch='//')
+ax24.axvspan(date2num(data['Svanvik'].index[0].date()), date2num(dt.datetime.strptime('1996-12','%Y-%m')), zorder=3, facecolor='None', edgecolor='black', hatch='//')
+
+
 
 ax25.set_xlabel("Time (year)")
 ax23.set_ylabel("[$O_3$] (ppb)", y=1)
@@ -114,7 +134,7 @@ fig3 = plt.figure(3, figsize=(16,9))
 fig3.canvas.set_window_title("ozone_climatology_fenoscandicobs")
 ax31 = plt.subplot()
 
-data_prestebakke.groupby(data_prestebakke.index.dayofyear).apply(np.nanmean).plot(ax=ax31, xerr=, label='Prestebakke (NOR)', color='red')
+data_prestebakke.groupby(data_prestebakke.index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Prestebakke (NOR)', color='red')
 data['Esrange'].groupby(data['Esrange'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Esrange (SWE)', color='blue', ls='none', marker="v")
 data['Pallas'].groupby(data['Pallas'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Pallas (FIN)', color='black', ls='none', marker="^")
 data_jergkara.groupby(data_jergkara.index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Jergul/Karasjok (NOR)', color='orange', ls='none', marker="x")
@@ -128,7 +148,7 @@ for ax in fig3.axes:
     ax.legend(loc='lower left')
 
 plot_month_span(ax31)
-plot_month_name(ax31, 55)
+plot_month_name(ax31, ypos=58)
 
 if(False):
     fig2.canvas.set_window_title("fequency_spectrum")
@@ -146,55 +166,56 @@ if(False):
 
     ax21.legend()
 
-# Show the stations
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
-import cartopy.io.img_tiles as cimgt
-#import cartopy.geodesic as cgeo
-from matplotlib.transforms import offset_copy
+if(False):
+    # Show the stations
+    import cartopy.crs as ccrs
+    import cartopy.feature as cfeature
+    import cartopy.io.img_tiles as cimgt
+    #import cartopy.geodesic as cgeo
+    from matplotlib.transforms import offset_copy
 
-fig4 = plt.figure(4)
-fig4.canvas.set_window_title("station_map_fennoscandia")
-stamen_terrain = cimgt.Stamen('terrain-background')
-ax41 = fig4.add_subplot(1,1,1, projection=stamen_terrain.crs) #ccrs.PlateCarree()
-ax41.set_extent([19.4,31.4,67.6,71.4], crs=ccrs.PlateCarree())
-ax41.add_image(stamen_terrain, 8)
+    fig4 = plt.figure(4)
+    fig4.canvas.set_window_title("station_map_fennoscandia")
+    stamen_terrain = cimgt.Stamen('terrain-background')
+    ax41 = fig4.add_subplot(1,1,1, projection=stamen_terrain.crs) #ccrs.PlateCarree()
+    ax41.set_extent([19.4,31.4,67.6,71.4], crs=ccrs.PlateCarree())
+    ax41.add_image(stamen_terrain, 8)
+    
+    ax41.plot(station_location['Jergul'].lon, station_location['Jergul'].lat, fillstyle='left', marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+    ax41.plot(station_location['Karasjok'].lon, station_location['Karasjok'].lat, fillstyle='right', marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+    ax41.plot(station_location['Svanvik'].lon, station_location['Svanvik'].lat, marker='o', color='blueviolet', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+    ax41.plot(station_location['Esrange'].lon, station_location['Esrange'].lat, marker='o', color='blue', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+    ax41.plot(station_location['Pallas'].lon, station_location['Pallas'].lat, marker='o', color='black', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+    ax41.plot(station_location['Janiskoski'].lon, station_location['Janiskoski'].lat, marker='o', color='grey', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
+    geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax41)
+    text_transform = offset_copy(geodetic_transform, units='dots', x=-25)
+    text_transform_2 = offset_copy(geodetic_transform, units='dots', y=25)
 
-ax41.plot(station_location['Jergul'].lon, station_location['Jergul'].lat, fillstyle='left', marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-ax41.plot(station_location['Karasjok'].lon, station_location['Karasjok'].lat, fillstyle='right', marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-ax41.plot(station_location['Svanvik'].lon, station_location['Svanvik'].lat, marker='o', color='blueviolet', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-ax41.plot(station_location['Esrange'].lon, station_location['Esrange'].lat, marker='o', color='blue', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-ax41.plot(station_location['Pallas'].lon, station_location['Pallas'].lat, marker='o', color='black', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-ax41.plot(station_location['Janiskoski'].lon, station_location['Janiskoski'].lat, marker='o', color='grey', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax41)
-text_transform = offset_copy(geodetic_transform, units='dots', x=-25)
-text_transform_2 = offset_copy(geodetic_transform, units='dots', y=25)
-
-# Add text.
-ax41.text(station_location['Jergul'].lon, station_location['Jergul'].lat, u'Jergul',
-          verticalalignment='center', horizontalalignment='right',
-          transform=text_transform,
-          bbox=dict(facecolor='orange', alpha=0.5, boxstyle='round'))
-ax41.text(station_location['Karasjok'].lon, station_location['Karasjok'].lat, u'Karasjok',
-          verticalalignment='center', horizontalalignment='right',
-          transform=text_transform_2,
-          bbox=dict(facecolor='orange', alpha=0.5, boxstyle='round'))
-ax41.text(station_location['Svanvik'].lon, station_location['Svanvik'].lat, u'Svanvik',
-          verticalalignment='center', horizontalalignment='right',
-          transform=text_transform,
-          bbox=dict(facecolor='blueviolet', alpha=0.5, boxstyle='round'))
-ax41.text(station_location['Esrange'].lon, station_location['Esrange'].lat, u'Esrange',
-          verticalalignment='center', horizontalalignment='right',
-          transform=text_transform,
-          bbox=dict(facecolor='blue', alpha=0.5, boxstyle='round'))
-ax41.text(station_location['Pallas'].lon, station_location['Pallas'].lat, u'Pallas',
-          verticalalignment='center', horizontalalignment='right',
-          transform=text_transform,
-          bbox=dict(facecolor='black', alpha=0.5, boxstyle='round'))
-ax41.text(station_location['Janiskoski'].lon, station_location['Janiskoski'].lat, u'Janiskoski',
-          verticalalignment='center', horizontalalignment='right',
-          transform=text_transform,
-          bbox=dict(facecolor='grey', alpha=0.5, boxstyle='round'))
+    # Add text.
+    ax41.text(station_location['Jergul'].lon, station_location['Jergul'].lat, u'Jergul',
+              verticalalignment='center', horizontalalignment='right',
+              transform=text_transform,
+              bbox=dict(facecolor='orange', alpha=0.5, boxstyle='round'))
+    ax41.text(station_location['Karasjok'].lon, station_location['Karasjok'].lat, u'Karasjok',
+              verticalalignment='center', horizontalalignment='right',
+              transform=text_transform_2,
+              bbox=dict(facecolor='orange', alpha=0.5, boxstyle='round'))
+    ax41.text(station_location['Svanvik'].lon, station_location['Svanvik'].lat, u'Svanvik',
+              verticalalignment='center', horizontalalignment='right',
+              transform=text_transform,
+              bbox=dict(facecolor='blueviolet', alpha=0.5, boxstyle='round'))
+    ax41.text(station_location['Esrange'].lon, station_location['Esrange'].lat, u'Esrange',
+              verticalalignment='center', horizontalalignment='right',
+              transform=text_transform,
+              bbox=dict(facecolor='blue', alpha=0.5, boxstyle='round'))
+    ax41.text(station_location['Pallas'].lon, station_location['Pallas'].lat, u'Pallas',
+              verticalalignment='center', horizontalalignment='right',
+              transform=text_transform,
+              bbox=dict(facecolor='black', alpha=0.5, boxstyle='round'))
+    ax41.text(station_location['Janiskoski'].lon, station_location['Janiskoski'].lat, u'Janiskoski',
+              verticalalignment='center', horizontalalignment='right',
+              transform=text_transform,
+              bbox=dict(facecolor='grey', alpha=0.5, boxstyle='round'))
 
 
 fig5 = plt.figure(5, figsize=(16,9))
@@ -238,7 +259,7 @@ ax54.text(60,75, "$r^2 = %1.2f$" % (data['Pallas'].corr(data['Svanvik'])), size=
 
 fig6 = plt.figure(6, figsize=(16,9))
 fig6.canvas.set_window_title("time_lag_correlation")
-time_lag = range(-17,18)
+time_lag = range(-32,33)
 lag_1 = []
 lag_2 = []
 lag_3 = []
@@ -278,10 +299,220 @@ ax62.plot(time_lag, lag_6, color='grey', label='Janiskoski')
 for ax in fig6.axes:
     ax.set_xlabel('Lag (hours)')
     #ax.set_ylim(0,1)
-    ax.legend()
+    ax.legend(ncol=2)
 ax61.set_ylabel('Correlation Coefficient')
+
+fig7 = plt.figure(7, figsize=(16,9))
+fig7.canvas.set_window_title("ozone_climatology_fenoscandic_obs_norm")
+ax71 = plt.subplot()
+
+(data_prestebakke.groupby(data_prestebakke.index.dayofyear).apply(np.nanmean)-data_prestebakke.mean()).plot(ax=ax71, label='Prestebakke (NOR)', color='red')
+(data['Esrange'].groupby(data['Esrange'].index.dayofyear).apply(np.nanmean)-data['Esrange'].mean()).plot(ax=ax71, label='Esrange (SWE)', color='blue', ls='none', marker="v")
+(data['Pallas'].groupby(data['Pallas'].index.dayofyear).apply(np.nanmean)-data['Pallas'].mean()).plot(ax=ax71, label='Pallas (FIN)', color='black', ls='none', marker="^")
+(data_jergkara.groupby(data_jergkara.index.dayofyear).apply(np.nanmean)-data_jergkara.mean()).plot(ax=ax71, label='Jergul/Karasjok (NOR)', color='orange', ls='none', marker="x")
+(data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmean)-data['Svanvik'].mean()).plot(ax=ax71, label='Svanvik (NOR)', color='blueviolet', ls='none', marker="+")
+(data['Janiskoski'].groupby(data['Janiskoski'].index.dayofyear).apply(np.nanmean)-data['Janiskoski'].mean()).plot(ax=ax71, label='Janiskoski (RUS)', color='grey', ls='none', marker="d")
+
+ax71.set_xlabel("Time (day of year)")
+ax71.set_ylabel("[$O_3$] (ppb)")
+for ax in fig7.axes:
+    #ax.set_ylim(0,60)
+    ax.legend(loc='lower left')
+
+plot_month_span(ax71)
+plot_month_name(ax71, ypos=20)
+
+fig8 = plt.figure(8, figsize=(10,12))
+fig8.canvas.set_window_title("ozone_climatology_fenoscandic_obs_spline")
+ax81 = plt.subplot(211)
+ax82 = plt.subplot(212)
+
+# Calculate climatology until 2017 based on Esrange, Pallas and Jergul/Karasjok data
+
+ozone_days = []
+doys = []
+ozone_days_svanvik = []
+doys_svanvik = []
+
+for idoy in np.arange(1,367):
+    # Get the data for all relevant stations and concatenate them
+    ozone_days.append(data['Esrange'][:'2017'].where(data['Esrange'][:'2017'].index.dayofyear==idoy).dropna().values)
+    doys.append(np.full(ozone_days[-1].size,idoy))
+    ozone_days.append(data['Pallas'][:'2017'].where(data['Pallas'][:'2017'].index.dayofyear==idoy).dropna().values)
+    doys.append(np.full(ozone_days[-1].size,idoy))
+    ozone_days.append(data_jergkara.where(data_jergkara.index.dayofyear==idoy).dropna().values)
+    doys.append(np.full(ozone_days[-1].size,idoy))
+    # Get the date for Svanvik
+    ozone_days_svanvik.append(data['Svanvik'].where(data['Svanvik'].index.dayofyear==idoy).dropna().values)
+    doys_svanvik.append(np.full(ozone_days_svanvik[-1].size,idoy))
+
+doys = np.concatenate(np.array(doys))
+ozone_days = np.concatenate(np.array(ozone_days))
+doys_svanvik = np.concatenate(np.array(doys_svanvik))
+ozone_days_svanvik = np.concatenate(np.array(ozone_days_svanvik))
+
+hist81 = ax81.hist2d(doys, ozone_days, bins=(np.arange(0.5,367),np.linspace(0,81,160)), cmap=plt.cm.hot_r)
+
+climatology = pd.concat((data['Esrange'], data['Pallas'], data_jergkara))
+yozone = climatology.groupby(climatology.index.month).apply(np.nanmean)
+xtime = np.unique(climatology['2006'].where(climatology['2006'].index.day==15).dropna().index.dayofyear)
+yerr = climatology.groupby(climatology.index.month).apply(np.nanstd)
+ax81.errorbar(xtime, yozone, yerr=yerr, color='black', marker='o', ls='None', label='monthly mean')
+
+
+# Compute fit
+from scipy.interpolate import UnivariateSpline
+#w = 1/yerr**2
+fitSpl_dmean = UnivariateSpline(np.unique(doys), climatology.groupby(climatology.index.dayofyear).apply(np.nanmean))
+dmax = climatology.resample('1d').apply(np.nanmax)
+fitSpl_dmax = UnivariateSpline(np.unique(doys), dmax.groupby(dmax.index.dayofyear).apply(np.nanmean))
+ax81.plot(np.linspace(1,367), fitSpl_dmean(np.linspace(1,367)), ls='--', label='spline fit: daily mean')
+ax81.plot(np.linspace(1,367), fitSpl_dmax(np.linspace(1,367)), ls=':', label='spline fit: mean daily max', color='blue')
+
+# Svanvik climatology
+hist82 = ax82.hist2d(doys_svanvik, ozone_days_svanvik, bins=(np.arange(0.5,367),np.linspace(0,81,160)), cmap=plt.cm.hot_r)
+fitSpl_dmean_svanvik = UnivariateSpline(np.unique(doys_svanvik), data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmean))
+dmax_svanvik = data['Svanvik'].resample('1d').apply(np.nanmax)
+fitSpl_dmax_svanvik = UnivariateSpline(np.unique(doys_svanvik), dmax_svanvik.groupby(dmax_svanvik.index.dayofyear).apply(np.nanmean))
+ax82.plot(np.linspace(1,367), fitSpl_dmean_svanvik(np.linspace(1,367)), ls='--', label='spline fit: daily mean', color='blue')
+ax82.plot(np.linspace(1,367), fitSpl_dmax_svanvik(np.linspace(1,367)), ls=':', label='spline fit: mean daily max', color='blue')
+yozone_svanvik = data['Svanvik'].groupby(data['Svanvik'].index.month).apply(np.nanmean)
+yerr_svanvik = data['Svanvik'].groupby(data['Svanvik'].index.month).apply(np.nanstd)
+ax82.errorbar(xtime, yozone_svanvik, yerr=yerr_svanvik, color='black', marker='o', ls='None', label='monthly mean')
+#data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmean).dropna().plot(ls='None', marker='x', color='blueviolet', label='Svanvik 2018: daily mean')
+#data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmax).dropna().plot(ls='None', marker='v', color='blueviolet', label='Svanvik 2018: daily max')
+# Setting colorbar
+for ax,hist in zip(fig8.axes, (hist81, hist82)):
+    axins = inset_axes(ax,
+                       width="30%",  # width = 50% of parent_bbox width
+                       height="2.5%",  # height : 5%
+                       loc='upper left',
+                       #bbox_to_anchor=(0.01, 0.95, 1, 1),
+                       #bbox_transform=ax.transAxes,
+                       #borderpad=0,
+    )
+    fig8.colorbar(hist[-1], cax=axins, orientation='horizontal')
+    axins.set_xlabel("Counts")
+plot_month_name(ax81, ypos=82)
+
+ax82.set_xlabel("Time (day of year)")
+ax81.set_ylabel("[$O_3$] (ppb)", y=-0.25)
+
+ax81.legend()
+ax82.legend()
+ax82.set_title("Svanvik")
+
+fig9 = plt.figure(9, figsize=(16,9))
+fig9.canvas.set_window_title("ozone_climatology_fenoscandic_obs_residuals-Svanvik")
+ax91 = plt.subplot(211)
+ax92 = plt.subplot(212)
+
+# Draw sample from climatology of Jergul/Karsjok, Esrange, Pallas
+sample = fitSpl_dmean(svanvik_daily.dropna().index.dayofyear)
+sample_2018 = fitSpl_dmean(svanvik_daily_2018.dropna().index.dayofyear)
+# Draw sample from Svanvik climatology
+sample_svanvik_2018 = fitSpl_dmean_svanvik(svanvik_daily_2018.dropna().index.dayofyear)
+
+hist91 = ax91.hist((svanvik_daily.dropna()-sample).values, density=True, color='blueviolet', label='Svanvik clim.')
+hist91_2018 = ax91.hist((svanvik_daily_2018.dropna()-sample_2018).values, density=True, histtype='step', color='violet', label='Svanvik 2018')
+
+hist92 = ax92.hist((svanvik_daily_2018.dropna()-sample_svanvik_2018).values, density=True, color='blueviolet')
+
+ax91.set_xlabel("$<O_3>_{daily}^{Svanvik}-O_3^{clim}$ (ppb)")
+ax92.set_xlabel("$<O_3>_{daily}^{Svanvik}-{O_3}^{clim}_{Svanvik}$ (ppb)")
+ax91.set_ylabel("Probability density", y=-0.25)
+
+# Fit a skew normal distribution and plot it
+def fit_skew_normal(data, **karg):
+    b_stats = karg.pop('stats', True)
+    b_fit = karg.pop('fit', True)
+    ae, loce, scalee = stats.skewnorm.fit(data)
+    fit = {"shape":ae, "location":loce, "scale":scalee}
+    max_x = data.max().round()
+    min_x = data.min().round()
+    sample_x = np.linspace(min_x, max_x)
+    p = stats.skewnorm.pdf(sample_x, ae, loce, scalee)
+    mean, variance, skewness, kurtosis = stats.skewnorm.stats(ae, loce, scalee, moments='mvsk')
+    median = stats.skewnorm.median(ae, loce, scalee)
+    # Calculate mode of the skew norm
+    delta = ae/np.sqrt(1+ae**2)
+    muz = np.sqrt(2/pi)*delta
+    sigmaz = np.sqrt(1-muz**2)
+    mo = muz - skewness*sigmaz*0.5-np.sign(ae)*0.5*np.exp(-2*pi/np.abs(ae))
+    mode = loce + scalee*mo
+    stat = {"mean":mean, "variance":variance, "skew":skewness, "kurtosis":kurtosis, "median":median, "mode":mode}
+    print("Fit skew normal:\n shape = %3.1f\n location = %3.1f\n scale = %3.1f" % (ae, loce, scalee))
+    print("Stats:\n mean = %3.1f\n variance = %3.1f\n skewness = %3.1f\n mode = %3.1f" % (mean, variance, skewness, mode))
+    if (b_stats and b_fit):
+        return(sample_x, p, fit, stat)
+    elif b_stats:
+        return(sample_x, p, stat)
+    elif b_fit:
+        return(sample_x, p, fit)
+    else:
+        return(sample_x, p)
+    
+def stats_text(ax, stat, fit, **karg):
+    xpos = karg.pop("xpos", 0.01)
+    ypos = karg.pop("ypos", 0.9)
+    name = karg.pop('name',"statistics")
+    name = name.replace(" ", "\,")
+    quantile_interval = stats.skewnorm.interval(0.5, fit["shape"], fit["location"], fit["scale"])
+    std = stats.skewnorm.std(fit["shape"], fit["location"], fit["scale"])
+    
+    ax.text(xpos, ypos, "$%s$\n mean = %3.1f\n std = %3.1f\n median = %3.1f\n (q1, q3) = (%3.1f, %3.1f)\n mode =  %3.1f" % (name, stat["mean"], std, stat["median"], quantile_interval[0], quantile_interval[1],  stat["mode"]), transform=ax.transAxes)
+    
+x_sample, pdf, fit, stat = fit_skew_normal((svanvik_daily.dropna()-sample).values)
+ax91.plot(x_sample, pdf, color='black', label='Skew normal fit')
+stats_text(ax91, stat, fit, name="Svanvik clim.", ypos=0.7)
+
+x_sample_2018, pdf_2018, fit_2018, stat_2018 = fit_skew_normal((svanvik_daily_2018.dropna()-sample_2018).values)
+ax91.plot(x_sample_2018, pdf_2018, color='black', ls='--', label='Skew normal fit: 2018')
+stats_text(ax91, stat_2018, fit_2018, name="Svanvik 2018", ypos=0.4)
+
+x_sample_svanvik, pdf_svanvik, fit_svanvik, stat_svanvik = fit_skew_normal((svanvik_daily_2018.dropna()-sample_svanvik_2018).values)
+ax92.plot(x_sample_svanvik, pdf_svanvik, color='black', label='Skew normal fit')
+stats_text(ax92, stat_svanvik, fit_svanvik, ypos=0.7)
+
+ax91.legend()
+
+fig10 = plt.figure(10, figsize=(16,9))
+ax101 = plt.subplot(311)
+ax102 = plt.subplot(312, sharex=ax101)
+ax103 = plt.subplot(313, sharex=ax101)
+
+ax101.set_title("Esrange", y=0.9, x=0.1)
+ax102.set_title("Pallas", y=0.9, x=0.1)
+ax103.set_title("Prestebakke", y=0.9, x=0.1)
+
+# Select 2018 data
+sample_2018_esrange = fitSpl_dmean(esrange_daily_2018.dropna().index.dayofyear)
+sample_2018_pallas = fitSpl_dmean(pallas_daily_2018.dropna().index.dayofyear)
+sample_2018_prestebakke = fitSpl_dmean(prestebakke_daily_2018.dropna().index.dayofyear)
+esrange_daily_2018 = data['Esrange']['2018'].resample('1d').apply(np.nanmean)
+pallas_daily_2018 = data['Pallas']['2018'].resample('1d').apply(np.nanmean)
+prestebakke_daily_2018 = data['Prestebakke']['2018'].resample('1d').apply(np.nanmean)
+
+hist101_2018 = ax101.hist((esrange_daily_2018.dropna()-sample_2018_esrange).values, density=True, histtype='step', color='blue', label='Esrange 2018')
+hist102_2018 = ax102.hist((pallas_daily_2018.dropna()-sample_2018_pallas).values, density=True, histtype='step', color='black', label='Pallas 2018')
+hist103_2018 = ax103.hist((prestebakke_daily_2018.dropna()-sample_2018_prestebakke).values, density=True, histtype='step', color='red', label='Prestebakke 2018')
+
+x_sample_esrange, pdf_esrange, fit_esrange, stat_esrange = fit_skew_normal((esrange_daily_2018.dropna()-sample_2018_esrange).values)
+ax101.plot(x_sample_esrange, pdf_esrange, color='black', label='Skew normal fit')
+stats_text(ax101, stat_esrange, fit_esrange, ypos=0.4)
+x_sample_pallas, pdf_pallas, fit_pallas, stat_pallas = fit_skew_normal((pallas_daily_2018.dropna()-sample_2018_pallas).values)
+ax102.plot(x_sample_pallas, pdf_pallas, color='black', label='Skew normal fit')
+stats_text(ax102, stat_pallas, fit_pallas, ypos=0.4)
+x_sample_prestebakke, pdf_prestebakke, fit_prestebakke, stat_prestebakke = fit_skew_normal((prestebakke_daily_2018.dropna()-sample_2018_prestebakke).values)
+ax103.plot(x_sample_prestebakke, pdf_prestebakke, color='black', label='Skew normal fit')
+stats_text(ax103, stat_prestebakke, fit_prestebakke, ypos=0.4)
+
+ax103.set_xlabel("$<O_3>_{daily}-O_3^{clim}$ (ppb)")
+
 # Show it
 plt.show(block=False)
+
+
 
 
 
