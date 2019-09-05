@@ -112,5 +112,11 @@ def read_data(src,**karg):
         data_list = data_list[0]
     return(data_list)
 
+def covariance(x, y, dims=None):
+    return xr.dot(x - x.mean(dims), y - y.mean(dims), dims=dims) / x.count(dims)
+
+def corrrelation(x, y, dims=None):
+    return covariance(x, y, dims) / (x.std(dims) * y.std(dims))
+
 
 
