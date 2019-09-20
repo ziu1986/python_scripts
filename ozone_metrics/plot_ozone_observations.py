@@ -4,6 +4,7 @@ import pandas as pd             # Timeseries data
 import datetime as dt           # Time manipulation
 import matplotlib.pyplot as plt # Plotting
 from matplotlib.dates import date2num # Convert dates to matplotlib axis coords
+from matplotlib import dates
 from scipy import fftpack
 from scipy import stats
 from read_sunspots import *
@@ -68,24 +69,34 @@ def stats_text(ax, stat, fit, **karg):
 
 
 def compute_aot(data, **karg):
-    threashold = karg.pop('level', 40)
+    threshold = karg.pop('level', 40)
     month_start = karg.pop('month_start', 5)
     month_end = karg.pop('month_end', 8)
     time_start = karg.pop('time_start', 8)
     time_end = karg.pop('time_end', 20)
+    rolling = karg.pop('rolling', False)
 
     selection = data.where(
         (data.index.hour>=time_start)&
         (data.index.hour<=time_end)&
         (data.index.month>=month_start)&
         (data.index.month<=month_end)).dropna()
-    delta = selection-threashold
-    aot = delta.where((delta)>0).dropna()
-    aot = aot.groupby(aot.index.year).sum()
-    return(aot)
-
-
     
+    delta = selection-threshold
+    aot = delta.where(delta>0).dropna().resample('1D').sum()
+    
+    #print(aot)
+    if rolling:
+        sumX = {}
+        print("Applying rolling window 90 days")
+        for iyear in aot.index.year.unique():
+            sumX[str(iyear)] = (aot.where(aot.index.year==iyear).dropna()).rolling(3*30, center=True).apply(np.sum).shift(-42).dropna()
+            #print(sumX[str(iyear)])
+    else:
+        sumX = aot.groupby(aot.index.year).sum()
+    return(sumX)
+
+   
 # Clean up
 plt.close('all')
 
@@ -583,9 +594,159 @@ compute_aot(data_svanvik_OzoNorClim, time_start=1, time_end=23, month_start=6, m
 
 
 ax111.set_xlabel("Time (years)")
-ax111.set_ylabel("AOT40 (ppb $h^{-1}$)")
+ax111.set_ylabel("AOT40 (ppb h)")
 ax111.legend()
 ax111.axhline(3000, ls=':', color='black')
+
+
+fig12 = plt.figure(12, figsize=(16,9))
+fig12.canvas.set_window_title("ozone_fenoscandic_obs_rolling_sum40")
+ax121 = plt.subplot(211)
+ax122 = plt.subplot(212)
+
+try:
+    AOT40_820
+except NameError:
+    AOT40_820 = {}
+    AOT40_820['Prestebakke'] = compute_aot(data_prestebakke, month_start=5, month_end=9, rolling=True)
+    AOT40_820['Jergkara'] = compute_aot(data_jergkara, month_start=5, month_end=9, rolling=True)
+    AOT40_820['Pallas'] = compute_aot(data['Pallas'], month_start=5, month_end=9, rolling=True)
+    AOT40_820['Esrange'] = compute_aot(data['Esrange'], month_start=5, month_end=9, rolling=True)
+    AOT40_820['Svanvik'] = compute_aot(data['Svanvik'], month_start=5, month_end=9, rolling=True)
+    #compute_aot(data_svanvik_OzoNorClim, month_start=5, month_end=9, rolling=True)
+    
+    AOT40_123 = {}
+    AOT40_123['Prestebakke'] = compute_aot(data_prestebakke, time_start=1, time_end=23, month_start=5, month_end=9, rolling=True)
+    AOT40_123['Jergkara'] = compute_aot(data_jergkara, time_start=1, time_end=23, month_start=5, month_end=9, rolling=True)
+    AOT40_123['Pallas'] = compute_aot(data['Pallas'], time_start=1, time_end=23, month_start=5, month_end=9, rolling=True)
+    AOT40_123['Esrange'] = compute_aot(data['Esrange'], time_start=1, time_end=23, month_start=5, month_end=9, rolling=True)
+    AOT40_123['Svanvik'] = compute_aot(data['Svanvik'], time_start=1, time_end=23, month_start=5, month_end=9, rolling=True)
+    #compute_aot(data_svanvik_OzoNorClim, time_start=1, time_end=23, month_start=5, month_end=9, rolling=True)
+    
+    AOT30_820 = {}
+    AOT30_820['Prestebakke'] = compute_aot(data_prestebakke, month_start=5, month_end=9, level=30, rolling=True)
+    AOT30_820['Jergkara'] = compute_aot(data_jergkara, month_start=5, month_end=9, level=30, rolling=True)
+    AOT30_820['Pallas'] = compute_aot(data['Pallas'], month_start=5, month_end=9, level=30, rolling=True)
+    AOT30_820['Esrange'] = compute_aot(data['Esrange'], month_start=5, month_end=9, level=30, rolling=True)
+    AOT30_820['Svanvik'] = compute_aot(data['Svanvik'], month_start=5, month_end=9, level=30, rolling=True)
+    #compute_aot(data_svanvik_OzoNorClim, month_start=5, month_end=9, rolling=True)
+
+    AOT30_123 = {}
+    AOT30_123['Prestebakke'] = compute_aot(data_prestebakke, time_start=1, time_end=23, month_start=5, month_end=9, level=30, rolling=True)
+    AOT30_123['Jergkara'] = compute_aot(data_jergkara, time_start=1, time_end=23, month_start=5, month_end=9, level=30, rolling=True)
+    AOT30_123['Pallas'] = compute_aot(data['Pallas'], time_start=1, time_end=23, month_start=5, month_end=9, level=30, rolling=True)
+    AOT30_123['Esrange'] = compute_aot(data['Esrange'], time_start=1, time_end=23, month_start=5, month_end=9, level=30, rolling=True)
+    AOT30_123['Svanvik'] = compute_aot(data['Svanvik'], time_start=1, time_end=23, month_start=5, month_end=9, level=30, rolling=True)
+#compute_aot(data_svanvik_OzoNorClim, time_start=1, time_end=23, month_start=5, month_end=9, rolling=True)
+#(AOT30_820['Prestebakke']['2005']).plot(ax=ax121, label='Prestebakke (NOR)', ls='-', color='red')
+(AOT30_820['Jergkara']['2005']).plot(ax=ax121,label='Jergul/Karasjok (NOR)', ls='-', color='orange')
+(AOT30_820['Pallas']['2005']).plot(ax=ax121,label='Pallas (FIN)', ls='-', color='black')
+(AOT30_820['Esrange']['2005']).plot(ax=ax121,label='Esrange (SWE)', ls='-', color='blue')
+
+#(AOT30_123['Prestebakke']['2005']).plot(ax=ax121, ls='-.', color='red', label='')
+(AOT30_123['Jergkara']['2005']).plot(ax=ax121,ls='-.', color='orange', label='')
+(AOT30_123['Pallas']['2005']).plot(ax=ax121,ls='-.', color='black', label='')
+(AOT30_123['Esrange']['2005']).plot(ax=ax121,ls='-.', color='blue', label='')
+    
+#(AOT40_820['Prestebakke']['2005']).plot(ax=ax121, label='', ls='--', color='red')
+(AOT40_820['Jergkara']['2005']).plot(ax=ax121,label='', ls='--', color='orange')
+(AOT40_820['Pallas']['2005']).plot(ax=ax121,label='', ls='--', color='black')
+(AOT40_820['Esrange']['2005']).plot(ax=ax121,label='', ls='--', color='blue')
+
+#(AOT40_123['Prestebakke']['2005']).plot(ax=ax121, ls=':', color='red', label='')
+(AOT40_123['Jergkara']['2005']).plot(ax=ax121,ls=':', color='orange', label='')
+(AOT40_123['Pallas']['2005']).plot(ax=ax121,ls=':', color='black', label='')
+(AOT40_123['Esrange']['2005']).plot(ax=ax121,ls=':', color='blue', label='')
+
+    
+#(AOT30_820['Prestebakke']['2006']).plot(ax=ax122, label='Prestebakke (NOR)', ls='-', color='red')
+(AOT30_820['Jergkara']['2006']).plot(ax=ax122,label='Jergul/Karasjok (NOR)', ls='-', color='orange')
+(AOT30_820['Pallas']['2006']).plot(ax=ax122,label='Pallas (FIN)', ls='-', color='black')
+(AOT30_820['Esrange']['2006']).plot(ax=ax122,label='Esrange (SWE)', ls='-', color='blue')
+
+#(AOT30_123['Prestebakke']['2006']).plot(ax=ax122, ls='-.', color='red', label='')
+(AOT30_123['Jergkara']['2006']).plot(ax=ax122,ls='-.', color='orange', label='')
+(AOT30_123['Pallas']['2006']).plot(ax=ax122,ls='-.', color='black', label='')
+(AOT30_123['Esrange']['2006']).plot(ax=ax122,ls='-.', color='blue', label='')
+    
+#(AOT40_820['Prestebakke']['2006']).plot(ax=ax122, label='', ls='--', color='red')
+(AOT40_820['Jergkara']['2006']).plot(ax=ax122,label='', ls='--', color='orange')
+(AOT40_820['Pallas']['2006']).plot(ax=ax122,label='', ls='--', color='black')
+(AOT40_820['Esrange']['2006']).plot(ax=ax122,label='', ls='--', color='blue')
+
+#(AOT40_123['Prestebakke']['2006']).plot(ax=ax122, ls=':', color='red', label='')
+(AOT40_123['Jergkara']['2006']).plot(ax=ax122,ls=':', color='orange', label='')
+(AOT40_123['Pallas']['2006']).plot(ax=ax122,ls=':', color='black', label='')
+(AOT40_123['Esrange']['2006']).plot(ax=ax122,ls=':', color='blue', label='')
+
+#ax121.plot(dt.date(2005, 5, 1), 21000, ls='-', color='grey', label='AOT30_8-20')
+
+ax122.set_xlabel("Time (months)")
+
+
+# Add legend
+#lines = ax121.get_lines()
+#legend1 = plt.legend([lines[i] for i in [0,1,2]], ["algo1", "algo2", "algo3"], loc=1)
+#legend2 = plt.legend([lines[i] for i in [0,3,6]], ["balgo1", "balgo2", "balgo3"], loc=4)
+#ax121.add_artist(legend1)
+#ax121.add_artist(legend2)
+
+for ax, year in zip(fig12.axes, (2005, 2006)):
+    ax.set_title("%d" % year)
+    ax.set_xlim(dt.date(year, 5, 1), dt.date(year, 7, 10))
+    ax.set_ylim(0,20000)
+    text_y = ax.get_ylim()[1]
+    ax.axvline(dt.date(day=11, month=5, year=year), color='black', ls=':')
+    ax.axvspan(dt.date(day=10, month=5, year=year), dt.date(day=12, month=5, year=year), color='black', alpha=0.25)
+    ax.text(dt.date(day=10, month=5, year=year), text_y-1000, "Extrapol. SGS 2100")
+    ax.axhline(3000, ls=':', color='black')
+    ax.axvline(dt.date(day=1, month=7, year=year), color='orange', ls=':')
+    ax.text(dt.date(day=1, month=7, year=year), text_y-1000, "SGS present", color='orange')
+    ax.set_ylabel("SUM$x_i$ (ppb h)")
+
+ax121.legend(ncol=3)
+plt.legend(('-','--','-.',':'),('AOT30_8-20','AOT40_8-20','AOT30_1-23','AOT40_1-23'),bbox_to_anchor=(1.05, 1), loc='lower right', borderaxespad=0.)
+
+
+fig13 =  plt.figure(13, figsize=(16,9))
+fig13.canvas.set_window_title("sum40_int3month_change_greeningseason_2003-2012_esrange")
+start_year_esrange = 2003#(np.array(AOT30_820['Esrange'].keys())).astype(int).min()
+for i in range(10):
+    ax = plt.subplot(3,4,i+1)
+    year = start_year_esrange+i
+    ax.set_title('%d' % (year))
+    (AOT30_820['Esrange']['%d' % (year)]).plot(ax=ax, ls='-', color='blue', label='AOT30_8-20')
+    (AOT40_820['Esrange']['%d' % (year)]).plot(ax=ax, ls='--', color='blue', label='AOT40_8-20')
+    (AOT30_123['Esrange']['%d' % (year)]).plot(ax=ax, ls='-.', color='blue', label='AOT30_1-23')
+    (AOT40_123['Esrange']['%d' % (year)]).plot(ax=ax, ls=':', color='blue', label='AOT40_1-23')
+
+    ax.set_xlim(dt.date(year, 5, 1), dt.date(year, 7, 10))
+    ax.set_ylim(0,20000)
+    text_y = ax.get_ylim()[1]
+    ax.axvline(dt.date(day=11, month=5, year=year), color='black', ls=':')
+    ax.axvspan(dt.date(day=10, month=5, year=year), dt.date(day=12, month=5, year=year), color='black', alpha=0.25)
+    ax.text(dt.date(day=10, month=5, year=year), text_y-1000, "Extrapol. SGS 2100")
+    ax.axhline(3000, ls=':', color='black')
+    ax.axvline(dt.date(day=1, month=7, year=year), color='orange', ls=':')
+    ax.text(dt.date(day=1, month=7, year=year), text_y-1000, "SGS present", color='orange')
+    ax.set_ylabel("SUM$x_i$ (ppb h)")
+    ax.legend(bbox_to_anchor=(3.15, -2.05), loc='lower right', borderaxespad=0.)
+
+    #date_fmt = '%m'
+    #formatter = dates.DateFormatter(date_fmt)
+    #ax.xaxis.set_major_formatter(formatter)
+
+    plt.gcf().autofmt_xdate()
+    
+
+for ax in fig13.axes[1:]:
+    ax.set_ylabel("")
+    ax.set_xlabel("")
+    ax.get_legend().remove()
+
+for ax in [ fig13.axes[i] for i in (1, 2, 3, 5, 6, 7, 9) ]:
+    ax.set_yticklabels('')
+
 # Show it
 plt.show(block=False)
 
