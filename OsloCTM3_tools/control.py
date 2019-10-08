@@ -26,6 +26,9 @@ def load_data(path, tracer):
     return(data)
 
 def plot_global_avg(tracer):
+    '''
+    Plot some zonal average.
+    '''
     
     weights = np.cos(tracer.lat*np.pi/180)
     zonal_mean = ((tracer.mean(dim='lon')*weights).mean(dim='lat').transpose())
