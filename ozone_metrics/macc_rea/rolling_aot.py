@@ -6,6 +6,7 @@ from scipy.constants import *     # Get physics constants
 import datetime as dt
 from mytools.met_tools import *
 from mytools.netcdf_tools import *
+from mytools.station_info import station_location
 
 def read_date(input_files):
     data_list = []
@@ -26,7 +27,7 @@ def plot_sumxi(fig, ax, data, color):
     data['AOT40_8-20'].plot(ax=ax, color=color, ls='--', label='AOT40_8-20')
     data['AOT30_1-23'].plot(ax=ax, color=color, ls='-.', label='AOT30_1-23')
     data['AOT40_1-23'].plot(ax=ax, color=color, ls=':', label='AOT40_1-23')
-    ax.set_ylim(0,15000)
+    ax.set_ylim(0,20000)
     ax.set_ylabel("SUMx$_i$ (ppb h)")
 
     ax.axhline(3000, color='black', ls=':')
@@ -38,7 +39,7 @@ def plot_sumxi(fig, ax, data, color):
 
     ax.axvline(dt.date(day=1, month=7, year=year), color='orange', ls=':')
     ax.text(dt.date(day=1, month=7, year=year), text_y-1000, "SGS present", color='orange')
-    ax.legend(ncol=2)
+    ax.legend(ncol=1, bbox_to_anchor=(3.15, -2.05), loc='lower right', borderaxespad=0.)
     ax.set_title(year)
 
 def plot_aotxi(fig, ax, data, color):
@@ -57,12 +58,12 @@ def plot_aotxi(fig, ax, data, color):
 
     ax.axvline(dt.date(day=1, month=7, year=year), color='orange', ls=':')
     ax.text(dt.date(day=1, month=7, year=year), text_y-1000, "SGS present", color='orange')
-    ax.legend(ncol=2)
+    #ax.legend(ncol=2)
     ax.set_title(year)
 
     
 def plot_maps(fig, data, metric, **kwarg):
-    maximum = kwarg.pop('max', 15000)
+    maximum = kwarg.pop('max', 20000)
     minimum = kwarg.pop('min', 3000)
     stepwidth = kwarg.pop('step', 1000)
     year = np.unique(data.time.dt.year)[0]
@@ -110,8 +111,9 @@ except NameError:
 
        
     ag_data = rolling(data)
-    ag_data_sel = select(ag_data, lat=67.83, lon=21.07)
-data_sel = select(data, lat=67.83, lon=21.07)
+    for istation in ('Esrange', 'Pallas', 'Jergul'):
+        ag_data_sel[istation] = select(ag_data, lat=station_location[istation].lat, lon=station_location[istation].lon)
+        data_sel[istation] = select(data, lat=station_location[istation].lat, lon=station_location[istation].lon)
 # Clean up
 plt.close('all')
 # Plot it
@@ -121,8 +123,12 @@ fig1.canvas.set_window_title("sum40_int3month_change_greeningseason")
 ax11 = plt.subplot(211)
 ax12 = plt.subplot(212)
 
-plot_sumxi(fig1, ax11, ag_data_sel['2005'], 'blue')
-plot_sumxi(fig1, ax12, ag_data_sel['2006'], 'red')
+plot_sumxi(fig1, ax11, ag_data_sel['Jergul']['2005'], 'orange')
+plot_sumxi(fig1, ax11, ag_data_sel['Pallas']['2005'], 'black')
+plot_sumxi(fig1, ax11, ag_data_sel['Esrange']['2005'], 'blue')
+plot_sumxi(fig1, ax12, ag_data_sel['Jergul']['2006'], 'orange')
+plot_sumxi(fig1, ax12, ag_data_sel['Pallas']['2006'], 'black')
+plot_sumxi(fig1, ax12, ag_data_sel['Esrange']['2006'], 'blue')
 
 
 fig7 = plt.figure(7, figsize=(16,9))
@@ -130,8 +136,8 @@ fig7.canvas.set_window_title("aot40_int3month_change_greeningseason")
 ax71 = plt.subplot(211)
 ax72 = plt.subplot(212)
 
-plot_aotxi(fig7, ax71, data_sel['2005'], 'blue')
-plot_aotxi(fig7, ax72, data_sel['2006'], 'red')
+plot_aotxi(fig7, ax71, data_sel['Esrange']['2005'], 'blue')
+plot_aotxi(fig7, ax72, data_sel['Esrange']['2006'], 'red')
 
 
 fig2 =  plt.figure(2, figsize=(16,9))
@@ -146,6 +152,20 @@ for ax in fig2.axes[1:]:
     ax.set_xlabel("")
     ax.get_legend().remove()
 
+for ax in fig2.axes[:-2]:
+    ax.set_xticklabels("")
+    ax.set_xlabel("")
+
+for ax in fig2.axes[1:4]:
+    ax.set_yticklabels("")
+
+for ax in fig2.axes[5:8]:
+    ax.set_yticklabels("")
+fig2.axes[-1].set_yticklabels("")
+#ax.legend(('-','--','-.',':'),('AOT30_8-20','AOT40_8-20','AOT30_1-23','AOT40_1-23'),bbox_to_anchor=(1.05, 1), loc='lower right', borderaxespad=0.)
+
+
+    
 #fig2.axes[1].set_ylabel(ax.get_ylabel(), y=-10)
 import cartopy as crs
 import cartopy.crs as ccrs

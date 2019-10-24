@@ -118,5 +118,51 @@ def covariance(x, y, dims=None):
 def corrrelation(x, y, dims=None):
     return covariance(x, y, dims) / (x.std(dims) * y.std(dims))
 
+from scipy import stats
+def fit_skew_normal(data, **karg):
+    '''
+    Fit a Fit a skew normal distribution. Only works with plain numpy arrays.
+    '''
+    b_stats = karg.pop('stats', True)
+    b_fit = karg.pop('fit', True)
+    ae, loce, scalee = stats.skewnorm.fit(data)
+    fit = {"shape":ae, "location":loce, "scale":scalee}
+    max_x = data.max().round()
+    min_x = data.min().round()
+    sample_x = np.linspace(min_x, max_x)
+    p = stats.skewnorm.pdf(sample_x, ae, loce, scalee)
+    mean, variance, skewness, kurtosis = stats.skewnorm.stats(ae, loce, scalee, moments='mvsk')
+    median = stats.skewnorm.median(ae, loce, scalee)
+    # Calculate mode of the skew norm
+    delta = ae/np.sqrt(1+ae**2)
+    muz = np.sqrt(2/pi)*delta
+    sigmaz = np.sqrt(1-muz**2)
+    mo = muz - skewness*sigmaz*0.5-np.sign(ae)*0.5*np.exp(-2*pi/np.abs(ae))
+    mode = loce + scalee*mo
+    stat = {"mean":mean, "variance":variance, "skew":skewness, "kurtosis":kurtosis, "median":median, "mode":mode}
+    print("Fit skew normal:\n shape = %3.1f\n location = %3.1f\n scale = %3.1f" % (ae, loce, scalee))
+    print("Stats:\n mean = %3.1f\n variance = %3.1f\n skewness = %3.1f\n mode = %3.1f" % (mean, variance, skewness, mode))
+    if (b_stats and b_fit):
+        return(sample_x, p, fit, stat)
+    elif b_stats:
+        return(sample_x, p, stat)
+    elif b_fit:
+        return(sample_x, p, fit)
+    else:
+        return(sample_x, p)
+
+    
+def stats_text(ax, stat, fit, **karg):
+    '''
+    Set a stats box for the fit.
+    '''
+    xpos = karg.pop("xpos", 0.01)
+    ypos = karg.pop("ypos", 0.9)
+    name = karg.pop('name',"statistics")
+    name = name.replace(" ", "\,")
+    quantile_interval = stats.skewnorm.interval(0.5, fit["shape"], fit["location"], fit["scale"])
+    std = stats.skewnorm.std(fit["shape"], fit["location"], fit["scale"])
+    
+    ax.text(xpos, ypos, "$%s$\n mean = %3.1f\n std = %3.1f\n median = %3.1f\n (q1, q3) = (%3.1f, %3.1f)\n mode =  %3.1f" % (name, stat["mean"], std, stat["median"], quantile_interval[0], quantile_interval[1],  stat["mode"]), transform=ax.transAxes)
 
 

@@ -13,8 +13,6 @@ from mytools.netcdf_tools import *
 #from mytools.cartopy_tools import scale_bar
 from station_info import station_location
 
-
-
 def load_data(src):
     data = []
     for file in sorted(glob.glob(src)):
@@ -27,47 +25,6 @@ def load_data(src):
     # Round to full hours
     data.index = data.index.round("h")
     return(data)
-
-# Fit a skew normal distribution and plot it
-def fit_skew_normal(data, **karg):
-    b_stats = karg.pop('stats', True)
-    b_fit = karg.pop('fit', True)
-    ae, loce, scalee = stats.skewnorm.fit(data)
-    fit = {"shape":ae, "location":loce, "scale":scalee}
-    max_x = data.max().round()
-    min_x = data.min().round()
-    sample_x = np.linspace(min_x, max_x)
-    p = stats.skewnorm.pdf(sample_x, ae, loce, scalee)
-    mean, variance, skewness, kurtosis = stats.skewnorm.stats(ae, loce, scalee, moments='mvsk')
-    median = stats.skewnorm.median(ae, loce, scalee)
-    # Calculate mode of the skew norm
-    delta = ae/np.sqrt(1+ae**2)
-    muz = np.sqrt(2/pi)*delta
-    sigmaz = np.sqrt(1-muz**2)
-    mo = muz - skewness*sigmaz*0.5-np.sign(ae)*0.5*np.exp(-2*pi/np.abs(ae))
-    mode = loce + scalee*mo
-    stat = {"mean":mean, "variance":variance, "skew":skewness, "kurtosis":kurtosis, "median":median, "mode":mode}
-    print("Fit skew normal:\n shape = %3.1f\n location = %3.1f\n scale = %3.1f" % (ae, loce, scalee))
-    print("Stats:\n mean = %3.1f\n variance = %3.1f\n skewness = %3.1f\n mode = %3.1f" % (mean, variance, skewness, mode))
-    if (b_stats and b_fit):
-        return(sample_x, p, fit, stat)
-    elif b_stats:
-        return(sample_x, p, stat)
-    elif b_fit:
-        return(sample_x, p, fit)
-    else:
-        return(sample_x, p)
-    
-def stats_text(ax, stat, fit, **karg):
-    xpos = karg.pop("xpos", 0.01)
-    ypos = karg.pop("ypos", 0.9)
-    name = karg.pop('name',"statistics")
-    name = name.replace(" ", "\,")
-    quantile_interval = stats.skewnorm.interval(0.5, fit["shape"], fit["location"], fit["scale"])
-    std = stats.skewnorm.std(fit["shape"], fit["location"], fit["scale"])
-    
-    ax.text(xpos, ypos, "$%s$\n mean = %3.1f\n std = %3.1f\n median = %3.1f\n (q1, q3) = (%3.1f, %3.1f)\n mode =  %3.1f" % (name, stat["mean"], std, stat["median"], quantile_interval[0], quantile_interval[1],  stat["mode"]), transform=ax.transAxes)
-
 
 def compute_aot(data, **karg):
     threshold = karg.pop('level', 40)
@@ -216,6 +173,13 @@ fitSpl_dmax_svanvik = UnivariateSpline(np.unique(doys_svanvik), dmax_svanvik.gro
 doys_prestebakke = data['Prestebakke'][:'2017'].index.dayofyear
 fitSpl_dmean_prestebakke = UnivariateSpline(np.unique(doys_prestebakke), data['Prestebakke'][:'2017'].groupby(doys_prestebakke).apply(np.nanmean))
 dmax_prestebakke = data['Prestebakke'].resample('1d').apply(np.nanmax)
+
+# Pickle splines for comparison with other data
+import pickle
+with open('obs_climatologies.pkl','wb') as output:
+    pickle.dump(fitSpl_dmean, output, pickle.HIGHEST_PROTOCOL)
+    pickle.dump(fitSpl_dmean_svanvik, output, pickle.HIGHEST_PROTOCOL)
+    pickle.dump(fitSpl_dmean_prestebakke, output, pickle.HIGHEST_PROTOCOL)
 
 # Draw sample from climatology of Jergul/Karsjok, Esrange, Pallas -> fig9
 sample = fitSpl_dmean(svanvik_daily.dropna().index.dayofyear)
@@ -733,6 +697,15 @@ for i in range(10):
     ax.set_ylabel("SUM$x_i$ (ppb h)")
     ax.legend(bbox_to_anchor=(3.15, -2.05), loc='lower right', borderaxespad=0.)
 
+    if i==0:
+        print("%s \t %s \t %s \t %s" % ("AOT30_820", "AOT40_820", "AOT30_123", "AOT40_123" ))
+        
+    print("%3.2f \t %3.2f \t %3.2f \t %3.2f" % (
+    ((AOT30_820['Esrange']['%d' % (year)]['%d%s' % (year,"-05-10")])/(AOT30_820['Esrange']['%d' % (year)]['%d%s' % (year,"-07-01")])-1)*100,
+    ((AOT40_820['Esrange']['%d' % (year)]['%d%s' % (year,"-05-10")])/(AOT40_820['Esrange']['%d' % (year)]['%d%s' % (year,"-07-01")])-1)*100,
+    ((AOT30_123['Esrange']['%d' % (year)]['%d%s' % (year,"-05-10")])/(AOT30_123['Esrange']['%d' % (year)]['%d%s' % (year,"-07-01")])-1)*100,
+    ((AOT40_123['Esrange']['%d' % (year)]['%d%s' % (year,"-05-10")])/(AOT40_123['Esrange']['%d' % (year)]['%d%s' % (year,"-07-01")])-1)*100
+    ))
     #date_fmt = '%m'
     #formatter = dates.DateFormatter(date_fmt)
     #ax.xaxis.set_major_formatter(formatter)
