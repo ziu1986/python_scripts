@@ -28,10 +28,12 @@ def select(ag_data, lat,lon):
     return(ag_data_sel)
 
 try:
-    data
+    data_macc
 except NameError:
     nc_src = os.environ['DATA']+"/astra_data/ECMWF/MACC_reanalysis/netcdf/VMR/*climatology.nc" 
-    data = read_date(nc_src)
+    data_macc = read_date(nc_src)
+    nc_src = os.environ['DATA']+"/astra_data/ECMWF/CAMS_reanalysis/netcdf/VMR/*climatology.nc" 
+    data_cams = read_date(nc_src)
 
 
 # Load climatologies from observations
@@ -41,56 +43,75 @@ with open('../obs_climatologies.pkl', 'rb') as input:
     climatology_svanvik = pickle.load(input)
     climatology_prestebakke = pickle.load(input)
 
-sample_macc = {}
-sample_x = {}
-sample_spl_nord =  climatology_nord(data.time.dt.dayofyear)
-sample_spl_prestebakke =  climatology_prestebakke(data.time.dt.dayofyear)
+doy_macc = {}
+doy_cams = {}   
+sample_spl_nord =  climatology_nord(np.unique(data_macc.time.dt.dayofyear))
+sample_spl_prestebakke =  climatology_prestebakke(np.unique(data_macc.time.dt.dayofyear))
 
 for istation in ('Esrange', 'Pallas', 'Jergul', 'Svanvik', 'Prestebakke'):
-    sample_macc[istation] = (data['go3']*1e9).sel(latitude=station_location[istation].lat, longitude=station_location[istation].lon, method='nearest').groupby(data.time.dt.dayofyear).mean()
-    #sample_x[istation] = 
+    doy_macc[istation] = (data_macc['go3']*1e9).sel(latitude=station_location[istation].lat, longitude=station_location[istation].lon, method='nearest').groupby(data_macc.time.dt.dayofyear).mean()
+    doy_cams[istation] = (data_cams['go3']*1e9).sel(latitude=station_location[istation].lat, longitude=station_location[istation].lon, method='nearest').groupby(data_cams.time.dt.dayofyear).mean()
+    
 
 
 # Plot it
 plt.close('all')
 fig1 = plt.figure(1, figsize=(16,9))
-fig1.canvas.set_window_title("ozone_climatology_macc")
-sample_macc['Prestebakke'].plot(color='red', label='Prestebakke')
+fig1.canvas.set_window_title("ozone_climatologies")
+ax11 = plt.subplot(121)
+ax12 = plt.subplot(122)
 
-for istation, color, marker in zip(('Esrange', 'Pallas', 'Jergul', 'Svanvik'), ('orange','black','blue', 'blueviolet'), ('x','^','v','+')):
-    sample_macc[istation].plot(color=color, label=istation, marker=marker, ls='None')
 
-# Get current axis object
-ax = plt.gca()
-# Climatology from obs
-ax.plot(np.linspace(1,367), climatology_nord(np.linspace(1,367)), ls='--', label='climatology: nord')
-ax.plot(np.linspace(1,367), climatology_prestebakke(np.linspace(1,367)), ls='--', label='climatology: Prestebakke')
+for istation, color, marker in zip(('Esrange', 'Pallas', 'Jergul', 'Svanvik'), ('orange','black','blue', 'blueviolet'), ('o','^','v','d')):
+    doy_macc[istation].plot(ax=ax11, color=color, label=istation, marker=marker, ls='None')
+    doy_cams[istation].plot(ax=ax12, color=color, label=istation, marker=marker, fillstyle='none', ls='None')
 
-ax.set_xlabel("Time (day of year)")
-ax.set_ylabel("[$O_3$] (ppb)")
+#
+doy_macc['Prestebakke'].plot(ax=ax11, color='red', label='Prestebakke', alpha=0.5)
+doy_cams['Prestebakke'].plot(ax=ax12, color='red', label='Prestebakke', alpha=0.5)
+
 for ax in fig1.axes:
+    
+    # Climatology from obs
+    ax.plot(np.linspace(1,367), climatology_nord(np.linspace(1,367)), ls='--', label='obs_clim: Nordkalotten')
+    ax.plot(np.linspace(1,367), climatology_prestebakke(np.linspace(1,367)), ls='--', label='obs_clim: Prestebakke')
     ax.set_ylim(0,60)
-    ax.legend(loc='lower left')
+    ax.legend(loc='lower left', ncol=2)
+    ax.set_xlabel("Time (day of year)")
+    ax.set_ylabel("[$O_3$] (ppb)")
+    plot_month_span(ax)
+    plot_month_name(ax, ypos=58)
 
-plot_month_span(ax)
-plot_month_name(ax, ypos=58)
+ax11.set_title("MACC reanalysis")
+ax12.set_title("CAMS reanalysis")
 
 fig2 = plt.figure(2, figsize=(10,12))
 fig2.canvas.set_window_title("ozone_climatology_fenoscandic_obs_residuals")
 
-ax21 = plt.subplot(311)
-ax22 = plt.subplot(312, sharex=ax21)
-ax23 = plt.subplot(313, sharex=ax21)
+ax21 = plt.subplot(321)
+ax23 = plt.subplot(323, sharex=ax21)
+ax25 = plt.subplot(325, sharex=ax21)
 
-ax21.set_title("Esrange", y=0.85, x=0.05)
-ax22.set_title("Pallas", y=0.85, x=0.05)
-ax23.set_title("Prestebakke", y=0.85, x=0.05)
+ax22 = plt.subplot(322)
+ax24 = plt.subplot(324, sharex=ax22)
+ax26 = plt.subplot(326, sharex=ax22)
+
+ax21.set_title("Esrange", y=0.85, x=0.15)
+ax23.set_title("Pallas", y=0.85, x=0.15)
+ax25.set_title("Prestebakke", y=0.85, x=0.15)
+
+ax22.set_title("Esrange", y=0.85, x=0.15)
+ax24.set_title("Pallas", y=0.85, x=0.15)
+ax26.set_title("Prestebakke", y=0.85, x=0.15)
 
 
-hist21_2018 = ax21.hist((sample_macc['Esrange']-sample_spl_nord).values, density=True, histtype='step', color='blue', label='Esrange 2018')
-hist22_2018 = ax22.hist((sample_macc['Pallas']-sample_spl_nord).values, density=True, histtype='step', color='black', label='Pallas 2018')
-hist23_2018 = ax23.hist((sample_macc['Prestebakke']-sample_spl_prestebakke).values, density=True, histtype='step', color='red', label='Prestebakke 2018')
+hist21_2018 = ax21.hist((doy_macc['Esrange']-sample_spl_nord).values, density=True, histtype='step', color='blue', label='Esrange 2018')
+hist23_2018 = ax23.hist((doy_macc['Pallas']-sample_spl_nord).values, density=True, histtype='step', color='black', label='Pallas 2018')
+hist25_2018 = ax25.hist((doy_macc['Prestebakke']-sample_spl_prestebakke).values, density=True, histtype='step', color='red', label='Prestebakke 2018')
 
+hist22_2018 = ax22.hist((doy_cams['Esrange']-sample_spl_nord).values, density=True, histtype='step', color='blue', label='Esrange 2018')
+hist24_2018 = ax24.hist((doy_cams['Pallas']-sample_spl_nord).values, density=True, histtype='step', color='black', label='Pallas 2018')
+hist26_2018 = ax26.hist((doy_cams['Prestebakke']-sample_spl_prestebakke).values, density=True, histtype='step', color='red', label='Prestebakke 2018')
 #ax21.plot(x_sample_esrange, pdf_esrange, color='black', label='Skew normal fit')
 #stats_text(ax21, stat_esrange, fit_esrange, ypos=0.4)
 
@@ -100,7 +121,7 @@ hist23_2018 = ax23.hist((sample_macc['Prestebakke']-sample_spl_prestebakke).valu
 #ax23.plot(x_sample_prestebakke, pdf_prestebakke, color='black', label='Skew normal fit')
 #stats_text(ax23, stat_prestebakke, fit_prestebakke, ypos=0.4)
 
-ax23.set_xlabel("$<O_3>_{daily}-O_3^{clim}$ (ppb)")
+ax26.set_xlabel("$<O_3>_{daily}-O_3^{clim}$ (ppb)", x=-0.25)
 
 # Show it
 plt.show(block=False)

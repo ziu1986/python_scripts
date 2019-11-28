@@ -151,28 +151,44 @@ ozone_days_svanvik = np.concatenate(np.array(ozone_days_svanvik))
 
 # Monthly mean climatology from Esrange, Pallas, Jergul/Karasjok data
 climatology = pd.concat((data['Esrange'], data['Pallas'], data_jergkara))
-yozone = climatology.groupby(climatology.index.month).apply(np.nanmean)
-xtime = np.unique(climatology['2006'].where(climatology['2006'].index.day==15).dropna().index.dayofyear)
-yerr = climatology.groupby(climatology.index.month).apply(np.nanstd)
+#yozone = climatology.groupby(climatology.index.month).apply(np.nanmean)
+#xtime = np.unique(climatology['2006'].where(climatology['2006'].index.day==15).dropna().index.dayofyear)
+#yerr = climatology.groupby(climatology.index.month).apply(np.nanstd)
+#yerr_mean = climatology.groupby(climatology.index.month).apply(lambda x: x.mean()/np.sqrt(x.count()))
+
+yozone = climatology.groupby(climatology.index.dayofyear).apply(np.nanmean)
+xtime = np.arange(1,367)
+yerr = climatology.groupby(climatology.index.dayofyear).apply(np.nanstd)
+yerr_mean = climatology.groupby(climatology.index.dayofyear).apply(lambda x: x.mean()/np.sqrt(x.count()))
 
 # Svanvik climatology
-yozone_svanvik = data['Svanvik'].groupby(data['Svanvik'].index.month).apply(np.nanmean)
-yerr_svanvik = data['Svanvik'].groupby(data['Svanvik'].index.month).apply(np.nanstd)
+#yozone_svanvik = data['Svanvik'].groupby(data['Svanvik'].index.month).apply(np.nanmean)
+#yerr_svanvik = data['Svanvik'].groupby(data['Svanvik'].index.month).apply(np.nanstd)
+#yerr_mean_svanvik = data['Svanvik'].groupby(data['Svanvik'].index.month).apply(lambda x: x.mean()/np.sqrt(x.count()))
+
+yozone_svanvik = data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmean)
+yerr_svanvik = data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanstd)
+yerr_mean_svanvik = data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(lambda x: x.mean()/np.sqrt(x.count()))
 
 # Compute spline fits
 from scipy.interpolate import UnivariateSpline
-#w = 1/yerr**2
-fitSpl_dmean = UnivariateSpline(np.unique(doys), climatology.groupby(climatology.index.dayofyear).apply(np.nanmean))
+w = 1/yerr_mean
+fitSpl_dmean = UnivariateSpline(np.unique(doys), climatology.groupby(climatology.index.dayofyear).apply(np.nanmean), w=w)
 dmax = climatology.resample('1d').apply(np.nanmax)
 fitSpl_dmax = UnivariateSpline(np.unique(doys), dmax.groupby(dmax.index.dayofyear).apply(np.nanmean))
 
-fitSpl_dmean_svanvik = UnivariateSpline(np.unique(doys_svanvik), data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmean))
+w_svanvik = 1/yerr_mean_svanvik
+fitSpl_dmean_svanvik = UnivariateSpline(np.unique(doys_svanvik), data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmean), w=w_svanvik)
 dmax_svanvik = data['Svanvik'].resample('1d').apply(np.nanmax)
-fitSpl_dmax_svanvik = UnivariateSpline(np.unique(doys_svanvik), dmax_svanvik.groupby(dmax_svanvik.index.dayofyear).apply(np.nanmean))
+fitSpl_dmax_svanvik = UnivariateSpline(np.unique(doys_svanvik), dmax_svanvik.groupby(dmax_svanvik.index.dayofyear).apply(np.nanmean), s=1000)
 
 doys_prestebakke = data['Prestebakke'][:'2017'].index.dayofyear
 fitSpl_dmean_prestebakke = UnivariateSpline(np.unique(doys_prestebakke), data['Prestebakke'][:'2017'].groupby(doys_prestebakke).apply(np.nanmean))
 dmax_prestebakke = data['Prestebakke'].resample('1d').apply(np.nanmax)
+
+# Compute Savgol filtered data
+from scipy.signal import savgol_filter
+ytest = savgol_filter(climatology.groupby(climatology.index.dayofyear).apply(np.nanmean),31,3)
 
 # Pickle splines for comparison with other data
 import pickle
@@ -460,15 +476,18 @@ ax81 = plt.subplot(211)
 ax82 = plt.subplot(212)
 
 hist81 = ax81.hist2d(doys, ozone_days, bins=(np.arange(0.5,367),np.linspace(0,81,160)), cmap=plt.cm.hot_r)
-ax81.errorbar(xtime, yozone, yerr=yerr, color='black', marker='o', ls='None', label='monthly mean')
+ax81.errorbar(xtime[::10], yozone[::10], yerr=yerr[::10], color='black', marker='o', ls='None', label='monthly mean (1 $\sigma$)')
+ax81.errorbar(xtime[::10], yozone[::10], yerr=yerr_mean[::10], color='blue', marker='None', ls='None', label='std_err_mean')
 ax81.plot(np.linspace(1,367), fitSpl_dmean(np.linspace(1,367)), ls='--', label='spline fit: daily mean')
 ax81.plot(np.linspace(1,367), fitSpl_dmax(np.linspace(1,367)), ls=':', label='spline fit: mean daily max', color='blue')
+#ax81.plot(np.arange(1,367), ytest, ls='-.', label='savgol filtered', color='darkgrey')
 
 
 hist82 = ax82.hist2d(doys_svanvik, ozone_days_svanvik, bins=(np.arange(0.5,367),np.linspace(0,81,160)), cmap=plt.cm.hot_r)
 ax82.plot(np.linspace(1,367), fitSpl_dmean_svanvik(np.linspace(1,367)), ls='--', label='spline fit: daily mean', color='blue')
 ax82.plot(np.linspace(1,367), fitSpl_dmax_svanvik(np.linspace(1,367)), ls=':', label='spline fit: mean daily max', color='blue')
-ax82.errorbar(xtime, yozone_svanvik, yerr=yerr_svanvik, color='black', marker='o', ls='None', label='monthly mean')
+ax82.errorbar(xtime[::10], yozone_svanvik[::10], yerr=yerr_svanvik[::10], color='black', marker='o', ls='None', label='monthly mean (1 $\sigma$)')
+ax82.errorbar(xtime[::10], yozone_svanvik[::10], yerr=yerr_mean_svanvik[::10], color='blue', marker='None', ls='None', label='std_err_mean')
 
 # Setting colorbar
 for ax,hist in zip(fig8.axes, (hist81, hist82)):
