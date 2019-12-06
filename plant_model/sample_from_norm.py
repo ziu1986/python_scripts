@@ -1,128 +1,113 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
-def digitize(a, scale_x, pixel_x):
-    m = (scale_x[1]-scale_x[0])/(pixel_x[1]-pixel_x[0])
-    b = scale_x[0]-m*pixel_x[0]
-    return(m*a+b)
-
-def read_dat(path):
-    lines = open(path).readlines()
-    for line in lines[:10]:
-        if line[0].find("#")<0:
-            var_name, scale_x0, scale_x1, pixel_x0, pixel_x1 = line.split()
-            
-    for line in lines[11:]:
-        if ((line[0].find("#")<0) and (len(line)>1)):
-            exp_name, o3_mean, o3_sigma, gs_mean, gs_sigma, A_mean, A_sigma, Rd_mean, Rd_sigma, Ci_mean, Ci_sigma, Vcmax_mean, Vcmax_sigma, Jmax_mean, Jmax_sigma = line.split()
-    scale = {"var_name":var_name, "scale_x0":scale_x0, "scale_x1":scale_x1, "pixel_x0":pixel_x0, "pixel_x1":pixel_x1}
-    value = {"exp_name":exp_name, "o3_mean":o3_mean, "o3_sigma":o3_sigma, "gs_mean":gs_mean, "gs_sigma":gs_sigma, "A_mean":A_mean, "A_sigma":A_sigma, "Rd_mean":Rd_mean, "Rd_sigma":Rd_sigma, "Ci_mean":Ci_mean, "Ci_sigma":Ci_sigma, "Vcmax_mean":Vcmax_mean, "Vcmax_sigma":Vcmax_sigma, "Jmax_mean":Jmax_mean, "Jmax_sigma":Jmax_sigma}
-
-    return (scale, value)
-            
-# Clean up
-plt.close('all')
-# Constants
-kO3 = 1.67
-kCO2 =1.52
-kappa = kO3/kCO2
-
-# Ozone distributions
-xu_o3_mu = np.array((32.8,29.1,27.4,25.1))
-xu_o3_sigma = np.array((1.2,1.0,0.8,0.5))
-xu_o3_label = np.array(("S1", "S2", "S3", "S4"))
-xu_o3_days = np.array((26,26,26,54))
-
-xu_gs_cf = np.array((426.08,370.98,365.04,366.62))*m+b
-xu_gs_cf_sigma = np.array((435.59,378.51,373.36,380.89))*m+b
-xu_gs_o3 = np.array((416.56,373.76,356.71,358.30))*m+b
-xu_gs_o3_sigma = np.array((427.66,384.86,365.03,370.98))*m+b
-
-# Draw samples
-
-# Draw 10 samples from dist(M10) (mean ozone and std) and sum these
-# Repeat 1000 times to get the distribution of accumulated ozone per day
-ceo3_day = []
-
-for i in range(4):
+def compute_cuo(o3_mu, o3_sigma, gs_o3, gs_o3_sigma, exp_hours, exp_days, **kwarg):
+    '''
+    Compute the ozone exposure using MC.
+    Parameters:
+    Daily ozone exposure mean, std (ppb).
+    Hours of exposure per day.
+    Total number of days.
+    Stomatal conductance (mmol O3 m-2)
+    
+    '''
+    verbose = kwarg.pop('verbose', False)
+    if (verbose):
+        print("hours: %d days: %d" % (exp_hours, exp_days))
+    # Draw samples
+    
+    # Draw n samples from dist(Mn) (mean ozone and std) and sum these
+    # Repeat 1000 times to get the distribution of accumulated ozone per day
+    ceo3_day = []
     for j in range(1000):
-        s = np.random.normal(xu_o3_mu[i],xu_o3_sigma[i],10)
+        s = np.random.normal(o3_mu,o3_sigma,exp_hours)
         ceo3_day.append(np.sum(s))
-# Reshape
-ceo3_day = np.reshape(np.array(ceo3_day),(4,1000))
+    # Reshape
+    ceo3_day = np.array(ceo3_day)
 
-# Draw samples corresponding to leaf age from the new distribution
-# Repeat 1000 times to get the distribution of accumulated ozone per leaf age
-ceo3 = []
-ceo3_day_mean = []
-ceo3_day_sigma = []
-for i in range(4):
+    # Draw samples corresponding to leaf age from the new distribution
+    # Repeat 1000 times to get the distribution of accumulated ozone per leaf age
+    ceo3 = []
     # Get new distribution
-    ceo3_day_mean.append(ceo3_day[i].mean())
-    ceo3_day_sigma.append(ceo3_day[i].std())
+    ceo3_day_mean = ceo3_day.mean()
+    ceo3_day_sigma = ceo3_day.std()
     for j in range(1000):
-        s = np.random.normal(ceo3_day_mean[-1],ceo3_day_sigma[-1],xu_o3_days[i])
+        s = np.random.normal(ceo3_day_mean,ceo3_day_sigma,exp_days)
         ceo3.append(np.sum(s))
-# Reshape      
-ceo3 = np.reshape(np.array(ceo3),(4,1000))
+    # Reshape      
+    ceo3 = np.array(ceo3)
 
-cuo = []
-ceo3_mean = []
-ceo3_sigma = []
-for i in range(4):
-    ceo3_mean.append(ceo3_day[i].mean())
-    ceo3_sigma.append(ceo3_day[i].std())
+    cuo = []
+    ceo3_mean = ceo3.mean()
+    ceo3_sigma = ceo3.std()
+
     for j in range(10000):
-        s = np.random.normal(ceo3_mean[-1],ceo3_sigma[-1],1)
-        gs = np.random.normal(xu_gs_o3[i],xu_gs_o3_sigma[i],1)
-        tmp = s*kappa*gs*60**2*1e-6
+        s = np.random.normal(ceo3_mean,ceo3_sigma,1)
+        gs = np.random.normal(gs_o3,gs_o3_sigma,1)
+        tmp = s*gs*60**2*1e-9
         cuo.append(tmp)
-# Reshape
-cuo = np.reshape(np.array(cuo),(4,10000))
-for i in range(4):
-    print("%s (%1.2f +- %1.2f) mmol m^-2"  % (xu_o3_label[i], np.around(cuo[i].mean(),2), cuo[i].std()))
-
-if (False):
-    # Plot it
-    fig1 = plt.figure(1)
-
-    for i in range(4):
-        ax = plt.subplot(2,2,i+1)
-        ax.hist(ceo3_day[i])
+    # Reshape
+    cuo = np.array(cuo)
+    if(verbose):
+        print("(%1.2f +- %1.2f) nmol mol^-1 h (%1.2f +- %1.2f) nmol mol^-1 h (%1.2f +- %1.2f) mmol m^-2"  % (np.around(ceo3_day_mean,2), ceo3_day_sigma, np.around(ceo3_mean,2), ceo3_sigma, np.around(cuo.mean(),2), cuo.std()))
+    return(cuo.mean(), cuo.std())
+    
+    if (verbose):
+        # Plot it
+        fig1 = plt.figure(1)
+        
+        ax = plt.subplot()
+        ax.hist(ceo3_day)
         #ax.set_xlim(240,360)
         ax.set_ylim(0,40)
-        ax.set_title(xu_o3_label[i])
-        ax.text(0.05, 0.95, "(%3.0f $\pm$%1.0f) $ppb \cdot h$" % (ceo3_day_mean[i], ceo3_day_sigma[i]), transform=ax.transAxes)
+        ax.text(0.05, 0.95, "(%3.0f $\pm$%1.0f) $ppb \cdot h$" % (ceo3_day_mean, ceo3_day_sigma), transform=ax.transAxes)
 
-    fig1.axes[3].set_xlabel("$\Sigma_{10h} O_3 (ppb \cdot h)$ ", x=-0.15)
+        ax.set_xlabel("$\Sigma_{10h} O_3 (ppb \cdot h)$ ", x=-0.15)
 
 
-    fig2 = plt.figure(2)
+        fig2 = plt.figure(2)
 
-    for i in range(4):
-        ax = plt.subplot(2,2,i+1)
-        ax.hist(ceo3[i])
+        ax = plt.subplot()
+        ax.hist(ceo3)
         #ax.set_xlim(7000,14000)
         ax.set_ylim(0,40)
-        ax.set_title(xu_o3_label[i])
-    
-        ax.text(0.05, 0.95, "(%5.0f $\pm$%2.0f) $ppb \cdot h \cdot d$" % (np.around(ceo3[i].mean(),-2), ceo3[i].std()), transform=ax.transAxes)
+           
+        ax.text(0.05, 0.95, "(%5.0f $\pm$%2.0f) $ppb \cdot h \cdot d$" % (np.around(ceo3.mean(),-2), ceo3.std()), transform=ax.transAxes)
 
-    fig2.axes[3].set_xlabel("$\Sigma_{10h} O_3 (ppb \cdot h \cdot d)$ ", x=-0.15)
+        ax.set_xlabel("$\Sigma_{10h} O_3 (ppb \cdot h \cdot d)$ ", x=-0.15)
 
-    fig3 = plt.figure(3)
+        fig3 = plt.figure(3)
         
-    for i in range(4):
-        ax = plt.subplot(2,2,i+1)
-        ax.hist(cuo[i])
+        ax = plt.subplot()
+        ax.hist(cuo)
         #ax.set_xlim(7000,14000)
         ax.set_ylim(0,400)
-        ax.set_title(xu_o3_label[i])
-        ax.text(0.05, 0.95, "(%1.2f $\pm$%1.2f) $mmol m^{-2}$" % (np.around(cuo[i].mean(),2), cuo[i].std()), transform=ax.transAxes)
+        ax.text(0.05, 0.95, "(%1.2f $\pm$%1.2f) $mmol m^{-2}$" % (np.around(cuo.mean(),2), cuo.std()), transform=ax.transAxes)
 
-    fig3.axes[3].set_xlabel("CUO $(mmol\,m^{-2}$) ", x=-0.15)
+        ax.set_xlabel("CUO $(mmol\,m^{-2}$) ", x=-0.15)
 
-    # Show it
-    plt.show(block=False)
+        # Show it
+        plt.show(block=False)
 
     
+# Read file
+#data = pd.read_csv("xu_2019.dat",index_col=0, sep=' ')
+            
+# Clean up
+#plt.close('all')
+
+# Ozone distributions
+#xu_o3_mu = data['o3_mean'][1::2]
+#xu_o3_sigma = data['o3_sigma'][1::2]
+#xu_o3_label = data.index[1::2]
+#xu_o3_days = data['leaf_age'][1::2]
+
+#xu_gs_cf = data['gs_co_mean'][0::2]
+#xu_gs_cf_sigma = data['gs_co_sigma'][0::2]
+#xu_gs_o3 = data['gs_co_mean'][1::2]
+#xu_gs_o3_sigma = data['gs_co_sigma'][1::2]
+
+
+#for i in range(4):
+    #compute_cuo(xu_o3_mu[i], xu_o3_sigma[i], xu_gs_o3[i], xu_gs_o3_sigma[i], 10, xu_o3_days[i])
