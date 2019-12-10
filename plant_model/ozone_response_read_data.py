@@ -12,6 +12,7 @@ data_pelle14 = pd.read_csv("pellegrini_2014.dat",index_col=0, sep=' ', keep_defa
 data_kinose = pd.read_csv("kinose_2019.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
 data_watanabe13 = pd.read_csv("watanabe_2013.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
 data_gao = pd.read_csv("gao_2016.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
+data_harmens = pd.read_csv("harmens_2017.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
 
 # Ozone distributions
 xu_o3_mu = data_xu['o3_mean'][1::2]
@@ -164,3 +165,18 @@ gao_Jmax_o3 = data_gao['Jmax_mean']
 gao_Jmax_o3_sigma = data_gao['Jmax_sigma']
 gao_Chl_o3 = data_gao['Chl_a+b_mean']
 gao_Chl_o3_sigma = data_gao['Chl_a+b_sigma']
+
+
+harmens_o3_mu = data_harmens['o3_mean']
+harmens_o3_sigma = data_harmens['o3_sigma']
+harmens_o3_label = data_harmens.index
+harmens_o3_days = data_harmens['leaf_age']
+harmens_o3_fumi = data_harmens['fumigation']
+
+harmens_gs_o3 = data_harmens['gs_mean']
+harmens_gs_o3_sigma = data_harmens['gs_sigma']
+
+harmens_Vcmax_o3 = data_harmens['Vcmax_mean']
+harmens_Vcmax_o3_sigma = data_harmens['Vcmax_sigma']
+harmens_Jmax_o3 = data_harmens['Jmax_mean']
+harmens_Jmax_o3_sigma = data_harmens['Jmax_sigma']

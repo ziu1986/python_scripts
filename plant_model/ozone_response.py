@@ -10,7 +10,7 @@ def ratio(x1, x2, sigma_x1, sigma_x2):
     return(rg, rg_sigma)
 
 try:
-    gao_o3_mu
+    harmens_o3_mu
 except NameError:
     execfile("ozone_response_read_data.py")
 
@@ -187,14 +187,14 @@ ax15.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rChl,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rChl_sigma,
               ls='None', marker='v', label='Gao2016')
 
-ax14.set_xlabel("CUO (mmol $m^{-2}$)",x=1)
+ax15.set_xlabel("CUO (mmol $m^{-2}$)")
 ax11.set_ylabel("$g_s^{O_3}/g_s^{CF}$")
 ax12.set_ylabel("$J_{max}^{O_3}/J_{max}^{CF}$")
 ax13.set_ylabel("$V_{cmax}^{O_3}/V_{cmax}^{CF}$")
 ax14.set_ylabel("$R_{d}^{O_3}/R_{d}^{CF}$")
 ax15.set_ylabel("$Chl_{a+b}^{O_3}/Chl_{a+b}^{CF}$")
 
-ax11.legend(bbox_to_anchor=(3.05, -0.5), loc='lower right', borderaxespad=0.)
+ax11.legend(bbox_to_anchor=(3.05, -1.), loc='lower right', borderaxespad=0.)
 
 for ax in fig1.axes:
     ax.set_ylim(0.,3)

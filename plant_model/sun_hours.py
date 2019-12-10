@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 def daylength(dayOfYear, lat):
     """Computes the length of the day (the time between sunrise and
@@ -30,3 +31,12 @@ def daylength(dayOfYear, lat):
     else:
         hourAngle = np.rad2deg(np.arccos(-np.tan(latInRad) * np.tan(np.deg2rad(declinationOfEarth))))
         return 2.0*hourAngle/15.0
+
+def get_avg_daylenght(start_date, end_date, lat):
+    doy_start = pd.DatetimeIndex((np.datetime64(start_date),)).dayofyear[0]
+    doy_end = pd.DatetimeIndex((np.datetime64(end_date),)).dayofyear[0]
+    print(doy_start, doy_end)
+    light_hours = [daylength(each, lat) for each in np.arange(0,365)]
+    mean_daylight = np.mean(light_hours[doy_start-1:doy_end-1])
+    std_daylight = np.std(light_hours[doy_start-1:doy_end-1])
+    return(mean_daylight, std_daylight)

@@ -157,3 +157,9 @@ for i in range(8):
 
 gao_pcuo = np.array(gao_pcuo)
 gao_pcuo_std = np.array(gao_pcuo_std)
+
+
+harmens_pcuo = []
+harmens_pcuo_std = []
+
+    
