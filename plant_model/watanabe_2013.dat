@@ -1,0 +1,5 @@
+#Experiment leaf_age fumigation o3_mean o3_sigma gs_mean gs_sigma A_mean A_sigma Rd_mean Rd_sigma Ci_mean Ci_sigma Vcmax_mean Vcmax_sigma Jmax_mean Jmax_sigma Chl_a+b_mean Chl_a+b_sigma
+S_Beech_amb 194 13.37 25.7 5.14 283.9 33.4 8.8 0.3 1.1 0.2 300 8 55.8 3 118.6 6.1 0.51 0.03
+S_Beech_o3 98 11.98 56.7 11.34 233.8 16.7 4.7 0.4 1.8 0.1 332 4 31.3 2.1 85.2 5.3 0.32 0.07
+S_Oak_amb 194 13.37 25.7 5.14 384.1 33.4 12 0.5 0.8 0.1 284 8 63.4 6.7 126.4 9.1 0.88 0.06
+S_Oak_o3 98 11.98 56.7 11.34 317.3 16.7 10.2 0.4 1.6 0.2 300 8 55.3 1.6 126.3 3.7 0.87 0.07
