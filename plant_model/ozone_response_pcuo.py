@@ -161,5 +161,23 @@ gao_pcuo_std = np.array(gao_pcuo_std)
 
 harmens_pcuo = []
 harmens_pcuo_std = []
+for j in range(3):
+    for i in range(4):
+        
+        if j==0:
+            cuo_mean, cuo_std = compute_cuo(harmens_o3_mu[4*j:4*j+4][i], harmens_o3_sigma[4*j:4*j+4][i], harmens_gs_o3[4*j:4*j+4][i],harmens_gs_o3_sigma[4*j:4*j+4][i], harmens_o3_fumi[4*j:4*j+4][i].astype(int), harmens_o3_days[4*j:4*j+4][i])
+            #print(i, j, cuo_mean, cuo_std)
+        if j>0:
+            cuo_mean, cuo_std = compute_cuo(harmens_o3_mu[4*j:4*j+4][i], harmens_o3_sigma[4*j:4*j+4][i], (harmens_gs_o3[4*j:4*j+4][i]-harmens_gs_o3[4*(j-1):4*(j-1)+4][i])*0.5+harmens_gs_o3[4*(j-1):4*(j-1)+4][i], 0.5*np.sqrt(harmens_gs_o3_sigma[4*j:4*j+4][i]**2+harmens_gs_o3_sigma[4*(j-1):4*(j-1)+4][i]**2), harmens_o3_fumi[4*j:4*j+4][i].astype(int), harmens_o3_days[4*j:4*j+4][i]-harmens_o3_days[4*(j-1):4*(j-1)+4][i])
+            #print(harmens_o3_mu[4*j:4*j+4][i], harmens_o3_sigma[4*j:4*j+4][i], (harmens_gs_o3[4*j:4*j+4][i]-harmens_gs_o3[4*(j-1):4*(j-1)+4][i])*0.5+harmens_gs_o3[4*(j-1):4*(j-1)+4][i], 0.5*np.sqrt(harmens_gs_o3_sigma[4*j:4*j+4][i]**2+harmens_gs_o3_sigma[4*(j-1):4*(j-1)+4][i]**2), harmens_o3_fumi[4*j:4*j+4][i].astype(int), harmens_o3_days[4*j:4*j+4][i]-harmens_o3_days[4*(j-1):4*(j-1)+4][i])
+            #print(i, j, cuo_mean, cuo_std)
+            cuo_mean = cuo_mean+harmens_pcuo[4*(j-1):4*(j-1)+4][i]
+            cuo_std = np.sqrt(cuo_std**2+harmens_pcuo_std[4*(j-1):4*(j-1)+4][i]**2)
+            #print(i, j, cuo_mean, cuo_std)
+        #print(harmens_pcuo)
+        harmens_pcuo.append(cuo_mean)
+        harmens_pcuo_std.append(cuo_std)    
 
+harmens_pcuo = np.array(harmens_pcuo).reshape(6,2)
+harmens_pcuo_std = np.array(harmens_pcuo_std).reshape(6,2)
     

@@ -36,3 +36,15 @@ gao_rgs, gao_rgs_sigma = ratio(gao_gs_o3[1::2],
                                gao_gs_o3[0::2],
                                gao_gs_o3_sigma[1::2],
                                gao_gs_o3_sigma[0::2])
+
+
+harmens_rgs_36, harmens_rgs_36_sigma = ratio(harmens_gs_o3[1::4],
+                               harmens_gs_o3[0::4],
+                               harmens_gs_o3_sigma[1::4],
+                               harmens_gs_o3_sigma[0::4])
+
+harmens_rgs_68, harmens_rgs_68_sigma = ratio(harmens_gs_o3[3::4],
+                                             harmens_gs_o3[2::4],
+                                             harmens_gs_o3_sigma[3::4],
+                                             harmens_gs_o3_sigma[2::4])
+

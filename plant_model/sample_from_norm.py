@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from mytools.met_tools import print_all
 
 def compute_cuo(o3_mu, o3_sigma, gs_o3, gs_o3_sigma, exp_hours, exp_days, **kwarg):
     '''
@@ -51,12 +52,12 @@ def compute_cuo(o3_mu, o3_sigma, gs_o3, gs_o3_sigma, exp_hours, exp_days, **kwar
     cuo = np.array(cuo)
     if(verbose):
         print("(%1.2f +- %1.2f) nmol mol^-1 h (%1.2f +- %1.2f) nmol mol^-1 h (%1.2f +- %1.2f) mmol m^-2"  % (np.around(ceo3_day_mean,2), ceo3_day_sigma, np.around(ceo3_mean,2), ceo3_sigma, np.around(cuo.mean(),2), cuo.std()))
-    return(cuo.mean(), cuo.std())
+    
     
     if (verbose):
         # Plot it
-        fig1 = plt.figure(1)
-        
+        fig1 = plt.figure(10)
+        fig1.canvas.set_window_title("sample_from_norm-ceo3_day")
         ax = plt.subplot()
         ax.hist(ceo3_day)
         #ax.set_xlim(240,360)
@@ -66,8 +67,8 @@ def compute_cuo(o3_mu, o3_sigma, gs_o3, gs_o3_sigma, exp_hours, exp_days, **kwar
         ax.set_xlabel("$\Sigma_{10h} O_3 (ppb \cdot h)$ ", x=-0.15)
 
 
-        fig2 = plt.figure(2)
-
+        fig2 = plt.figure(12)
+        fig2.canvas.set_window_title("sample_from_norm-ceo3")
         ax = plt.subplot()
         ax.hist(ceo3)
         #ax.set_xlim(7000,14000)
@@ -77,8 +78,8 @@ def compute_cuo(o3_mu, o3_sigma, gs_o3, gs_o3_sigma, exp_hours, exp_days, **kwar
 
         ax.set_xlabel("$\Sigma_{10h} O_3 (ppb \cdot h \cdot d)$ ", x=-0.15)
 
-        fig3 = plt.figure(3)
-        
+        fig3 = plt.figure(13)
+        fig3.canvas.set_window_title("sample_from_norm-cuo")
         ax = plt.subplot()
         ax.hist(cuo)
         #ax.set_xlim(7000,14000)
@@ -89,8 +90,9 @@ def compute_cuo(o3_mu, o3_sigma, gs_o3, gs_o3_sigma, exp_hours, exp_days, **kwar
 
         # Show it
         plt.show(block=False)
+        print_all()
 
-    
+    return(cuo.mean(), cuo.std())
 # Read file
 #data = pd.read_csv("xu_2019.dat",index_col=0, sep=' ')
             

@@ -23,3 +23,13 @@ gao_rJmax, gao_rJmax_sigma = ratio(gao_Jmax_o3[1::2],
                                gao_Jmax_o3[0::2],
                                gao_Jmax_o3_sigma[1::2],
                                gao_Jmax_o3_sigma[0::2])
+
+harmens_rJmax_36, harmens_rJmax_36_sigma = ratio(harmens_Jmax_o3[1::4],
+                               harmens_Jmax_o3[0::4],
+                               harmens_Jmax_o3_sigma[1::4],
+                               harmens_Jmax_o3_sigma[0::4])
+
+harmens_rJmax_68, harmens_rJmax_68_sigma = ratio(harmens_Jmax_o3[3::4],
+                                             harmens_Jmax_o3[2::4],
+                                             harmens_Jmax_o3_sigma[3::4],
+                                             harmens_Jmax_o3_sigma[2::4])

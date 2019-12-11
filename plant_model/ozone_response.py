@@ -74,6 +74,13 @@ ax11.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rgs,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rgs_sigma,
               ls='None', marker='v', label='Gao2016')
 
+ax11.errorbar(np.diff(harmens_pcuo[:])[:3], harmens_rgs_36,
+              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][:3]**2+harmens_pcuo_std.transpose()[1][:3]**2), yerr=harmens_rgs_36_sigma,
+              ls='None', marker='*', label='Harmens2016')
+ax11.errorbar(np.diff(harmens_pcuo[:])[3:], harmens_rgs_68,
+              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][3:]**2+harmens_pcuo_std.transpose()[1][3:]**2), yerr=harmens_rgs_68_sigma,
+              ls='None', marker='*', color=ax11.lines[-1].get_color())
+
 
 ax12 = plt.subplot(232)
 ax12.errorbar(xu_pcuo, xu_rJmax,
@@ -101,6 +108,13 @@ ax12.errorbar(watanabe13_pcuo[3]-watanabe13_pcuo[2], watanabe13_rJmax_oak,
 ax12.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rJmax,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rJmax_sigma,
               ls='None', marker='v', label='Gao2016')
+ax12.errorbar(np.diff(harmens_pcuo[:])[:3], harmens_rJmax_36,
+              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][:3]**2+harmens_pcuo_std.transpose()[1][:3]**2), yerr=harmens_rJmax_36_sigma,
+              ls='None', marker='*', label='Harmens2016')
+ax12.errorbar(np.diff(harmens_pcuo[:])[3:], harmens_rJmax_68,
+              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][3:]**2+harmens_pcuo_std.transpose()[1][3:]**2), yerr=harmens_rJmax_68_sigma,
+              ls='None', marker='*', color=ax12.lines[-1].get_color())
+
 
 ax13 = plt.subplot(233)
 ax13.errorbar(xu_pcuo, xu_rVcmax, 
@@ -137,6 +151,13 @@ ax13.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rVcmax,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rVcmax_sigma,
               ls='None', marker='v', label='Gao2016')
 
+ax13.errorbar(np.diff(harmens_pcuo[:])[:3], harmens_rVcmax_36,
+              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][:3]**2+harmens_pcuo_std.transpose()[1][:3]**2), yerr=harmens_rVcmax_36_sigma,
+              ls='None', marker='*', label='Harmens2016')
+ax13.errorbar(np.diff(harmens_pcuo[:])[3:], harmens_rVcmax_68,
+              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][3:]**2+harmens_pcuo_std.transpose()[1][3:]**2), yerr=harmens_rVcmax_68_sigma,
+              ls='None', marker='*', color=ax13.lines[-1].get_color())
+
 ax14 = plt.subplot(234)
 ax14.errorbar(xu_pcuo, xu_rRd, 
               xerr=xu_pcuo_std, yerr=xu_rRd_sigma, 
@@ -163,6 +184,8 @@ ax14.errorbar(watanabe13_pcuo[3]-watanabe13_pcuo[2], watanabe13_rRd_oak,
               ls='None', marker='s', color=ax14.lines[-1].get_color())
 ax14.plot(-1,-1,
               ls='None', marker='v', label='Gao2016')
+ax14.plot(-1,-1,
+              ls='None', marker='*', label='Harmens2017')
 
 ax15 = plt.subplot(235)
 ax15.errorbar(xu_pcuo, xu_rChl, 
@@ -186,6 +209,8 @@ ax15.errorbar(watanabe13_pcuo[3]-watanabe13_pcuo[2], watanabe13_rChl_oak,
 ax15.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rChl,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rChl_sigma,
               ls='None', marker='v', label='Gao2016')
+ax15.plot(-1,-1,
+              ls='None', marker='*', label='Harmens2017')
 
 ax15.set_xlabel("CUO (mmol $m^{-2}$)")
 ax11.set_ylabel("$g_s^{O_3}/g_s^{CF}$")
@@ -198,7 +223,7 @@ ax11.legend(bbox_to_anchor=(3.05, -1.), loc='lower right', borderaxespad=0.)
 
 for ax in fig1.axes:
     ax.set_ylim(0.,3)
-    ax.set_xlim(0.,80)
+    ax.set_xlim(0.,100)
 
 fig2 = plt.figure(2)
 fig2.canvas.set_window_title("ozone_response_pellegrini2014_cuo")
