@@ -9,6 +9,24 @@ def ratio(x1, x2, sigma_x1, sigma_x2):
     rg_sigma = np.sqrt((1/x2.values*sigma_x1.values)**2 + (x1.values/x2.values**2*sigma_x2.values)**2)
     return(rg, rg_sigma)
 
+def flunder(x, **kwarg):
+    '''
+    Flatten any kind of list of lists, numpy.arrays, and numbers.
+    Returns a flat numpy array.
+    '''
+    verbose = kwarg.pop('verbose', False)
+    result = []
+    for elem in x:
+        try:
+            for num in elem:
+                if verbose:
+                    print(num)
+                result.append(num)
+        except TypeError:
+            if verbose:
+                print(elem)
+            result.append(elem)
+    return(np.array(result))
 try:
     harmens_o3_mu
 except NameError:
@@ -32,7 +50,34 @@ execfile("ozone_response_rRd.py")
 # Chlorophyll A+B content
 execfile("ozone_response_rChl.py")
 
+pcuo = np.array((xu_pcuo,
+                pelle_pcuo[1::3],
+                watanabe_pcuo-watanabe_pcuo_cf,
+                watanabe_pcuo-watanabe_pcuo_oc,
+                watanabe_pcuo-watanabe_pcuo_co,
+                pelle14_pcuo[1::3],
+                np.take(kinose_pcuo[1], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)),
+                np.take(kinose_pcuo[2], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)),
+                watanabe13_pcuo[1]-watanabe13_pcuo[0],
+                watanabe13_pcuo[3]-watanabe13_pcuo[2],
+                gao_pcuo[1::2]-gao_pcuo[0::2],
+                harmens_pcuo[0::2][1::2]-harmens_pcuo[0::2][0::2],
+                harmens_pcuo[1::2][1::2]-harmens_pcuo[1::2][0::2]))
 
+pcuo_std = np.array((xu_pcuo_std,
+                     pelle_pcuo_std[1::3],
+                     np.sqrt(watanabe_pcuo_std**2+watanabe_pcuo_std_cf**2),
+                     np.sqrt(watanabe_pcuo_std**2+watanabe_pcuo_std_oc**2),
+                     np.sqrt(watanabe_pcuo_std**2+watanabe_pcuo_std_co**2),
+                     pelle14_pcuo_std[1::3],
+                     np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[1], (2,4,7))**2),
+                     np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[2], (2,4,7))**2),
+                     ((np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][0]**2),),(np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][1]**2),)),
+                     ((np.sqrt(watanabe13_pcuo_std[2]**2+watanabe13_pcuo_std[3][0]**2),),(np.sqrt(watanabe13_pcuo_std[2]**2+watanabe13_pcuo_std[3][1]**2),)),
+                     np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2),
+                     np.sqrt(harmens_pcuo_std[0::2][1::2]**2+harmens_pcuo_std[0::2][0::2]**2),
+                     np.sqrt(harmens_pcuo_std[1::2][1::2]**2+harmens_pcuo_std[1::2][0::2]**2)
+))
 # Clean up
 plt.close('all')
 # Plot data
@@ -74,11 +119,11 @@ ax11.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rgs,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rgs_sigma,
               ls='None', marker='v', label='Gao2016')
 
-ax11.errorbar(np.diff(harmens_pcuo[:])[:3], harmens_rgs_36,
-              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][:3]**2+harmens_pcuo_std.transpose()[1][:3]**2), yerr=harmens_rgs_36_sigma,
+ax11.errorbar(harmens_pcuo[0::2][1::2]-harmens_pcuo[0::2][0::2], harmens_rgs_1,
+              xerr=np.sqrt(harmens_pcuo_std[0::2][1::2]**2+harmens_pcuo_std[0::2][0::2]**2), yerr=harmens_rgs_1_sigma,
               ls='None', marker='*', label='Harmens2016')
-ax11.errorbar(np.diff(harmens_pcuo[:])[3:], harmens_rgs_68,
-              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][3:]**2+harmens_pcuo_std.transpose()[1][3:]**2), yerr=harmens_rgs_68_sigma,
+ax11.errorbar(harmens_pcuo[1::2][1::2]-harmens_pcuo[1::2][0::2], harmens_rgs_2,
+              xerr=np.sqrt(harmens_pcuo_std[1::2][1::2]**2+harmens_pcuo_std[1::2][0::2]**2), yerr=harmens_rgs_2_sigma,
               ls='None', marker='*', color=ax11.lines[-1].get_color())
 
 
@@ -108,13 +153,12 @@ ax12.errorbar(watanabe13_pcuo[3]-watanabe13_pcuo[2], watanabe13_rJmax_oak,
 ax12.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rJmax,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rJmax_sigma,
               ls='None', marker='v', label='Gao2016')
-ax12.errorbar(np.diff(harmens_pcuo[:])[:3], harmens_rJmax_36,
-              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][:3]**2+harmens_pcuo_std.transpose()[1][:3]**2), yerr=harmens_rJmax_36_sigma,
+ax12.errorbar(harmens_pcuo[0::2][1::2]-harmens_pcuo[0::2][0::2], harmens_rJmax_1,
+              xerr=np.sqrt(harmens_pcuo_std[0::2][1::2]**2+harmens_pcuo_std[0::2][0::2]**2), yerr=harmens_rJmax_1_sigma,
               ls='None', marker='*', label='Harmens2016')
-ax12.errorbar(np.diff(harmens_pcuo[:])[3:], harmens_rJmax_68,
-              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][3:]**2+harmens_pcuo_std.transpose()[1][3:]**2), yerr=harmens_rJmax_68_sigma,
-              ls='None', marker='*', color=ax12.lines[-1].get_color())
-
+ax12.errorbar(harmens_pcuo[1::2][1::2]-harmens_pcuo[1::2][0::2], harmens_rJmax_2,
+              xerr=np.sqrt(harmens_pcuo_std[1::2][1::2]**2+harmens_pcuo_std[1::2][0::2]**2), yerr=harmens_rJmax_2_sigma,
+              ls='None', marker='*', color=ax11.lines[-1].get_color())
 
 ax13 = plt.subplot(233)
 ax13.errorbar(xu_pcuo, xu_rVcmax, 
@@ -150,13 +194,12 @@ ax13.errorbar(watanabe13_pcuo[3]-watanabe13_pcuo[2], watanabe13_rVcmax_oak,
 ax13.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rVcmax,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rVcmax_sigma,
               ls='None', marker='v', label='Gao2016')
-
-ax13.errorbar(np.diff(harmens_pcuo[:])[:3], harmens_rVcmax_36,
-              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][:3]**2+harmens_pcuo_std.transpose()[1][:3]**2), yerr=harmens_rVcmax_36_sigma,
+ax13.errorbar(harmens_pcuo[0::2][1::2]-harmens_pcuo[0::2][0::2], harmens_rVcmax_1,
+              xerr=np.sqrt(harmens_pcuo_std[0::2][1::2]**2+harmens_pcuo_std[0::2][0::2]**2), yerr=harmens_rVcmax_1_sigma,
               ls='None', marker='*', label='Harmens2016')
-ax13.errorbar(np.diff(harmens_pcuo[:])[3:], harmens_rVcmax_68,
-              xerr=np.sqrt(harmens_pcuo_std.transpose()[0][3:]**2+harmens_pcuo_std.transpose()[1][3:]**2), yerr=harmens_rVcmax_68_sigma,
-              ls='None', marker='*', color=ax13.lines[-1].get_color())
+ax13.errorbar(harmens_pcuo[1::2][1::2]-harmens_pcuo[1::2][0::2], harmens_rVcmax_2,
+              xerr=np.sqrt(harmens_pcuo_std[1::2][1::2]**2+harmens_pcuo_std[1::2][0::2]**2), yerr=harmens_rVcmax_2_sigma,
+              ls='None', marker='*', color=ax11.lines[-1].get_color())
 
 ax14 = plt.subplot(234)
 ax14.errorbar(xu_pcuo, xu_rRd, 

@@ -137,26 +137,48 @@ for i in (0,2):
 gao_pcuo = []
 gao_pcuo_std = []
 
-for i in range(8):
-    cuo_mean, cuo_std = compute_cuo(gao_o3_mu[0::2][i], gao_o3_sigma[0::2][i], gao_gs_o3[0::2][i], gao_gs_o3_sigma[0::2][i], int(gao_o3_fumi[0::2][i]), gao_o3_days[0::2][i])
+for j in range(2):
+    for i in range(4):
+        #print(i+j*4)
+        if j<1:
+            leaf_age = gao_o3_days[0::2][i+j*4]
+        else:
+            leaf_age = gao_o3_days[0::2][i+j*4]-gao_o3_days[0::2][i]
+            
+        # Select the non filtered data for both measurement dates and cycle them
+        cuo_mean, cuo_std = compute_cuo(gao_o3_mu[0::2][i+j*4], gao_o3_sigma[0::2][i+j*4], gao_gs_o3[0::2][i+j*4], gao_gs_o3_sigma[0::2][i+j*4], int(gao_o3_fumi[0::2][i+j*4]), leaf_age)
+        # Push them to accumulated ozone
+        gao_pcuo.append(cuo_mean)
+        gao_pcuo_std.append(cuo_std)
+        #print("nf", j,i, cuo_mean, cuo_std)
+        if j==0:
+            leaf_age = gao_o3_days[1::2][i+j*4]
+        else:
+            leaf_age = gao_o3_days[1::2][i+j*4]-gao_o3_days[1::2][i]
+        # Select the ozone treated data
+        cuo_mean, cuo_std = compute_cuo(gao_o3_mu[1::2][i+j*4], gao_o3_sigma[1::2][i+j*4], gao_gs_o3[1::2][i+j*4], gao_gs_o3_sigma[1::2][i+j*4], int(gao_o3_fumi[1::2][i+j*4]), leaf_age)
+        # Push them to accumulated ozone
+        gao_pcuo.append(cuo_mean)
+        gao_pcuo_std.append(cuo_std)
+        #print("o3",j,i, cuo_mean, cuo_std)
+               
+        # Add the accumulation of ozone under ambient conditions (rest of the day)
+        #cuo_mean, cuo_std = compute_cuo(gao_o3_mu[0::2][i+j*4], gao_o3_sigma[0::2][i+j*4], gao_gs_o3[1::2][i+j*4], gao_gs_o3_sigma[1::2][i+j*4], int(gao_o3_fumi[0::2][i+j*4]-gao_o3_fumi[1::2][i+j*4]), leaf_age)
 
-    gao_pcuo.append(cuo_mean)
-    gao_pcuo_std.append(cuo_std)
+        #print("o3",j,i, cuo_mean, cuo_std)
+        #gao_pcuo[-1] = gao_pcuo[-1] + cuo_mean
+        #gao_pcuo_std[-1] = np.sqrt(gao_pcuo_std[-1]**2 + cuo_std**2)
+
+        #print("o3",j,i, gao_pcuo[-1],  gao_pcuo_std[-1])
+        
+        
+        ##print(cuo_mean, cuo_std)
+
     
-    cuo_mean, cuo_std = compute_cuo(gao_o3_mu[1::2][i], gao_o3_sigma[1::2][i], gao_gs_o3[1::2][i], gao_gs_o3_sigma[1::2][i], int(gao_o3_fumi[1::2][i]), gao_o3_days[1::2][i])
-
-    gao_pcuo.append(cuo_mean)
-    gao_pcuo_std.append(cuo_std)
-   
-    cuo_mean, cuo_std = compute_cuo(gao_o3_mu[0::2][i], gao_o3_sigma[0::2][i], gao_gs_o3[1::2][i], gao_gs_o3_sigma[1::2][i], int(gao_o3_fumi[0::2][i]-gao_o3_fumi[1::2][i]), gao_o3_days[1::2][i])
-
-    gao_pcuo[-1] = gao_pcuo[-1] + cuo_mean
-    gao_pcuo_std[-1] = gao_pcuo_std[-1] + cuo_std
-
-    #print(cuo_mean, cuo_std)
-
 gao_pcuo = np.array(gao_pcuo)
 gao_pcuo_std = np.array(gao_pcuo_std)
+gao_pcuo[8:] = gao_pcuo[:8]+gao_pcuo[8:]
+gao_pcuo_std[8:] = np.sqrt(gao_pcuo_std[:8]**2+gao_pcuo_std[8:]**2)
 
 
 harmens_pcuo = []
@@ -166,18 +188,15 @@ for j in range(3):
         
         if j==0:
             cuo_mean, cuo_std = compute_cuo(harmens_o3_mu[4*j:4*j+4][i], harmens_o3_sigma[4*j:4*j+4][i], harmens_gs_o3[4*j:4*j+4][i],harmens_gs_o3_sigma[4*j:4*j+4][i], harmens_o3_fumi[4*j:4*j+4][i].astype(int), harmens_o3_days[4*j:4*j+4][i])
-            #print(i, j, cuo_mean, cuo_std)
+            
         if j>0:
             cuo_mean, cuo_std = compute_cuo(harmens_o3_mu[4*j:4*j+4][i], harmens_o3_sigma[4*j:4*j+4][i], (harmens_gs_o3[4*j:4*j+4][i]-harmens_gs_o3[4*(j-1):4*(j-1)+4][i])*0.5+harmens_gs_o3[4*(j-1):4*(j-1)+4][i], 0.5*np.sqrt(harmens_gs_o3_sigma[4*j:4*j+4][i]**2+harmens_gs_o3_sigma[4*(j-1):4*(j-1)+4][i]**2), harmens_o3_fumi[4*j:4*j+4][i].astype(int), harmens_o3_days[4*j:4*j+4][i]-harmens_o3_days[4*(j-1):4*(j-1)+4][i])
-            #print(harmens_o3_mu[4*j:4*j+4][i], harmens_o3_sigma[4*j:4*j+4][i], (harmens_gs_o3[4*j:4*j+4][i]-harmens_gs_o3[4*(j-1):4*(j-1)+4][i])*0.5+harmens_gs_o3[4*(j-1):4*(j-1)+4][i], 0.5*np.sqrt(harmens_gs_o3_sigma[4*j:4*j+4][i]**2+harmens_gs_o3_sigma[4*(j-1):4*(j-1)+4][i]**2), harmens_o3_fumi[4*j:4*j+4][i].astype(int), harmens_o3_days[4*j:4*j+4][i]-harmens_o3_days[4*(j-1):4*(j-1)+4][i])
-            #print(i, j, cuo_mean, cuo_std)
             cuo_mean = cuo_mean+harmens_pcuo[4*(j-1):4*(j-1)+4][i]
             cuo_std = np.sqrt(cuo_std**2+harmens_pcuo_std[4*(j-1):4*(j-1)+4][i]**2)
-            #print(i, j, cuo_mean, cuo_std)
-        #print(harmens_pcuo)
+            
         harmens_pcuo.append(cuo_mean)
         harmens_pcuo_std.append(cuo_std)    
 
-harmens_pcuo = np.array(harmens_pcuo).reshape(6,2)
-harmens_pcuo_std = np.array(harmens_pcuo_std).reshape(6,2)
+harmens_pcuo = np.array(harmens_pcuo)
+harmens_pcuo_std = np.array(harmens_pcuo_std)
     

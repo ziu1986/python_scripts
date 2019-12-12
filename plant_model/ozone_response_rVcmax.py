@@ -29,12 +29,12 @@ gao_rVcmax, gao_rVcmax_sigma = ratio(gao_Vcmax_o3[1::2],
                                gao_Vcmax_o3_sigma[0::2])
 
 
-harmens_rVcmax_36, harmens_rVcmax_36_sigma = ratio(harmens_Vcmax_o3[1::4],
-                               harmens_Vcmax_o3[0::4],
-                               harmens_Vcmax_o3_sigma[1::4],
-                               harmens_Vcmax_o3_sigma[0::4])
+harmens_rVcmax_1, harmens_rVcmax_1_sigma = ratio(harmens_Vcmax_o3[0::2][1::2],
+                               harmens_Vcmax_o3[0::2][0::2],
+                               harmens_Vcmax_o3_sigma[0::2][1::2],
+                               harmens_Vcmax_o3_sigma[0::2][0::2])
 
-harmens_rVcmax_68, harmens_rVcmax_68_sigma = ratio(harmens_Vcmax_o3[3::4],
-                                             harmens_Vcmax_o3[2::4],
-                                             harmens_Vcmax_o3_sigma[3::4],
-                                             harmens_Vcmax_o3_sigma[2::4])
+harmens_rVcmax_2, harmens_rVcmax_2_sigma = ratio(harmens_Vcmax_o3[1::2][1::2],
+                               harmens_Vcmax_o3[1::2][0::2],
+                               harmens_Vcmax_o3_sigma[1::2][1::2],
+                               harmens_Vcmax_o3_sigma[1::2][0::2])
