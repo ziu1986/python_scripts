@@ -38,40 +38,6 @@ def USstdP(height):
     elif height<=86*kilo:
         return(atm*(0.838263-height/176142.)**12.20114);
 
-def draw_altitude_axis(ax):
-    '''
-    Add additional y-axis. Altitude computed as reverse function of height->pressure relationship in USstd atmosphere.
-    The pressure-axis ax should be in hPa!
-    '''
-    ax_x_interval = ax.get_xbound()
-    ax_y_interval = ax.get_ybound()
-    ax_alt = ax.twinx()
-    ax_alt.set_ylabel("Altitude (km)")
-    # Get metric meassure of the height
-    altitude = np.arange(0, 86*kilo, 5) # top of USstd atmosphere parametrization
-    pressure_from_altitude = np.array([USstdP(each) for each in altitude])
-    fPAlt = InterpolatedUnivariateSpline(-pressure_from_altitude, altitude) # x has to be increasing! y in meters
-    # Define range for the axis (x_min, x_max, y2_min, y2_max)
-    ax_alt.axis([ax_x_interval[0], ax_x_interval[1], 
-              fPAlt(-ax_y_interval[1]*hecto)/kilo, fPAlt(-ax_y_interval[0]*hecto)/kilo]) 
-    plt.grid(0)
-    return ax_alt
-
-def set_pressure_axis(ax, **kargs):
-    '''
-    Adjust the y-axis of a plot to represent pressure levels.
-    kargs: limits, ticks, label
-    '''
-    limits = sorted(kargs.pop("limits", (1000., USstdP(30*kilo)/hecto)))[::-1] # reverse sorted
-    ticks = kargs.pop("ticks", [20, 50, 100, 200, 500, 1000])
-    label = kargs.pop("label", "Pressure (hPa)")
-    ax.set_ylabel(label)
-    ax.set_yscale('log')
-    ax.yaxis.set_major_formatter(plt.ScalarFormatter())
-    ax.set_yticks(ticks)
-    ax.invert_yaxis()
-    ax.set_ylim(limits)
-
 def datetime_from_str(htime):
     '''
     Returns np.array of datetime objects from list of EMAC date string (yyyymmdd,Minute/(60*24)).
@@ -274,7 +240,7 @@ def convert_field(atm_field, pressure, levels=None, model='ecmwf'):
 
 def weighted_mean_std(variances, weights, axis=0):
     '''
-    Calculate the standard deviation of a weighted mean. Kown as np.average.
+    Calculate the standard deviation of a weighted mean. Known as np.average.
     '''
     var = np.add.reduce(variances**2*weights**2, axis=axis)
     return np.sqrt(var)
@@ -303,26 +269,6 @@ def find_nearest(a, a0, index=False):
     else:
         return idx
 
-def print_all(**kargs):
-    '''
-    Plots all figures. Make sure all windows have a meaningfull name. Use fig.canvas.set_window_title()!
-    options (standard values): 
-    target='./plots'
-    file_type=('pdf', 'svg')
-    '''
-    fig_path = kargs.pop('target', './plots')
-    file_type = kargs.pop('type', ('pdf','svg','png'))
-    # Check if directory exists
-    if not os.path.isdir(fig_path):
-        os.mkdir(fig_path)
-    for i in plt.get_fignums():
-        fig = plt.figure(i)
-        w_title = fig.canvas.get_window_title()
-        print "Print " + w_title
-        for itype in file_type:
-            if not os.path.isdir(fig_path+'/'+itype):
-                os.mkdir(fig_path+'/'+itype)
-            fig.savefig(fig_path+'/'+itype+'/'+w_title+'.'+itype)
 
 def zonal_band_fraction(lat_ref, lat_grid):
     '''
@@ -347,15 +293,7 @@ def seconds_in_month(month, year):
     nomatter, daysinmonth = calendar.monthrange(year, month)
     return daysinmonth * 24 * 60 * 60
         
-def plot_error_bands(ax, x, y, error, **kargs):
-    '''
-    Function to create a errorband like plot.
-    '''
-    color = kargs.pop('color', 'blue')
-    ls = kargs.pop('ls', '-')
-    ax.plot(x, y, color=color, ls=ls)
-    ax.fill_between(x, y-error, y+error,
-                    color=color, alpha=0.5)
+
 
 #def compute_column(press, atm_var):
 #    cdef double mdry = 0.0289645    # molec. wt. of dry air, kg/mol
@@ -401,106 +339,7 @@ def compute_column_density(press, atm_var, **kargs):
     atm_new.attrs['units'] = unit
     return atm_new
 
-def draw_parallels(ax, parallels, **kargs):
-    '''
-    Draw parallels in cartopy plot.
-    '''
-    cdef double pc = 66.57 # deg
-    b_pc = kargs.pop('polarcircle', False)
-    cdef int resolution = kargs.pop('resolution', 100)
-    lon = np.linspace(-180, 180, resolution)
-    for ilat in parallels:
-        lat = np.linspace(ilat, ilat, resolution)
-        ax.plot(lon, lat, color='lightgrey', linewidth=.8, transform=cp.crs.PlateCarree())
-    if b_pc:
-        ax.plot(lon, np.linspace(pc,pc,resolution), color='lightgrey', linewidth=.8, ls='--', transform=cp.crs.PlateCarree())
-        ax.plot(lon, np.linspace(-pc,-pc,resolution), color='lightgrey', linewidth=.8, ls='--', transform=cp.crs.PlateCarree())
 
-def draw_meridians(ax, meridians, **kargs):
-    '''
-    Draw meridians in cartopy plot.
-    '''
-    polarcap = kargs.pop('polarcap', 80)
-    resolution = kargs.pop('resolution', 100)
-    lat = np.linspace(-polarcap, polarcap, resolution)
-    for ilon in meridians:
-        lon = np.linspace(ilon,ilon, resolution)
-        ax.plot(lon, lat, color='lightgrey', linewidth=.8, transform=cp.crs.PlateCarree())
-    ax.plot(np.linspace(-180, 180, resolution),
-            np.linspace(polarcap, polarcap, resolution),
-            color='lightgrey', linewidth=.8, transform=cp.crs.PlateCarree())
-    ax.plot(np.linspace(-180, 180, resolution),
-            np.linspace(-polarcap, -polarcap, resolution),
-            color='lightgrey', linewidth=.8, transform=cp.crs.PlateCarree())
-    # Adding text
-    #for ilon in np.unique(np.fabs(meridians)):
-    #    ax.text(-ilon, 50, '%d$^\circ$W' % (ilon), horizontalalignment='center', transform=cp.crs.Geodetic())
-import cartopy.util as ccrs_util  # Add cyclic
-import xarray as xr
-def addcyclicpoint(data, lon):
-    '''
-    Wrapps cartopy.util.add_cyclic_point() to xarray.
-    Works only on 1-level data.
-    '''
-    cyclic_data, cyclic_lon = ccrs_util.add_cyclic_point(data.values, lon)
-    try:
-        cyclic_da = xr.DataArray(cyclic_data, coords=[data['time'], data['lat'], cyclic_lon], dims=['time','lat', 'lon'])
-    except KeyError:
-        cyclic_da = xr.DataArray(cyclic_data, coords=[data['time'], data['latitude'], cyclic_lon], dims=['time','lat', 'lon'])
-    
-    return cyclic_da
-
-# Global maps
-# Set the map and axis attributes
-import cartopy as cp        # Globe projections
-import cartopy.util as ccrs_util  # Add cyclic
-from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
-def plot_ozone_drydep(ax, data, **kargs):
-    '''
-    Plotting routine for the ozone dry deposition.
-    '''
-    verbose = kargs.pop('v',False)
-    mode = kargs.pop('mode', 'sum')
-    glob = kargs.pop('glob', True)
-    region = kargs.pop('region', (-180,180,-90,90))
-    title = kargs.pop('title',"")
-    #cbar_kwargs = kargs.pop('cbar_kwargs', {'fraction':0.046, 'pad':0.04,'aspect':30})
-    if glob:
-        if verbose:
-            print("Setting globe.")
-        ax.set_global()   # Expands the map to fit the tick labels!
-        ax.set_xticks(np.arange(-180, 181, 45), crs=cp.crs.PlateCarree())
-        ax.set_yticks(np.arange(-80, 81, 20), crs=cp.crs.PlateCarree())
-        lon_formatter = LongitudeFormatter()
-        lat_formatter = LatitudeFormatter()
-        ax.xaxis.set_major_formatter(lon_formatter)
-        ax.yaxis.set_major_formatter(lat_formatter)
-        ax.coastlines()
-    else:
-        if verbose:
-            print("Setting region: Lon (%d,%d) Lat (%d,%d)" % (region[0],region[1],region[2],region[3]) )
-        ax.set_extent(region, cp.crs.PlateCarree())
-        # Adding lines
-        draw_parallels(ax, np.arange(60,91,10))
-        draw_meridians(ax, np.arange(-180,181,45))    
-        ax.coastlines(resolution='50m')
-    
-    # Generate cyclic data
-    cyclic = addcyclicpoint(data, data['lon'])
-    try:
-        cyclic.attrs['units'] = data.attrs['units']
-    except KeyError:
-        try:
-            cyclic.attrs['units'] = data.attrs['unit']
-        except KeyError:
-            cyclic.attrs['units'] = ''
-    if mode=='None':
-        data.plot(ax=ax,**kargs)
-    elif mode=='sum':
-        data.sum(dim='time').plot(ax=ax,**kargs)
-    elif mode=='mean':
-        data.mean(dim='time').plot(ax=ax,**kargs)
-    ax.set_title(title)
 
 def get_molarweight(data):
     '''
@@ -533,18 +372,6 @@ def get_vmr(data, **karg):
         unit = 'mol/mol'    # Fall back to default
     vmr.attrs['units'] = unit
     return(vmr)
-
-    
-def get_month_name(mid,**karg):
-    '''
-    Generate month names. Options: length (int)
-    '''
-    length = karg.pop('length', 0)
-    month_name = {1:'January', 2:'February', 3:'March', 4:'April', 5:'May', 6:'June', 7:'July', 8:'August', 9:'September', 10:'October', 11:'November', 12:'December'}
-    if length==0:
-        return(month_name[mid])
-    else:
-        return(month_name[mid][:length])
     
 
 def time_lagged_corr(test_data, truth, **kargs):
@@ -682,23 +509,3 @@ def read_station_data_ebas(infile, **kargs):
     pd_frame = pd.DataFrame(data_dic, index=x_time_station)
     return (pd_frame)
 
-def plot_month_span(ax, **kargs):
-    year = kargs.pop('year', 2006)
-    fill = kargs.pop('fill', True)
-    daysinmonth = np.array([calendar.monthrange(year, imonth)[1] for imonth in range(1,13)])
-    if fill:
-        for i in np.arange(0,12,2):
-            ax.axvspan(daysinmonth[:i].sum(), daysinmonth[:i+1].sum(), color='linen')
-    else:
-        for i in np.arange(0,12):
-            ax.axvline(daysinmonth[:i+1].sum(), color='grey', ls='--')
-            
-def plot_month_name(ax, **kargs):
-    year = kargs.pop('year', 2006)
-    ypos = kargs.pop('ypos', ax.yaxis.get_ticklocs()[-1]+ax.yaxis.get_tick_space()*0.1)
-    mlength = kargs.pop('mlength', 3)
-    size = kargs.pop('size', 'medium')
-    daysinmonth = np.array([calendar.monthrange(year, imonth)[1] for imonth in range(1,13)])
-    xpos = [daysinmonth[:i].sum() for i in np.arange(0,12)]
-    for i in range(1,13):
-        ax.text(xpos[i-1]+1, ypos, get_month_name(i, length=mlength), size=size)
