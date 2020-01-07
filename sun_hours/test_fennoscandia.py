@@ -4,9 +4,6 @@ from sun_hours import *
 from mytools.met_tools import plot_month_span, plot_month_name, print_all
 from cycler import cycler
 
-#linestyle_cycler = cycler('linestyle',['-','--',':','-.'])
-#plt.rc('axes', prop_cycle=linestyle_cycler)
-
 station_labels = ("Jergul", "Karasjok", "Svanvik", "Pallas", "Esrange")
 day_length_stations = [ daylength(doy, lat) for doy in range(1,366) for lat in (69.45,69.467,69.45,69.97,67.83)]
 day_length_stations = np.array(day_length_stations).reshape(365,5)
