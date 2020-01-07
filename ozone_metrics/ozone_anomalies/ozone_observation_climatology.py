@@ -1,0 +1,37 @@
+# Climatology from Esrange, Pallas, Jergul/Karasjok data
+climatology = pd.concat((data['Esrange'][:'2017'], data['Pallas'][:'2017'], data_jergkara[:'2017']))
+
+# Daily mean climatology from Esrange, Pallas, Jergul/Karasjok data
+yozone, yerr, yerr_mean = compute_climatology(climatology)
+yozone_max, yerr_max, yerr_mean_max = compute_climatology(climatology, mode='max')
+yozone_min, yerr_min, yerr_mean_min = compute_climatology(climatology, mode='min')
+
+# Svanvik climatology
+yozone_svanvik, yerr_svanvik, yerr_mean_svanvik = compute_climatology(data['Svanvik'])
+
+# Compute spline fits
+from scipy.interpolate import UnivariateSpline
+w = 1/yerr_mean
+fitSpl_dmean = UnivariateSpline(np.unique(doys), climatology.groupby(climatology.index.dayofyear).apply(np.nanmean), w=w)
+dmax = climatology.resample('1d').apply(np.nanmax)
+fitSpl_dmax = UnivariateSpline(np.unique(doys), dmax.groupby(dmax.index.dayofyear).apply(np.nanmean))
+
+w_svanvik = 1/yerr_mean_svanvik
+fitSpl_dmean_svanvik = UnivariateSpline(np.unique(doys_svanvik), data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmean), w=w_svanvik)
+dmax_svanvik = data['Svanvik'].resample('1d').apply(np.nanmax)
+fitSpl_dmax_svanvik = UnivariateSpline(np.unique(doys_svanvik), dmax_svanvik.groupby(dmax_svanvik.index.dayofyear).apply(np.nanmean))
+
+doys_prestebakke = data['Prestebakke'][:'2017'].index.dayofyear
+fitSpl_dmean_prestebakke = UnivariateSpline(np.unique(doys_prestebakke), data['Prestebakke'][:'2017'].groupby(doys_prestebakke).apply(np.nanmean))
+dmax_prestebakke = data['Prestebakke'].resample('1d').apply(np.nanmax)
+
+# Compute Savgol filtered data
+from scipy.signal import savgol_filter
+ytest = savgol_filter(climatology.groupby(climatology.index.dayofyear).apply(np.nanmean),31,3)
+
+# Pickle splines for comparison with other data
+import pickle
+with open('obs_climatologies.pkl','wb') as output:
+    pickle.dump(fitSpl_dmean, output, pickle.HIGHEST_PROTOCOL)
+    pickle.dump(fitSpl_dmean_svanvik, output, pickle.HIGHEST_PROTOCOL)
+    pickle.dump(fitSpl_dmean_prestebakke, output, pickle.HIGHEST_PROTOCOL)
