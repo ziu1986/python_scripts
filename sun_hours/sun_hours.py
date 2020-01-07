@@ -33,6 +33,23 @@ def daylength(dayOfYear, lat):
         return 2.0*hourAngle/15.0
 
 def get_avg_daylenght(start_date, end_date, lat):
+    """
+    Computes the avrage daylength between a start date and an end date
+    at a given latitude.
+    Parameters
+    ----------
+    start_date : string
+         "yyyy-mm-dd"
+    end_date : string
+         "yyyy-mm-dd"
+    lat : float
+    Returns
+    -------
+    mean_daylight : float
+         Average daylength in hours
+    std_daylight : float
+         Standard deviation of daylength in hours
+    """
     doy_start = pd.DatetimeIndex((np.datetime64(start_date),)).dayofyear[0]
     doy_end = pd.DatetimeIndex((np.datetime64(end_date),)).dayofyear[0]
     print(doy_start, doy_end)
