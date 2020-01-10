@@ -66,8 +66,10 @@ def or_fit(x, y, x_std, y_std, **karg):
 
         return(yfit, yfit2)
     else:
+        print('X-Y-uncertainty fit parameters:')
         flip_func = flip(func)
         x_fit, y_fit = xy_uncertainty_regression(f_x_y, f_y, f_x_std_y, f_y_std, flip_func)
+        
         
         return(y_fit)
         
@@ -108,7 +110,7 @@ def xy_uncertainty_regression(x, y, x_err, y_err, func):
     Inverse Condition #: 0.4195196193536024
     Reason(s) for Halting:
     Sum of squares convergence'''
-
+    print('rms error in fit:', rms(y, func(out.beta, x)))
     x_fit = np.arange(100)
     y_fit = func(out.beta, x_fit)
 
