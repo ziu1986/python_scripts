@@ -13,18 +13,19 @@ yozone_min_svanvik, yerr_min_svanvik, yerr_mean_min_svanvik = compute_climatolog
 
 # Compute spline fits
 from scipy.interpolate import UnivariateSpline
+# Fennoscandic climatology
 w = 1/yerr_mean
 fitSpl_dmean = UnivariateSpline(np.unique(doys), climatology.groupby(climatology.index.dayofyear).apply(np.nanmean), w=w)
 dmax = climatology.resample('1d').apply(np.nanmax)
 fitSpl_dmax = UnivariateSpline(np.unique(doys), dmax.groupby(dmax.index.dayofyear).apply(np.nanmean))
-
+# SVanvik
 w_svanvik = 1/yerr_mean_svanvik
 fitSpl_dmean_svanvik = UnivariateSpline(np.unique(doys_svanvik), data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmean), w=w_svanvik)
 dmax_svanvik = data['Svanvik'].resample('1d').apply(np.nanmax)
 fitSpl_dmax_svanvik = UnivariateSpline(np.unique(doys_svanvik), dmax_svanvik.groupby(dmax_svanvik.index.dayofyear).apply(np.nanmean))
-
-doys_prestebakke = data['Prestebakke'][:'2017'].index.dayofyear
-fitSpl_dmean_prestebakke = UnivariateSpline(np.unique(doys_prestebakke), data['Prestebakke'][:'2017'].groupby(doys_prestebakke).apply(np.nanmean))
+# Prestebakke
+doys_prestebakke = data['Prestebakke'][:'2012'].index.dayofyear
+fitSpl_dmean_prestebakke = UnivariateSpline(np.unique(doys_prestebakke), data['Prestebakke'][:'2012'].groupby(doys_prestebakke).apply(np.nanmean))
 dmax_prestebakke = data['Prestebakke'].resample('1d').apply(np.nanmax)
 
 # Compute Savgol filtered data

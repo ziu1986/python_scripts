@@ -70,4 +70,8 @@ execfile("ozone_observation_climatology.py")
 
 execfile("ozone_observation_sampling.py")
 
+execfile("ozone_observation_ttest.py")
+
+execfile("ozone_observation_fits.py")
+
 execfile("plot_ozone_observations.py")

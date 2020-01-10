@@ -3,9 +3,13 @@ svanvik_daily = data['Svanvik'].resample('1d').apply(np.nanmean)
 svanvik_daily_2018 = data_svanvik_OzoNorClim['2018'].resample('1d').apply(np.nanmean)
 svanvik_daily_2019 = data_svanvik_OzoNorClim['2019'].resample('1d').apply(np.nanmean)
 
-svanvik_daily_stderr = data['Svanvik'].resample('1d').apply(lambda x: x.mean()/np.sqrt(x.count()))
-svanvik_daily_stderr_2018 = data_svanvik_OzoNorClim['2018'].resample('1d').apply(lambda x: x.mean()/np.sqrt(x.count()))
-svanvik_daily_stderr_2019 = data_svanvik_OzoNorClim['2019'].resample('1d').apply(lambda x: x.mean()/np.sqrt(x.count()))
+svanvik_daily_std = data['Svanvik'].resample('1d').apply(np.nanstd)
+svanvik_daily_std_2018 = data_svanvik_OzoNorClim['2018'].resample('1d').apply(np.nanstd)
+svanvik_daily_std_2019 = data_svanvik_OzoNorClim['2019'].resample('1d').apply(np.nanstd)
+
+svanvik_daily_stderr = data['Svanvik'].resample('1d').apply(lambda x: np.nanstd(x)/np.sqrt(x.count()))
+svanvik_daily_stderr_2018 = data_svanvik_OzoNorClim['2018'].resample('1d').apply(lambda x: np.nanstd(x)/np.sqrt(x.count()))
+svanvik_daily_stderr_2019 = data_svanvik_OzoNorClim['2019'].resample('1d').apply(lambda x: np.nanstd(x)/np.sqrt(x.count()))
 
 # Draw sample from climatology of Jergul/Karsjok, Esrange, Pallas -> fig9
 sample = fitSpl_dmean(svanvik_daily.dropna().index.dayofyear)
@@ -16,17 +20,18 @@ sample_2018_svanvik = fitSpl_dmean_svanvik(svanvik_daily_2018.dropna().index.day
 sample_2019_svanvik = fitSpl_dmean_svanvik(svanvik_daily_2019.dropna().index.dayofyear)
 
 
-# Draw samples for Svanvik
-x_sample, pdf, fit, stat = fit_skew_normal((svanvik_daily.dropna()-sample).values)
-x_sample_2018, pdf_2018, fit_2018, stat_2018 = fit_skew_normal((svanvik_daily_2018.dropna()-sample_2018).values)
-x_sample_2019, pdf_2019, fit_2019, stat_2019 = fit_skew_normal((svanvik_daily_2019.dropna()-sample_2019).values)
-x_sample_svanvik, pdf_svanvik, fit_svanvik, stat_svanvik = fit_skew_normal((svanvik_daily_2018.dropna()-sample_2018_svanvik).values)
-x_sample_svanvik_2019, pdf_svanvik_2019, fit_svanvik_2019, stat_svanvik_2019 = fit_skew_normal((svanvik_daily_2019.dropna()-sample_2019_svanvik).values)
-
 # Select 2018 data -> fig10
 esrange_daily_2018 = data['Esrange']['2018'].resample('1d').apply(np.nanmean)
 pallas_daily_2018 = data['Pallas']['2018'].resample('1d').apply(np.nanmean)
 prestebakke_daily_2018 = data['Prestebakke']['2018'].resample('1d').apply(np.nanmean)
+
+esrange_daily_2018_std = data['Esrange']['2018'].resample('1d').apply(np.nanstd)
+pallas_daily_2018_std = data['Pallas']['2018'].resample('1d').apply(np.nanstd)
+prestebakke_daily_2018_std = data['Prestebakke']['2018'].resample('1d').apply(np.nanstd)
+
+esrange_daily_2018_stderr = data['Esrange']['2018'].resample('1d').apply(lambda x: np.nanstd(x)/np.sqrt(x.count()))
+pallas_daily_2018_stderr = data['Pallas']['2018'].resample('1d').apply(lambda x: np.nanstd(x)/np.sqrt(x.count()))
+prestebakke_daily_2018_stderr = data['Prestebakke']['2018'].resample('1d').apply(lambda x: np.nanstd(x)/np.sqrt(x.count()))
 
 # Sample accordingly from climatology
 sample_2018_esrange = fitSpl_dmean(esrange_daily_2018.dropna().index.dayofyear)
@@ -44,7 +49,4 @@ sample_jja_pallas = fitSpl_dmean(pallas_jja.index.dayofyear)
 sample_jja_prestebakke = fitSpl_dmean_prestebakke(prestebakke_jja.index.dayofyear)
 sample_jja_svanvik = fitSpl_dmean_svanvik(svanvik_jja.index.dayofyear)
 
-# Fit the distributions
-x_sample_esrange, pdf_esrange, fit_esrange, stat_esrange = fit_skew_normal((esrange_daily_2018.dropna()-sample_2018_esrange).values)
-x_sample_pallas, pdf_pallas, fit_pallas, stat_pallas = fit_skew_normal((pallas_daily_2018.dropna()-sample_2018_pallas).values)
-x_sample_prestebakke, pdf_prestebakke, fit_prestebakke, stat_prestebakke = fit_skew_normal((prestebakke_daily_2018.dropna()-sample_2018_prestebakke).values)
+
