@@ -1,5 +1,5 @@
 # Climatology from Esrange, Pallas, Jergul/Karasjok data
-climatology = pd.concat((data['Esrange'][:'2017'], data['Pallas'][:'2017'], data_jergkara[:'2017']))
+climatology = pd.concat((data['Esrange'][:'2012'], data['Pallas'][:'2012'], data_jergkara[:'2012']))
 
 # Daily mean climatology from Esrange, Pallas, Jergul/Karasjok data
 yozone, yerr, yerr_mean = compute_climatology(climatology)
@@ -8,6 +8,8 @@ yozone_min, yerr_min, yerr_mean_min = compute_climatology(climatology, mode='min
 
 # Svanvik climatology
 yozone_svanvik, yerr_svanvik, yerr_mean_svanvik = compute_climatology(data['Svanvik'])
+yozone_max_svanvik, yerr_max_svanvik, yerr_mean_max_svanvik = compute_climatology(data['Svanvik'], mode='max')
+yozone_min_svanvik, yerr_min_svanvik, yerr_mean_min_svanvik = compute_climatology(data['Svanvik'], mode='min')
 
 # Compute spline fits
 from scipy.interpolate import UnivariateSpline
@@ -26,8 +28,8 @@ fitSpl_dmean_prestebakke = UnivariateSpline(np.unique(doys_prestebakke), data['P
 dmax_prestebakke = data['Prestebakke'].resample('1d').apply(np.nanmax)
 
 # Compute Savgol filtered data
-from scipy.signal import savgol_filter
-ytest = savgol_filter(climatology.groupby(climatology.index.dayofyear).apply(np.nanmean),31,3)
+#from scipy.signal import savgol_filter
+#ytest = savgol_filter(climatology.groupby(climatology.index.dayofyear).apply(np.nanmean),31,3)
 
 # Pickle splines for comparison with other data
 import pickle
