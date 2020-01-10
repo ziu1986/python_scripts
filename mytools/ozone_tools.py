@@ -143,3 +143,6 @@ def compute_climatology(data, **karg):
         clim_ozone_stderr = data_res.groupby(data_res.index.dayofyear).apply(lambda x: x.mean()/np.sqrt(x.count()))
 
     return(clim_ozone, clim_ozone_std, clim_ozone_stderr)
+
+
+
