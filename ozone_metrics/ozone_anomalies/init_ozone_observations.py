@@ -37,23 +37,24 @@ except NameError:
     data_svanvik_OzoNorClim = []
     for file in sorted(glob.glob(src_svanvik_OzoNorClim)):
         tmp_data_svanvik = pd.read_excel(file, index_col=0, header=0)
-        data_svanvik_OzoNorClim.append(tmp_data_svanvik['O3_mugm-3'].where(tmp_data_svanvik['O3_mugm-3']>=0).dropna()/2.)
+        data_svanvik_OzoNorClim.append(tmp_data_svanvik['O3_mugm-3'].where(tmp_data_svanvik['O3_mugm-3']>=0.5).dropna()/2.)
     # Concat data Svanvik data
     data_svanvik_OzoNorClim = pd.concat(data_svanvik_OzoNorClim)
 
 #---------------------------------------------------------------------------------------------------------------------------------
 #Control
-plot_timeseries = True
+plot_timeseries = False
 plot_timelag = False
 plot_correlation = False
-plot_splines = True
+plot_splines = False
 plot_climatology = False
 plot_spectrum = False
 plot_map = False
 plot_aot = False
+plot_cuo = True
 plot_rollingsum = False
-plot_residuals = True
-plot_ttest = True
+plot_residuals = False
+plot_ttest = False
 plot_svanvik = True
 
 #---------------------------------------------------------------------------------------------------------------------------------
@@ -73,5 +74,9 @@ execfile("ozone_observation_sampling.py")
 execfile("ozone_observation_ttest.py")
 
 execfile("ozone_observation_fits.py")
+
+if plot_cuo:
+    execfile('ozone_observation_gsto.py')
+    execfile("ozone_observation_cuo.py")
 
 execfile("plot_ozone_observations.py")

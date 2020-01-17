@@ -1,6 +1,7 @@
 # Climatology from Esrange, Pallas, Jergul/Karasjok data
 climatology = pd.concat((data['Esrange'][:'2012'], data['Pallas'][:'2012'], data_jergkara[:'2012']))
 
+
 # Daily mean climatology from Esrange, Pallas, Jergul/Karasjok data
 yozone, yerr, yerr_mean = compute_climatology(climatology)
 yozone_max, yerr_max, yerr_mean_max = compute_climatology(climatology, mode='max')
@@ -10,6 +11,11 @@ yozone_min, yerr_min, yerr_mean_min = compute_climatology(climatology, mode='min
 yozone_svanvik, yerr_svanvik, yerr_mean_svanvik = compute_climatology(data['Svanvik'])
 yozone_max_svanvik, yerr_max_svanvik, yerr_mean_max_svanvik = compute_climatology(data['Svanvik'], mode='max')
 yozone_min_svanvik, yerr_min_svanvik, yerr_mean_min_svanvik = compute_climatology(data['Svanvik'], mode='min')
+
+# Hourly climatology
+clim_hourly, clim_hourly_err, clim_hourly_err_mean = compute_climatology(climatology, mode='hourly')
+clim_hourly_svanvik, clim_hourly_err_svanvik, clim_hourly_err_mean_svanvik = compute_climatology(data['Svanvik'], mode='hourly')
+clim_hourly_prestebakke, clim_hourly_err_prestebakke, clim_hourly_err_mean_prestebakke = compute_climatology(data['Prestebakke'][:'2012'], mode='hourly')
 
 # Compute spline fits
 from scipy.interpolate import UnivariateSpline

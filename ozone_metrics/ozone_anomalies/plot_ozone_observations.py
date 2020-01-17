@@ -591,6 +591,44 @@ if plot_ttest:
 
     for ax in fig15.axes:
         ax.set_xlim(-12,12)
+
+if plot_cuo:
+    fig16 = plt.figure(16, figsize=(16,9))
+    fig16.canvas.set_window_title("ozone_obs_aot0")
+    ax161 = plt.subplot(211)
+   
+    aot0.loc['2012':].plot.bar(ax=ax161, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
+    ax162 = plt.subplot(212)
+  
+    delta_aot0.loc['2012':].plot.bar(ax=ax162, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
+
+    ax161.set_ylabel("$AOT_0$ $(nmol\,mol^{-1}\,h)$")
+    ax162.set_ylabel("$\Delta AOT_0$ $(nmol\,mol^{-1}\,h)$")
+
+    fig17 = plt.figure(17, figsize=(16,9))
+    fig17.canvas.set_window_title("ozone_obs_cuo_white_clover")
+    ax171 = plt.subplot(211)
+   
+    
+    (aot0*gsto['NC-S_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax171, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
+    (aot0*gsto['NC-R_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax171, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////')
+
+    for patch in ax171.patches[40:]:
+        patch.set_edgecolor('grey')
+    
+    ax172 = plt.subplot(212)
+    (delta_aot0*gsto['NC-S_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax172, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
+    (delta_aot0*gsto['NC-R_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax172, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////')
+    for patch in ax172.patches[40:]:
+        patch.set_edgecolor('grey')
+
+    
+    ax171.set_ylabel("$CUO$ $(mmol\,m^{-1})$")
+    ax171.set_ylim(0,400)
+    ax172.set_ylabel("$\Delta CUO$ $(mmol\,m^{-1})$")
+    
+
+    
 # Show it
 plt.show(block=False)
 

@@ -23,3 +23,8 @@ x_test_svanvik_2019, pdf_test_svanvik_2019, fit_test_svanvik_2019, stat_test_sva
 x_test_esrange_2018, pdf_test_esrange_2018, fit_test_esrange_2018, stat_test_esrange_2018 = fit_skew_normal(fitable_range(score_esrange_2018))
 x_test_pallas_2018, pdf_test_pallas_2018, fit_test_pallas_2018, stat_test_pallas_2018 = fit_skew_normal(fitable_range(score_pallas_2018))
 x_test_prestebakke_2018, pdf_test_prestebakke_2018, fit_test_prestebakke_2018, stat_test_prestebakke_2018 = fit_skew_normal(fitable_range(score_prestebakke_2018))
+
+# Fit the hourly residuals
+x_test_pallas_hourly_2018, pdf_test_pallas_hourly_2018, fit_test_pallas_hourly_2018, stat_test_pallas_hourly_2018 = fit_skew_normal(fitable_range((data['Pallas'].loc['2018-07'].values-clim_hourly.loc[7].values.flatten())/clim_hourly_err.loc[7].values.flatten()))
+x_test_esrange_hourly_2018, pdf_test_esrange_hourly_2018, fit_test_esrange_hourly_2018, stat_test_esrange_hourly_2018 = fit_skew_normal(fitable_range((data['Esrange'].loc['2018-07'].values-clim_hourly.loc[7].values.flatten())/clim_hourly_err.loc[7].values.flatten()))
+x_test_svanvik_hourly_2018, pdf_test_svanvik_hourly_2018, fit_test_svanvik_hourly_2018, stat_test_svanvik_hourly_2018 = fit_skew_normal(fitable_range((data_svanvik_OzoNorClim.loc['2018-07']-sample_clim_hourly_svanvik[0][data_svanvik_OzoNorClim.loc['2018-07'].index])/sample_clim_hourly_err_svanvik[0][data_svanvik_OzoNorClim.loc['2018-07'].index]))

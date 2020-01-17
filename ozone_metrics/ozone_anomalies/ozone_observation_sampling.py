@@ -49,4 +49,9 @@ sample_jja_pallas = fitSpl_dmean(pallas_jja.index.dayofyear)
 sample_jja_prestebakke = fitSpl_dmean_prestebakke(prestebakke_jja.index.dayofyear)
 sample_jja_svanvik = fitSpl_dmean_svanvik(svanvik_jja.index.dayofyear)
 
+# Sample from houerly climatology
+sample_clim_hourly_svanvik = pd.DataFrame(pd.concat((clim_hourly_svanvik.iloc[:(31+28)*24],clim_hourly_svanvik.iloc[(31+29)*24:])).values, index=pd.date_range("2018-01-01 0:0", "2018-12-31 23:0", freq='H'))
+sample_clim_hourly_err_svanvik = pd.DataFrame(pd.concat((clim_hourly_err_svanvik.iloc[:(31+28)*24],clim_hourly_err_svanvik.iloc[(31+29)*24:])).values, index=pd.date_range("2018-01-01 0:0", "2018-12-31 23:0", freq='H'))
+sample_clim_hourly = pd.DataFrame(pd.concat((clim_hourly.iloc[:(31+28)*24],clim_hourly.iloc[(31+29)*24:])).values, index=pd.date_range("2018-01-01 0:0", "2018-12-31 23:0", freq='H'))
+sample_clim_hourly_prestebakke = pd.DataFrame(pd.concat((clim_hourly_prestebakke.iloc[:(31+28)*24],clim_hourly_prestebakke.iloc[(31+29)*24:])).values, index=pd.date_range("2018-01-01 0:0", "2018-12-31 23:0", freq='H'))
 
