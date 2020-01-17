@@ -114,8 +114,9 @@ def compute_climatology(data, **karg):
     Keyword arguments
     -----------------
     mode : string
-        Standard: Compute mean climatology
-        Climatology of daily min/max.
+        mean: Compute mean climatology (default).
+        min/max: Climatology of daily min/max.
+        hourly: Compute hourly climatology.
     Returns
     -------
     clim_ozone : pandas Timeseries
@@ -126,6 +127,7 @@ def compute_climatology(data, **karg):
         Standard error on daily ozone climatology.
     '''
     import numpy as np
+    import pandas as pd
     mode = karg.pop("mode", "mean")
     if mode=="mean":
         clim_ozone = data.groupby(data.index.dayofyear).apply(np.nanmean)
@@ -140,7 +142,18 @@ def compute_climatology(data, **karg):
         data_res = data.resample("1D").apply(np.nanmin)
         clim_ozone = data_res.groupby(data_res.index.dayofyear).apply(np.nanmean)
         clim_ozone_std = data_res.groupby(data_res.index.dayofyear).apply(np.nanstd)
-        clim_ozone_stderr = data_res.groupby(data_res.index.dayofyear).apply(lambda x: x.mean()/np.sqrt(x.count()))
+        clim_ozone_stderr = data_res.groupby(data_res.index.dayofyear).apply(lambda x: x.std()/np.sqrt(x.count()))
+    elif mode=='hourly':
+        tmp = pd.DataFrame({'O3':data.values}, index=data.index)
+        #creating the hour, day, month, & day columns
+        tmp.loc[:,'hour'] = tmp.index.hour.values
+        tmp.loc[:,'day'] = tmp.index.day.values
+        tmp.loc[:,'month'] = tmp.index.month.values
+
+        #create groups and calculate the mean of each group
+        clim_ozone = tmp.groupby(['month','day','hour']).mean()
+        clim_ozone_std = tmp.groupby(['month','day','hour']).std()
+        clim_ozone_stderr = tmp.groupby(['month','day','hour']).apply(lambda x: x.std()/np.sqrt(x.count()))
 
     return(clim_ozone, clim_ozone_std, clim_ozone_stderr)
 
