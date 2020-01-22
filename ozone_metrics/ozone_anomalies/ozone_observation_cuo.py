@@ -31,11 +31,12 @@ aot0 = pd.DataFrame({"Esrange":aot0_esrange, "Pallas":aot0_pallas, "Jergul/Karas
 
 delta_aot0 = pd.DataFrame({"Esrange":aot0_esrange-aot0_climatology.values[0], "Pallas":aot0_pallas-aot0_climatology.values[0], "Jergul/Karasjok":aot0_jerkara-aot0_climatology.values[0], "Prestebakke":aot0_prestebakke-aot0_climatology_prestebakke.values[0], "Svanvik":aot0_svanvik_OzoNorClim-aot0_climatology_svanvik.values[0]})
 
-opt_obs = len(pd.date_range("%d-06" % iyear,"%d-08-31 23:0" % iyear, freq='H'))
+# Exclude years where more then 3 percent of data are mising!
 for each in ['Esrange', 'Pallas', 'Prestebakke']:
     years = np.arange(2012,2019)#np.unique(data[each].index.year)
     
     for iyear in years:
+        opt_obs = len(pd.date_range("%d-06" % iyear,"%d-08-31 23:0" % iyear, freq='H'))
         missing_data = (len(data[each].loc["%d-06" % iyear:"%d-08" % iyear].dropna())-opt_obs)/float(opt_obs)*100
         if missing_data < -3:
             #print(each, iyear, missing_data)

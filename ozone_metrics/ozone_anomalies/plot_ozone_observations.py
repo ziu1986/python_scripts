@@ -604,31 +604,70 @@ if plot_cuo:
 
     ax161.set_ylabel("$AOT_0$ $(nmol\,mol^{-1}\,h)$")
     ax162.set_ylabel("$\Delta AOT_0$ $(nmol\,mol^{-1}\,h)$")
-
+    for ax in fig16.axes:
+        ax.legend(["Esrange","_","Pallas","Prestebakke","Svanvik"])
+    
     fig17 = plt.figure(17, figsize=(16,9))
     fig17.canvas.set_window_title("ozone_obs_cuo_white_clover")
     ax171 = plt.subplot(211)
    
     
-    (aot0*gsto['NC-S_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax171, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
-    (aot0*gsto['NC-R_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax171, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////')
+    (aot0*gsto['NC-S_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax171, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, yerr=(delta_aot0*gsto_std['NC-S_0']*k_O3*unit_conversation).loc['2012':])
+    (aot0*gsto['NC-R_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax171, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_', yerr=(delta_aot0*gsto_std['NC-R_0']*k_O3*unit_conversation).loc['2012':])
 
     for patch in ax171.patches[40:]:
         patch.set_edgecolor('grey')
     
     ax172 = plt.subplot(212)
-    (delta_aot0*gsto['NC-S_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax172, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
-    (delta_aot0*gsto['NC-R_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax172, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////')
+    (delta_aot0*gsto['NC-S_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax172, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, yerr=(delta_aot0*gsto_std['NC-S_0']*k_O3*unit_conversation).loc['2012':])
+    (delta_aot0*gsto['NC-R_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax172, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_', yerr=(delta_aot0*gsto_std['NC-R_0']*k_O3*unit_conversation).loc['2012':])
+   
     for patch in ax172.patches[40:]:
         patch.set_edgecolor('grey')
 
     
-    ax171.set_ylabel("$CUO$ $(mmol\,m^{-1})$")
+    ax171.set_ylabel("$CUO$ $(mmol\,m^{-2})$")
     ax171.set_ylim(0,400)
-    ax172.set_ylabel("$\Delta CUO$ $(mmol\,m^{-1})$")
+    ax171.set_xticklabels("")
+    ax172.set_ylabel("$\Delta CUO$ $(mmol\,m^{-2})$")
+    ax172.set_xlabel("Time (years)")
+    for ax in fig17.axes:
+        ax.legend(["Esrange","_","Pallas","Prestebakke","Svanvik","_","_","_","_","_"], ncol=2, loc='upper left')
+        ax.fill([0.25, 0.275, 0.275, 0.25], [0.92, 0.92, 0.95, 0.95], fill=False, transform=ax.transAxes)
+        ax.fill([0.25, 0.275, 0.275, 0.25], [0.845, 0.845, 0.875, 0.875], fill=False, hatch='////', transform=ax.transAxes)
+        ax.text(0.28, 0.915, "NC-R",transform=ax.transAxes, size='large')
+        ax.text(0.28, 0.84, "NC-S",transform=ax.transAxes, size='large')
+
+    fig18 = plt.figure(18, figsize=(16,9))
+    fig18.canvas.set_window_title("ozone_obs_cuo_decidious_trees")
+    ax181 = plt.subplot(211)
+   
     
+    (aot0*gsto['BP']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax181, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
+    (aot0*gsto['PA']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax181, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_')
+
+    for patch in ax181.patches[40:]:
+        patch.set_edgecolor('grey')
+    
+    ax182 = plt.subplot(212)
+    (delta_aot0*gsto['BP']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax182, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
+    (delta_aot0*gsto['PA']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax182, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_')
+   
+    for patch in ax182.patches[40:]:
+        patch.set_edgecolor('grey')
 
     
+    ax181.set_ylabel("$CUO$ $(mmol\,m^{-2})$")
+    ax181.set_ylim(0,150)
+    ax181.set_xticklabels("")
+    ax182.set_ylabel("$\Delta CUO$ $(mmol\,m^{-2})$")
+    ax182.set_xlabel("Time (years)")
+    for ax in fig18.axes:
+        ax.legend(["Esrange","_","Pallas","Prestebakke","Svanvik","_","_","_","_","_"], ncol=2, loc='upper left')
+        ax.fill([0.25, 0.275, 0.275, 0.25], [0.92, 0.92, 0.95, 0.95], fill=False, transform=ax.transAxes)
+        ax.fill([0.25, 0.275, 0.275, 0.25], [0.845, 0.845, 0.875, 0.875], fill=False, hatch='////', transform=ax.transAxes)
+        ax.text(0.28, 0.915, "Silver birch",transform=ax.transAxes, size='large')
+        ax.text(0.28, 0.84, "Norway spruce",transform=ax.transAxes, size='large')
 # Show it
 plt.show(block=False)
 
