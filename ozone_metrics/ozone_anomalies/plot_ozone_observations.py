@@ -342,6 +342,7 @@ if plot_residuals:
     stats_text(ax103, stat_prestebakke, fit_prestebakke, ypos=0.4)
 
     ax103.set_xlabel("$<O_3>_{daily}-O_3^{clim}$ (ppb)")
+    ax102.set_ylabel("Probability density")
 
 if plot_aot:
     fig11 = plt.figure(11, figsize=(16,9))
@@ -588,7 +589,7 @@ if plot_ttest:
     stats_text(ax153, stat_test_prestebakke_2018, fit_test_prestebakke_2018, ypos=0.4)
 
     ax153.set_xlabel("$<O_3>_{daily}-O_3^{clim}/\sigma_{daily}$")
-
+    ax152.set_ylabel("Probability density")
     for ax in fig15.axes:
         ax.set_xlim(-12,12)
 
@@ -612,15 +613,15 @@ if plot_cuo:
     ax171 = plt.subplot(211)
    
     
-    (aot0*gsto['NC-S_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax171, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, yerr=(delta_aot0*gsto_std['NC-S_0']*k_O3*unit_conversation).loc['2012':])
-    (aot0*gsto['NC-R_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax171, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_', yerr=(delta_aot0*gsto_std['NC-R_0']*k_O3*unit_conversation).loc['2012':])
+    (aot0*gsto['NC-S_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax171, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, yerr=(rel_aot0*gsto_std['NC-S_0']*k_O3*unit_conversation).loc['2012':])
+    (aot0*gsto['NC-R_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax171, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_', yerr=(rel_aot0*gsto_std['NC-R_0']*k_O3*unit_conversation).loc['2012':])
 
     for patch in ax171.patches[40:]:
         patch.set_edgecolor('grey')
     
     ax172 = plt.subplot(212)
-    (delta_aot0*gsto['NC-S_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax172, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, yerr=(delta_aot0*gsto_std['NC-S_0']*k_O3*unit_conversation).loc['2012':])
-    (delta_aot0*gsto['NC-R_0']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax172, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_', yerr=(delta_aot0*gsto_std['NC-R_0']*k_O3*unit_conversation).loc['2012':])
+    (100*(rel_aot0*gsto['NC-S_0']*k_O3*unit_conversation).loc['2012':]).plot.bar(ax=ax172, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, yerr=(rel_aot0*gsto_std['NC-S_0']*k_O3*unit_conversation).loc['2012':])
+    (100*(rel_aot0*gsto['NC-R_0']*k_O3*unit_conversation).loc['2012':]).plot.bar(ax=ax172, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_', yerr=(rel_aot0*gsto_std['NC-R_0']*k_O3*unit_conversation).loc['2012':])
    
     for patch in ax172.patches[40:]:
         patch.set_edgecolor('grey')
@@ -629,7 +630,7 @@ if plot_cuo:
     ax171.set_ylabel("$CUO$ $(mmol\,m^{-2})$")
     ax171.set_ylim(0,400)
     ax171.set_xticklabels("")
-    ax172.set_ylabel("$\Delta CUO$ $(mmol\,m^{-2})$")
+    ax172.set_ylabel("$\Delta CUO/CUO_{clim}$ (%)")
     ax172.set_xlabel("Time (years)")
     for ax in fig17.axes:
         ax.legend(["Esrange","_","Pallas","Prestebakke","Svanvik","_","_","_","_","_"], ncol=2, loc='upper left')
@@ -643,24 +644,24 @@ if plot_cuo:
     ax181 = plt.subplot(211)
    
     
-    (aot0*gsto['BP']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax181, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
-    (aot0*gsto['PA']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax181, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_')
+    (aot0*gsto['BP']*unit_conversation).loc['2012':].plot.bar(ax=ax181, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
+    (aot0*gsto['PA']*unit_conversation).loc['2012':].plot.bar(ax=ax181, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_')
 
     for patch in ax181.patches[40:]:
         patch.set_edgecolor('grey')
     
     ax182 = plt.subplot(212)
-    (delta_aot0*gsto['BP']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax182, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
-    (delta_aot0*gsto['PA']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax182, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_')
+    (100*(rel_aot0*gsto['BP']*unit_conversation).loc['2012':]).plot.bar(ax=ax182, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
+    (100*(rel_aot0*gsto['PA']*unit_conversation).loc['2012':]).plot.bar(ax=ax182, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_')
    
     for patch in ax182.patches[40:]:
         patch.set_edgecolor('grey')
 
     
     ax181.set_ylabel("$CUO$ $(mmol\,m^{-2})$")
-    ax181.set_ylim(0,150)
+    ax181.set_ylim(0,100)
     ax181.set_xticklabels("")
-    ax182.set_ylabel("$\Delta CUO$ $(mmol\,m^{-2})$")
+    ax182.set_ylabel("$\Delta CUO/CUO_{clim}$ (%)")
     ax182.set_xlabel("Time (years)")
     for ax in fig18.axes:
         ax.legend(["Esrange","_","Pallas","Prestebakke","Svanvik","_","_","_","_","_"], ncol=2, loc='upper left')
@@ -668,6 +669,35 @@ if plot_cuo:
         ax.fill([0.25, 0.275, 0.275, 0.25], [0.845, 0.845, 0.875, 0.875], fill=False, hatch='////', transform=ax.transAxes)
         ax.text(0.28, 0.915, "Silver birch",transform=ax.transAxes, size='large')
         ax.text(0.28, 0.84, "Norway spruce",transform=ax.transAxes, size='large')
+
+    fig19 = plt.figure(19, figsize=(16,9))
+    fig19.canvas.set_window_title("ozone_obs_cuo_krekling")
+    ax191 = plt.subplot(211)
+   
+    
+    (aot0*gsto['EN']*k_O3*unit_conversation).loc['2012':].plot.bar(ax=ax191, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, yerr=(rel_aot0*gsto_std['EN']*k_O3*unit_conversation).loc['2012':])
+    
+    for patch in ax191.patches[40:]:
+        patch.set_edgecolor('grey')
+    
+    ax192 = plt.subplot(212)
+    (100*(rel_aot0*gsto['EN']*k_O3*unit_conversation).loc['2012':]).plot.bar(ax=ax192, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, yerr=(rel_aot0*gsto_std['EN']*k_O3*unit_conversation).loc['2012':])
+      
+    for patch in ax192.patches[40:]:
+        patch.set_edgecolor('grey')
+
+    
+    ax191.set_ylabel("$CUO$ $(mmol\,m^{-2})$")
+    ax191.set_ylim(0,400)
+    ax191.set_xticklabels("")
+    ax192.set_ylabel("$\Delta CUO/CUO_{clim}$ (%)")
+    ax192.set_xlabel("Time (years)")
+    for ax in fig19.axes:
+        ax.legend(["Esrange","_","Pallas","Prestebakke","Svanvik","_","_","_","_","_"], ncol=2, loc='upper left')
+        ax.fill([0.25, 0.275, 0.275, 0.25], [0.92, 0.92, 0.95, 0.95], fill=False, transform=ax.transAxes)
+        ax.text(0.28, 0.915, "Krekling twig",transform=ax.transAxes, size='large')
+       
+
 # Show it
 plt.show(block=False)
 
