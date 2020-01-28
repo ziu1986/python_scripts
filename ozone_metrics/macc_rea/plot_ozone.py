@@ -3,10 +3,12 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from scipy.constants import *     # Get physics constants
+import matplotlib.pyplot as plt
 import datetime as dt
-from mytools.met_tools import *
+#from mytools.met_tools import *
 from mytools.netcdf_tools import *
 from mytools.station_info import station_location
+from mytools.plot_tools import *
 
 def read_date(input_files):
     data_list = []
@@ -38,10 +40,13 @@ except NameError:
 
 # Load climatologies from observations
 import pickle
-with open('../obs_climatologies.pkl', 'rb') as input:
+with open( os.environ['PY_SCRIPTS']+'/ozone_metrics/ozone_anomalies/obs_climatologies.pkl', 'rb') as input:
     climatology_nord = pickle.load(input)
     climatology_svanvik = pickle.load(input)
     climatology_prestebakke = pickle.load(input)
+    yerr_mean_nord = pickle.load(input)
+    yerr_mean_svanvik = pickle.load(input)
+    yerr_mean_prestebakke = pickle.load(input)
 
 doy_macc = {}
 doy_cams = {}   
@@ -74,7 +79,9 @@ for ax in fig1.axes:
     
     # Climatology from obs
     ax.plot(np.linspace(1,367), climatology_nord(np.linspace(1,367)), ls='--', label='obs_clim: Nordkalotten')
-    ax.plot(np.linspace(1,367), climatology_prestebakke(np.linspace(1,367)), ls='--', label='obs_clim: Prestebakke')
+    ax.plot(np.linspace(1,367), climatology_prestebakke(np.linspace(1,367)), ls='-.', label='obs_clim: Prestebakke')
+    plot_error_bands(ax, np.arange(1,367), climatology_nord(np.arange(1,367)), yerr_mean_nord.values, color='black',ls='None')
+    plot_error_bands(ax, np.arange(1,367), climatology_prestebakke(np.arange(1,367)), yerr_mean_prestebakke.values, color='grey',ls='None')
     ax.set_ylim(0,60)
     ax.legend(loc='lower left', ncol=2)
     ax.set_xlabel("Time (day of year)")
