@@ -39,7 +39,7 @@ def plot_month_span(ax, **kargs):
     
     '''
     import numpy as np
-    
+    import calendar
     year = kargs.pop('year', 2006)
     fill = kargs.pop('fill', True)
     daysinmonth = np.array([calendar.monthrange(year, imonth)[1] for imonth in range(1,13)])
@@ -71,7 +71,7 @@ def plot_month_name(ax, **kargs):
        Size of the text fonts. Standard "medium"
     '''
     import numpy as np
-    
+    import calendar
     year = kargs.pop('year', 2006)
     ypos = kargs.pop('ypos', ax.yaxis.get_ticklocs()[-1]+ax.yaxis.get_tick_space()*0.1)
     mlength = kargs.pop('mlength', 3)
@@ -98,7 +98,7 @@ def set_pressure_axis(ax, **kargs):
     '''
     from met_tools import USstdP
     import matplotlib.pyplot as plt
-    
+    import calendar
     limits = sorted(kargs.pop("limits", (1000., USstdP(30*kilo)/hecto)))[::-1] # reverse sorted
     ticks = kargs.pop("ticks", [20, 50, 100, 200, 500, 1000])
     label = kargs.pop("label", "Pressure (hPa)")
@@ -190,9 +190,11 @@ def plot_error_bands(ax, x, y, error, **kargs):
     '''
     color = kargs.pop('color', 'blue')
     ls = kargs.pop('ls', '-')
+    zorder = kargs.pop('zorder',2)
     ax.plot(x, y, color=color, ls=ls)
     ax.fill_between(x, y-error, y+error,
-                    color=color, alpha=0.5)
+                    color=color, alpha=0.5,
+                    zorder=zorder)
 
 
 def draw_meridians(ax, meridians, **kargs):
@@ -228,13 +230,13 @@ def draw_meridians(ax, meridians, **kargs):
     #for ilon in np.unique(np.fabs(meridians)):
     #    ax.text(-ilon, 50, '%d$^\circ$W' % (ilon), horizontalalignment='center', transform=cp.crs.Geodetic())
 
-    def draw_parallels(ax, parallels, **kargs):
+def draw_parallels(ax, parallels, **kargs):
     '''
     Draw parallels in cartopy plot.
     '''
-    cdef double pc = 66.57 # deg
+    pc = 66.57 # deg
     b_pc = kargs.pop('polarcircle', False)
-    cdef int resolution = kargs.pop('resolution', 100)
+    resolution = kargs.pop('resolution', 100)
     lon = np.linspace(-180, 180, resolution)
     for ilat in parallels:
         lat = np.linspace(ilat, ilat, resolution)
