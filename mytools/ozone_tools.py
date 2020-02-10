@@ -158,4 +158,33 @@ def compute_climatology(data, **karg):
     return(clim_ozone, clim_ozone_std, clim_ozone_stderr)
 
 
+def flunder(x, **kwarg):
+    '''
+    Flatten any kind of list of lists, numpy.arrays, and numbers.
+    Parameters
+    ----------
+    x : list of lists etc.
+    Keyword arguments
+    -----------------
+    verbose : bool
+    Returns
+    -------
+    Flat numpy array.
+    '''
+    import numpy as np
+    verbose = kwarg.pop('verbose', False)
+    result = []
+    for elem in x:
+        try:
+            for num in elem:
+                if verbose:
+                    print(num)
+                result.append(num)
+        except TypeError:
+            if verbose:
+                print(elem)
+            result.append(elem)
+    return(np.array(result))
+
+
 
