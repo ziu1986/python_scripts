@@ -21,12 +21,15 @@ for each in data_list:
     x.append((1/np.sqrt(selection['"VpdL"'])).values)
     z.append((selection['"Cond"']).values)
 
-X, Y = np.meshgrid(flunder(x), flunder(y))
-xdata = np.vstack((X.ravel(), Y.ravel()))
+#Z = np.zeros_like(X)
+#np.fill_diagonal(Z, flunder(z))
 
-Z = np.meshgrid(flunder(z), flunder(z))[0]
+xdata = np.vstack((flunder(x), flunder(y)))
+Z = flunder(z)
 
 from scipy.optimize import curve_fit
 
-fit_params, cov_mat = curve_fit(stomatal_conductance, xdata, Z.ravel(), p0=[0, 0.5])
-
+fit_params, cov_mat = curve_fit(stomatal_conductance, xdata, Z, p0=[0, 0.5])
+print("Fit results")
+print("g0, g1", fit_params)
+print("cov mat", cov_mat)
