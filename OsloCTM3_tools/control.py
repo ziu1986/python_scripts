@@ -32,7 +32,7 @@ def plot_global_avg(tracer):
     
     weights = np.cos(tracer.lat*np.pi/180)
     zonal_mean = ((tracer.mean(dim='lon')*weights).mean(dim='lat').transpose())
-    levels = 20
+    levels = 40
 
     
     fig = plt.figure(figsize=(16,9))
@@ -40,10 +40,12 @@ def plot_global_avg(tracer):
 
     # Global zonal weighted average
     ax1 = plt.subplot(221)
+    ax1.set_title("Global zonal weighted average")
     zonal_mean.plot.contourf(ax=ax1, levels=levels)
     
     # Global zonal weighted average difference with start of simulation
     ax2 = plt.subplot(222)
+    ax2.set_title("Delta global zonal weighted average")
     (zonal_mean-zonal_mean.isel(time=0)).plot.contourf(ax=ax2, levels=levels)
 
     for ax in fig.axes[::2]:
@@ -51,10 +53,12 @@ def plot_global_avg(tracer):
 
     # Zonal longitudinal average
     ax3 = plt.subplot(223)
+    ax3.set_title("Zonal longitudinal average")
     (tracer.mean(dim='lon').mean(dim='time')).plot.contourf(ax=ax3, levels=levels)
 
     # Zonal longitudinal average difference
     ax4 = plt.subplot(224)
+    ax4.set_title("Delta zonal longitudinal average end-begin")
     (tracer.mean(dim='lon').isel(time=-1)-tracer.mean(dim='lon').isel(time=0)).plot.contourf(ax=ax4, levels=levels)
 
     for ax in fig.axes[::2]:
@@ -69,7 +73,7 @@ def plot_global_avg(tracer):
 ### MAIN ###
 # Path to monthly means from OsloCTM3 run
 #nc_src = os.environ['DATA']+'/nird_data/results/OsloCTM3/drydepdevel/version2/C3RUN_mOSaic/monthly_means/*.nc'
-nc_src = os.environ['DATA']+'/nird_data/results/OsloCTM3/ozone25/C3RUN_ozone25_*/monthly_means/*.nc'
+nc_src = os.environ['DATA']+'/nird_data/models/results/OsloCTM3/ozone25/C3RUN_ozone25_*/monthly_means/*.nc'
 
 # Load the data only once (if run in ipython interpreter)
 try:
