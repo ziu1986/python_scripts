@@ -10,6 +10,7 @@ ax11.plot(pd.date_range("2018-07","2018-07-31 23:00", freq='H'), clim_hourly.loc
 ax11.plot(pd.date_range("2018-07","2018-07-31 23:00", freq='H'), clim_hourly_svanvik.loc[7].values, color='magenta', label="Hourly clim. Svanvik")
 
 plt.plot((scaling_max_pallas*sample_clim_hourly_svanvik[0]['2018-07']+sample_clim_hourly_svanvik[0]['2018-07']), color='grey', label='corr. Svanvik')
+(data_rra.sel(lat=station_location['Svanvik'].lat, lon=station_location['Svanvik'].lon, method='nearest', time='2018-07')['O3']*0.5).plot(color='orange', label='rra Svanvik')
 
 ax11.set_ylabel("$[O_3] (ppb)$")
 ax11.set_ylim(0,80)

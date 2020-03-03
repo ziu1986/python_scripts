@@ -19,6 +19,7 @@ from mytools.station_info import station_location
 src = os.environ['DATA']+'/astra_data/observations/ozone/'
 src_svanvik_OzoNorClim = os.environ['DATA']+'/astra_data/observations/ozone/Svanvik/NO0047R.*ozone*.xls'
 src_stations = ('Barrow', 'Esrange', 'Janiskoski', 'Jergul', 'Karasjok', 'Pallas', 'Prestebakke', 'Svanvik')
+src_rra = os.environ['DATA']+'/nird_data/reanalysis/Copernicus/ensemble_ozone/SCA_ENSa.2018.O3.yearlyrea.nc'
 
 try:
     data
@@ -40,6 +41,10 @@ except NameError:
         data_svanvik_OzoNorClim.append(tmp_data_svanvik['O3_mugm-3'].where(tmp_data_svanvik['O3_mugm-3']>=0.5).dropna()/2.)
     # Concat data Svanvik data
     data_svanvik_OzoNorClim = pd.concat(data_svanvik_OzoNorClim)
+    # Load regional model reanalysis 2018 and set time axis
+    data_rra = xr.open_dataset(src_rra)
+    data_rra['time'] = pd.date_range("2018-01-01", periods=365*24, freq='H')
+    
 
 #---------------------------------------------------------------------------------------------------------------------------------
 #Control

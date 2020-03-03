@@ -37,6 +37,13 @@ except NameError:
     nc_src = os.environ['DATA']+"/astra_data/ECMWF/CAMS_reanalysis/netcdf/VMR/*climatology.nc" 
     data_cams = read_date(nc_src)
 
+try:
+    data_rra
+except NameError:    
+    nc_src = os.environ['DATA']+"/nird_data/reanalysis/Copernicus/ensemble_ozone/*climatology.nc"
+    data_rra = read_date(nc_src)
+
+    data_rra['time'] = pd.date_range("2016-01-01", periods=366*24, freq='H')
 
 # Load climatologies from observations
 import pickle
@@ -49,13 +56,16 @@ with open( os.environ['PY_SCRIPTS']+'/ozone_metrics/ozone_anomalies/obs_climatol
     yerr_mean_prestebakke = pickle.load(input)
 
 doy_macc = {}
-doy_cams = {}   
+doy_cams = {}
+doy_rra = {} 
 sample_spl_nord =  climatology_nord(np.unique(data_macc.time.dt.dayofyear))
 sample_spl_prestebakke =  climatology_prestebakke(np.unique(data_macc.time.dt.dayofyear))
 
 for istation in ('Esrange', 'Pallas', 'Jergul', 'Svanvik', 'Prestebakke'):
     doy_macc[istation] = (data_macc['go3']*1e9).sel(latitude=station_location[istation].lat, longitude=station_location[istation].lon, method='nearest').groupby(data_macc.time.dt.dayofyear).mean()
     doy_cams[istation] = (data_cams['go3']*1e9).sel(latitude=station_location[istation].lat, longitude=station_location[istation].lon, method='nearest').groupby(data_cams.time.dt.dayofyear).mean()
+    doy_rra[istation] = (data_rra['O3']*0.5).sel(lat=station_location[istation].lat, lon=station_location[istation].lon, method='nearest').groupby(data_rra.time.dt.dayofyear).mean()
+    
     
 
 
@@ -63,17 +73,20 @@ for istation in ('Esrange', 'Pallas', 'Jergul', 'Svanvik', 'Prestebakke'):
 plt.close('all')
 fig1 = plt.figure(1, figsize=(16,9))
 fig1.canvas.set_window_title("ozone_climatologies")
-ax11 = plt.subplot(121)
-ax12 = plt.subplot(122)
+ax11 = plt.subplot(131)
+ax12 = plt.subplot(132)
+ax13 = plt.subplot(133)
 
 
 for istation, color, marker in zip(('Esrange', 'Pallas', 'Jergul', 'Svanvik'), ('orange','black','blue', 'blueviolet'), ('o','^','v','d')):
     doy_macc[istation].plot(ax=ax11, color=color, label=istation, marker=marker, ls='None')
     doy_cams[istation].plot(ax=ax12, color=color, label=istation, marker=marker, fillstyle='none', ls='None')
+    doy_rra[istation].plot(ax=ax13, color=color, label=istation, marker=marker, fillstyle='top', ls='None')
 
 #
 doy_macc['Prestebakke'].plot(ax=ax11, color='red', label='Prestebakke', alpha=0.5)
 doy_cams['Prestebakke'].plot(ax=ax12, color='red', label='Prestebakke', alpha=0.5)
+doy_rra['Prestebakke'].plot(ax=ax13, color='red', label='Prestebakke', alpha=0.5)
 
 for ax in fig1.axes:
     
@@ -91,6 +104,7 @@ for ax in fig1.axes:
 
 ax11.set_title("MACC reanalysis")
 ax12.set_title("CAMS reanalysis")
+ax13.set_title("Regional model ensemble reanalysis")
 
 fig2 = plt.figure(2, figsize=(10,12))
 fig2.canvas.set_window_title("ozone_climatology_fenoscandic_obs_residuals")
