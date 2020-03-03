@@ -1,11 +1,11 @@
 # General ignore
-**/*.pdf
+**/**/*.pdf
 **/*.nc
 **/__*
 **/*.so
 **/*.c
 **/*.pyc
 # Ignore all "plots" directories
-**/*/plots/
+**/**/*/plots/
 **/Plots/
 **/mytools/build/
