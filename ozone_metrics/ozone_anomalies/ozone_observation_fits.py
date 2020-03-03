@@ -28,3 +28,7 @@ x_test_prestebakke_2018, pdf_test_prestebakke_2018, fit_test_prestebakke_2018, s
 x_test_pallas_hourly_2018, pdf_test_pallas_hourly_2018, fit_test_pallas_hourly_2018, stat_test_pallas_hourly_2018 = fit_skew_normal(fitable_range((data['Pallas'].loc['2018-07'].values-clim_hourly.loc[7].values.flatten())/clim_hourly_err.loc[7].values.flatten()))
 x_test_esrange_hourly_2018, pdf_test_esrange_hourly_2018, fit_test_esrange_hourly_2018, stat_test_esrange_hourly_2018 = fit_skew_normal(fitable_range((data['Esrange'].loc['2018-07'].values-clim_hourly.loc[7].values.flatten())/clim_hourly_err.loc[7].values.flatten()))
 x_test_svanvik_hourly_2018, pdf_test_svanvik_hourly_2018, fit_test_svanvik_hourly_2018, stat_test_svanvik_hourly_2018 = fit_skew_normal(fitable_range((data_svanvik_OzoNorClim.loc['2018-07']-sample_clim_hourly_svanvik[0][data_svanvik_OzoNorClim.loc['2018-07'].index])/sample_clim_hourly_err_svanvik[0][data_svanvik_OzoNorClim.loc['2018-07'].index]))
+
+data_svanvik_rra = (data_rra.sel(lat=station_location['Svanvik'].lat, lon=station_location['Svanvik'].lon, method='nearest', time='2018-07')['O3']*0.5)
+
+x_test_svanvik_rra_hourly_2018, pdf_test_svanvik_rra_hourly_2018, fit_test_svanvik_rra_hourly_2018, stat_test_svanvik_rra_hourly_2018 = fit_skew_normal(fitable_range((data_svanvik_rra-sample_clim_hourly_svanvik[0][data_svanvik_rra.time.values])/sample_clim_hourly_err_svanvik[0][data_svanvik_rra.time.values]))

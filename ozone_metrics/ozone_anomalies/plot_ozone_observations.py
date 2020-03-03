@@ -605,6 +605,7 @@ if plot_cuo:
 
     ax161.set_ylabel("$AOT_0$ $(nmol\,mol^{-1}\,h)$")
     ax162.set_ylabel("$\Delta AOT_0$ $(nmol\,mol^{-1}\,h)$")
+   
     for ax in fig16.axes:
         ax.legend(["Esrange","_","Pallas","Prestebakke","Svanvik"])
     
@@ -632,6 +633,8 @@ if plot_cuo:
     ax171.set_xticklabels("")
     ax172.set_ylabel("$\Delta CUO/CUO_{clim}$ (%)")
     ax172.set_xlabel("Time (years)")
+    
+    
     for ax in fig17.axes:
         ax.legend(["Esrange","_","Pallas","Prestebakke","Svanvik","_","_","_","_","_"], ncol=2, loc='upper left')
         ax.fill([0.25, 0.275, 0.275, 0.25], [0.92, 0.92, 0.95, 0.95], fill=False, transform=ax.transAxes)
@@ -639,11 +642,12 @@ if plot_cuo:
         ax.text(0.28, 0.915, "NC-R",transform=ax.transAxes, size='large')
         ax.text(0.28, 0.84, "NC-S",transform=ax.transAxes, size='large')
 
+    ax171.axhline(45, ls=':', color='grey')
+    ax171.axhline(114.3, ls=':', color='grey')
     fig18 = plt.figure(18, figsize=(16,9))
-    fig18.canvas.set_window_title("ozone_obs_cuo_decidious_trees")
+    fig18.canvas.set_window_title("ozone_obs_cuo_trees")
     ax181 = plt.subplot(211)
-   
-    
+       
     (aot0*gsto['BP']*unit_conversation).loc['2012':].plot.bar(ax=ax181, color={'blue', 'orange', 'black', 'red', 'blueviolet'})
     (aot0*gsto['PA']*unit_conversation).loc['2012':].plot.bar(ax=ax181, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, hatch='////', label='_')
 
@@ -663,12 +667,15 @@ if plot_cuo:
     ax181.set_xticklabels("")
     ax182.set_ylabel("$\Delta CUO/CUO_{clim}$ (%)")
     ax182.set_xlabel("Time (years)")
+       
     for ax in fig18.axes:
         ax.legend(["Esrange","_","Pallas","Prestebakke","Svanvik","_","_","_","_","_"], ncol=2, loc='upper left')
         ax.fill([0.25, 0.275, 0.275, 0.25], [0.92, 0.92, 0.95, 0.95], fill=False, transform=ax.transAxes)
         ax.fill([0.25, 0.275, 0.275, 0.25], [0.845, 0.845, 0.875, 0.875], fill=False, hatch='////', transform=ax.transAxes)
         ax.text(0.28, 0.915, "Silver birch",transform=ax.transAxes, size='large')
         ax.text(0.28, 0.84, "Norway spruce",transform=ax.transAxes, size='large')
+
+    ax181.axhline(45, ls=':', color='grey')
 
     fig19 = plt.figure(19, figsize=(16,9))
     fig19.canvas.set_window_title("ozone_obs_cuo_krekling")
@@ -682,7 +689,7 @@ if plot_cuo:
     
     ax192 = plt.subplot(212)
     (100*(rel_aot0*gsto['EN']*k_O3*unit_conversation).loc['2012':]).plot.bar(ax=ax192, color={'blue', 'orange', 'black', 'red', 'blueviolet'}, yerr=(rel_aot0*gsto_std['EN']*k_O3*unit_conversation).loc['2012':])
-      
+    
     for patch in ax192.patches[40:]:
         patch.set_edgecolor('grey')
 
@@ -697,7 +704,9 @@ if plot_cuo:
         ax.fill([0.25, 0.275, 0.275, 0.25], [0.92, 0.92, 0.95, 0.95], fill=False, transform=ax.transAxes)
         ax.text(0.28, 0.915, "Krekling twig",transform=ax.transAxes, size='large')
        
-
+    ax191.axhline(45, ls=':', color='grey')
+    ax191.axhline(114.3, ls=':', color='grey')
+      
 # Show it
 plt.show(block=False)
 
