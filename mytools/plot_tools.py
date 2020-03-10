@@ -162,7 +162,7 @@ def print_all(**kargs):
     for i in plt.get_fignums():
         fig = plt.figure(i)
         w_title = fig.canvas.get_window_title()
-        print "Print " + w_title
+        print("Print " + w_title)
         for itype in file_type:
             if not os.path.isdir(fig_path+'/'+itype):
                 os.mkdir(fig_path+'/'+itype)
