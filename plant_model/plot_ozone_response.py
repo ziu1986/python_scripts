@@ -61,22 +61,22 @@ ax12.errorbar(pelle14_pcuo[1::3], pelle14_rJmax,
               ls='None', marker='d')
 ax12.errorbar(np.take(kinose_pcuo[1], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rJmax,
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[1], (2,4,7))**2), yerr=kinose_rJmax_sigma,
-              ls='None', marker='^', label='Kinose2019')
+              ls='None', marker='^')
 ax12.errorbar(np.take(kinose_pcuo[2], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rJmax_s15,
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[2], (2,4,7))**2), yerr=kinose_rJmax_s15_sigma,
               ls='None', marker='^', color=ax12.lines[-1].get_color())
 ax12.errorbar(watanabe13_pcuo[1]-watanabe13_pcuo[0], watanabe13_rJmax_beech,
               xerr=((np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][0]**2),),(np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][1]**2),)), yerr=watanabe13_rJmax_beech_sigma,
-              ls='None', marker='s', label='Watanabe2013')
+              ls='None', marker='s')
 ax12.errorbar(watanabe13_pcuo[3]-watanabe13_pcuo[2], watanabe13_rJmax_oak,
               xerr=((np.sqrt(watanabe13_pcuo_std[2]**2+watanabe13_pcuo_std[3][0]**2),),(np.sqrt(watanabe13_pcuo_std[2]**2+watanabe13_pcuo_std[3][1]**2),)), yerr=watanabe13_rJmax_oak_sigma,
               ls='None', marker='s', color=ax12.lines[-1].get_color())
 ax12.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rJmax,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rJmax_sigma,
-              ls='None', marker='v', label='Gao2016')
+              ls='None', marker='v')
 ax12.errorbar(harmens_pcuo[0::2][1::2]-harmens_pcuo[0::2][0::2], harmens_rJmax_1,
               xerr=np.sqrt(harmens_pcuo_std[0::2][1::2]**2+harmens_pcuo_std[0::2][0::2]**2), yerr=harmens_rJmax_1_sigma,
-              ls='None', marker='*', label='Harmens2016')
+              ls='None', marker='*')
 ax12.errorbar(harmens_pcuo[1::2][1::2]-harmens_pcuo[1::2][0::2], harmens_rJmax_2,
               xerr=np.sqrt(harmens_pcuo_std[1::2][1::2]**2+harmens_pcuo_std[1::2][0::2]**2), yerr=harmens_rJmax_2_sigma,
               ls='None', marker='*', color=ax11.lines[-1].get_color())
@@ -103,22 +103,22 @@ ax13.errorbar(pelle14_pcuo[1::3], pelle14_rVcmax,
               ls='None', marker='d')
 ax13.errorbar(np.take(kinose_pcuo[1], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rVcmax, 
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[1], (2,4,7))**2), yerr=kinose_rVcmax_sigma, 
-              ls='None', marker='^', label='Kinose2019')
+              ls='None', marker='^')
 ax13.errorbar(np.take(kinose_pcuo[2], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rVcmax_s15, 
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[2], (2,4,7))**2), yerr=kinose_rVcmax_s15_sigma, 
               ls='None', marker='^', color=ax13.lines[-1].get_color())
 ax13.errorbar(watanabe13_pcuo[1]-watanabe13_pcuo[0], watanabe13_rVcmax_beech, 
               xerr=((np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][0]**2),),(np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][1]**2),)), yerr=watanabe13_rVcmax_beech_sigma, 
-              ls='None', marker='s', label='Watanabe2013')
+              ls='None', marker='s')
 ax13.errorbar(watanabe13_pcuo[3]-watanabe13_pcuo[2], watanabe13_rVcmax_oak, 
               xerr=((np.sqrt(watanabe13_pcuo_std[2]**2+watanabe13_pcuo_std[3][0]**2),),(np.sqrt(watanabe13_pcuo_std[2]**2+watanabe13_pcuo_std[3][1]**2),)), yerr=watanabe13_rVcmax_oak_sigma, 
               ls='None', marker='s', color=ax13.lines[-1].get_color())
 ax13.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rVcmax,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rVcmax_sigma,
-              ls='None', marker='v', label='Gao2016')
+              ls='None', marker='v')
 ax13.errorbar(harmens_pcuo[0::2][1::2]-harmens_pcuo[0::2][0::2], harmens_rVcmax_1,
               xerr=np.sqrt(harmens_pcuo_std[0::2][1::2]**2+harmens_pcuo_std[0::2][0::2]**2), yerr=harmens_rVcmax_1_sigma,
-              ls='None', marker='*', label='Harmens2016')
+              ls='None', marker='*')
 ax13.errorbar(harmens_pcuo[1::2][1::2]-harmens_pcuo[1::2][0::2], harmens_rVcmax_2,
               xerr=np.sqrt(harmens_pcuo_std[1::2][1::2]**2+harmens_pcuo_std[1::2][0::2]**2), yerr=harmens_rVcmax_2_sigma,
               ls='None', marker='*', color=ax11.lines[-1].get_color())
@@ -138,20 +138,20 @@ ax14.errorbar(pelle14_pcuo[1::3], pelle14_rRd,
               ls='None', marker='d')
 ax14.errorbar(np.take(kinose_pcuo[1], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rRd, 
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[1], (2,4,7))**2), yerr=kinose_rRd_sigma, 
-              ls='None', marker='^', label='Kinose2019')
+              ls='None', marker='^')
 ax14.errorbar(np.take(kinose_pcuo[2], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rRd_s15, 
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[2], (2,4,7))**2), yerr=kinose_rRd_s15_sigma, 
               ls='None', marker='^', color=ax14.lines[-1].get_color())
 ax14.errorbar(watanabe13_pcuo[1]-watanabe13_pcuo[0], watanabe13_rRd_beech, 
               xerr=((np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][0]**2),),(np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][1]**2),)), yerr=watanabe13_rRd_beech_sigma, 
-              ls='None', marker='s', label='Watanabe2013')
+              ls='None', marker='s')
 ax14.errorbar(watanabe13_pcuo[3]-watanabe13_pcuo[2], watanabe13_rRd_oak, 
               xerr=((np.sqrt(watanabe13_pcuo_std[2]**2+watanabe13_pcuo_std[3][0]**2),),(np.sqrt(watanabe13_pcuo_std[2]**2+watanabe13_pcuo_std[3][1]**2),)), yerr=watanabe13_rRd_oak_sigma, 
               ls='None', marker='s', color=ax14.lines[-1].get_color())
 ax14.plot(-1,-1,
-              ls='None', marker='v', label='Gao2016')
+              ls='None', marker='v')
 ax14.plot(-1,-1,
-              ls='None', marker='*', label='Harmens2017')
+              ls='None', marker='*')
 
 # Chlorophyll A+B content 
 ax15 = plt.subplot(235)
@@ -169,15 +169,15 @@ ax15.plot(-1,-1,
               ls='None', marker='^')
 ax15.errorbar(watanabe13_pcuo[1]-watanabe13_pcuo[0], watanabe13_rChl_beech, 
               xerr=((np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][0]**2),),(np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][1]**2),)), yerr=watanabe13_rChl_beech_sigma, 
-              ls='None', marker='s', label='Watanabe2013')
+              ls='None', marker='s')
 ax15.errorbar(watanabe13_pcuo[3]-watanabe13_pcuo[2], watanabe13_rChl_oak, 
               xerr=((np.sqrt(watanabe13_pcuo_std[2]**2+watanabe13_pcuo_std[3][0]**2),),(np.sqrt(watanabe13_pcuo_std[2]**2+watanabe13_pcuo_std[3][1]**2),)), yerr=watanabe13_rChl_oak_sigma, 
               ls='None', marker='s', color=ax15.lines[-1].get_color())
 ax15.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rChl,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rChl_sigma,
-              ls='None', marker='v', label='Gao2016')
+              ls='None', marker='v')
 ax15.plot(-1,-1,
-              ls='None', marker='*', label='Harmens2017')
+              ls='None', marker='*')
 
 ax15.set_xlabel("CUO (mmol $m^{-2}$)")
 ax11.set_ylabel("$g_s^{O_3}/g_s^{CF}$")
@@ -190,26 +190,29 @@ ax11.legend(bbox_to_anchor=(3.05, -1.), loc='lower right', borderaxespad=0.)
 
 
 # Fits
-ax12.plot(np.arange(0,100), yfit_Jmax, ls='--', color='black')
-ax12.plot(np.arange(0,100), yfit_Jmax2, ls=':', color='red')
-ax12.plot(np.arange(0,100), yfit_Jmax_2, ls='-.', color='blue')
+ax12.plot(np.arange(0,100), yfit_Jmax, ls='--', color='black', label="lin. fit: no uncert.")
+ax12.plot(np.arange(0,100), yfit_Jmax2, ls=':', color='red', label="lin. fit: y uncert.")
+ax12.plot(np.arange(0,100), yfit_Jmax_2, ls='-.', color='blue', label="lin. fit: x-y uncert.")
 
-ax13.plot(np.arange(0,100), yfit_Vcmax, ls='--', color='black')
-ax13.plot(np.arange(0,100), yfit_Vcmax2, ls=':', color='red')
-ax13.plot(np.arange(0,100), yfit_Vcmax_2, ls='-.', color='blue')
+ax13.plot(np.arange(0,100), yfit_Vcmax, ls='--', color='black', label="lin. fit: no uncert.")
+ax13.plot(np.arange(0,100), yfit_Vcmax2, ls=':', color='red', label="lin. fit: y uncert.")
+ax13.plot(np.arange(0,100), yfit_Vcmax_2, ls='-.', color='blue', label="lin. fit: x-y uncert.")
 
-ax14.plot(np.arange(0,100), yfit_Rd, ls='--', color='black')
-ax14.plot(np.arange(0,100), yfit_Rd2, ls=':', color='red')
+ax14.plot(np.arange(0,100), yfit_Rd, ls='--', color='black', label="lin. fit: no uncert.")
+ax14.plot(np.arange(0,100), yfit_Rd2, ls=':', color='red', label="lin. fit: y uncert.")
 
-ax14.plot(np.arange(0,100), yfit_Rd_2, ls='--', color='black', alpha=0.5)
-ax14.plot(np.arange(0,100), yfit_Rd2_2, ls=':', color='red', alpha=0.5)
+ax14.plot(np.arange(0,100), yfit_Rd_2, ls='--', color='black', alpha=0.5, label="exp. fit: no uncert. ")
+ax14.plot(np.arange(0,100), yfit_Rd2_2, ls=':', color='red', alpha=0.5, label="exp. fit: y uncert. exp")
 
 #ax15.plot(np.arange(0,100), yfit_Chl, ls='--', color='black')
 #ax15.plot(np.arange(0,100), yfit_Chl2, ls=':', color='red')
 
+
 for ax in fig1.axes:
     ax.set_ylim(0.,3)
     ax.set_xlim(0.,100)
+for ax in fig1.axes[1:]:
+    ax.legend()
 
 '''
 fig2 = plt.figure(2)
