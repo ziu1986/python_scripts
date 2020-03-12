@@ -55,16 +55,16 @@ def equi_state(data, **karg):
 # Clean up
 plt.close('all')
 
-#src = os.environ['CESM_RUN']+"/work/test_brazil_spin-up/run/test_brazil_spin-up.clm2.h0.*"
-#nyears = 11
-#src = os.environ['CESM_RUN']+"/work/test_2000_brazil_spin-up_ozone/run/test_2000_brazil_spin-up_ozone.clm2.h0.*"
-src = os.environ['CESM_RUN']+"/work/test_2000_brazil_spin-up/run/test_2000_brazil_spin-up.clm2.h0.*"
-nyears = 20
+src = os.environ['CESM_RUN']+"/archive/test_brazil_spin-up/lnd/hist/*.clm2.h0.*"
+nyears = 11
+#src = os.environ['CESM_RUN']+"/work/test_2000_brazil_spin-up_ozone/run/*.clm2.h0.*"
+#src = os.environ['CESM_RUN']+"/archive/test_2000_brazil_spin-up/lnd/hist/*.clm2.h0.*"
+#nyears = 20
 data_list = []
 try:
     data
 except NameError:
-    for file in sorted(glob.glob(src))[:-1]:
+    for file in sorted(glob.glob(src)):#[:-1]:
         print(file)
         data = xr.open_dataset(file)
         data_list.append(data[['NPP','GPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"]])
@@ -72,7 +72,7 @@ except NameError:
 
 # Plot it
 fig1 = plt.figure(1, figsize=(16,9))
-fig1.canvas.set_window_title("test_spinup_%s" % (src[src.rfind('/')+1:src.rfind('*')]))
+fig1.canvas.set_window_title("test_spinup_%s" % (file[file.rfind('/')+1:file.find('h0')+2]))
 
 ax11 = plt.subplot(231)
 ax12 = plt.subplot(232)
@@ -114,7 +114,7 @@ for each in ('GPP','NPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", 
     elif ((each == 'TOTECOSYSN') or (each == 'TOTSOMN') or (each == 'TOTVEGN')):
         ax15.axhline(equi_value, ls=':', color='grey')
         ax15.text(0, equi_value, "%2.2f" % equi_value)
-   
+  
         
 # Show it
 plt.show(block=False)
