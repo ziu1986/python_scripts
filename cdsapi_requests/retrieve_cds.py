@@ -4,7 +4,7 @@ import os
 import shutil
 from optparse import OptionParser
 def main():
-    usage = "usage: %prog --start_year YYYY --end_year YYYY [--start_month MM] [--end_month MM] [--start_day DD] [--end_day DD] [--area lat_start/lon_sstart/lat_end/lon_end] [--path]"
+    usage = "usage: %prog --start_year YYYY --end_year YYYY [--start_month MM] [--end_month MM] [--start_day DD] [--end_day DD] [--area lat_start/lon_sstart/lat_end/lon_end] [--var 'near_surface_air_temperature'] [--path]"
     parser = OptionParser(usage=usage)
     parser.add_option("-s", "--start_year", dest="start_year",
                       help="start year YYYY", metavar="start_year",type=int )
@@ -20,6 +20,8 @@ def main():
                       help="end day DD", metavar="end_day", type=int)
     parser.add_option("--area", dest="area",
                       help="'lat_start/lon_start/lat_end/lon_end'", metavar="area", type=str)
+    parser.add_option("--var", dest="var",
+                      help="'output directory'", metavar="var", type=str)
     parser.add_option("--path", dest="path",
                       help="'output directory'", metavar="path", type=str)
     (options, args) = parser.parse_args()
@@ -43,6 +45,15 @@ def main():
         area = ""
     else:
         area = options.area
+    if not options.var:
+        var = "near_surface_air_temperature"
+        abr_var = 'Tair'
+    else:
+        var = options.var
+        if var == 'rainfall_flux':
+            abr_var = 'precip_flux'
+        else:
+            parser.error("%s currently not specified!" % var)
     if not options.path:
         path = "."
     else:
@@ -66,31 +77,32 @@ def main():
                 edate="%s%02d%02d"%(year,month,int(options.end_day))
             print('get data from %s/to/%s (YYYYMMDD)' % (sdate,edate))
             print('saving data to %s' % path)
-            print('saving data to file Tair_WFDE5_CRU_%s.nc' % sdate[:-2])
+            print('saving data to file %s_WFDE5_CRU_%s.nc' % (abr_var, sdate[:-2]))
             if area=="":
                 server.retrieve(
                     'derived-near-surface-meteorological-variables',
                     {
                         'format': 'nc',
-                        'variable': 'near_surface_air_temperature',
+                        'variable': var,
                         'reference_dataset': 'cru',
                         'year': '%d' % year,
                         'month': '%02d' % month,
                     },
-                    '%s/Tair_WFDE5_CRU_%s.nc' % (path, sdate[:-2]))
+                    '%s/%s_WFDE5_CRU_%s.nc' % (path, abr_var, sdate[:-2]))
             else:
                 print(area)
                 server.retrieve(
                     'derived-near-surface-meteorological-variables',
                     {
                         'format': 'nc',
-                        'variable': 'near_surface_air_temperature',
+                        #'variable': 'near_surface_air_temperature',
+                        'variable': var,
                         'reference_dataset': 'cru',
                         'year': '%d' % year,
                         'month': '%02d' % month,
                         'area': "%s" % (area),
                     },
-                    '%s/Tair_WFDE5_CRU_%s.nc' % (path, sdate[:-2]))
+                    '%s/%s_WFDE5_CRU_%s.nc' % (path, abr_var, sdate[:-2]))
             
 if __name__ == "__main__":
     main()
