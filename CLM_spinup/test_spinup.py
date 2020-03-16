@@ -25,6 +25,7 @@ def max_years_spinup(data, **karg):
     '''
     ncycle = karg.pop('ncycle', 11)
     bound = karg.pop('bound', 1e-3)
+    
     y = data.values.flatten()
     test = np.abs((np.roll(y,ncycle)-y)/y)
     try:
@@ -46,13 +47,33 @@ def equi_state(data, **karg):
     bound : float
        The threashold for the similarity to zero. 
        Standard value: 1e-3
+    final : bool
+       Is this the final spin-up (post AD)?
+       Standard value: False
+    start_year : str
+       Start of the final spin-up
+       Standart value: '0000'
+    stop_year : str
+       End of the final spin-up.
+       Standart value: '1000'
     Returns
     -------
     mean : float
        Equilibrium value of spin-up.
     '''
+    final = karg.pop('final', False)
+    start_year = karg.pop('start', '0001')
+    stop_year = karg.pop('stop', '1000')
+    if(final):
+        print("Start year: %s Stop year: %s" % (start_year, stop_year))
+        data = data.sel(time=slice(start_year, stop_year))
     index = max_years_spinup(data, **karg)
-    return(data[index:].mean().values)
+    if index > 0:
+        max_date = data.time.isel(time=index).values
+        mean_state = data[index:].mean().values
+        return(max_date, mean_state)
+    else:
+        return()
     
     
 # Clean up
@@ -60,16 +81,22 @@ plt.close('all')
 #src = os.environ['CESM_RUN']+"/work/test_brazil_spin-up/run/*.clm2.h0.*"
 #src = os.environ['CESM_RUN']+"/archive/test_brazil_spin-up/lnd/hist/*.clm2.h0.*"
 #nyears = 11
-src = os.environ['CESM_RUN']+"/work/test_2000_brazil_spin-up_ozone/run/*.clm2.h0.*"
+start = '0411'
+
+#src = os.environ['CESM_RUN']+"/work/test_2000_brazil_spin-up_ozone/run/*.clm2.h0.*"
 #src = os.environ['CESM_RUN']+"/archive/test_2000_brazil_spin-up_ozone/lnd/hist/*.clm2.h0.*"
 #src = os.environ['CESM_RUN']+"/work/test_2000_brazil_spin-up/run/*.clm2.h0.*"
-#src = os.environ['CESM_RUN']+"/archive/test_2000_brazil_spin-up/lnd/hist/*.clm2.h0.*"
+src = os.environ['CESM_RUN']+"/archive/test_2000_brazil_spin-up/lnd/hist/*.clm2.h0.*"
 nyears = 20
+start = '0001'
+
+postAD = True
+
 data_list = []
 try:
     data
 except NameError:
-    for file in sorted(glob.glob(src))[:-1]:
+    for file in sorted(glob.glob(src)):#[:-1]:
         print(file)
         data = xr.open_dataset(file)
         data_list.append(data[['NPP','GPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"]])
@@ -96,9 +123,9 @@ data['TOTECOSYSN'].plot(ax=ax15, label='TOTECOSYSN')
 data['TOTSOMN'].plot(ax=ax15, label='TOTSOMN')
 data['TOTVEGN'].plot(ax=ax15, label='TOTVEGN')
 
-ax11.legend(loc='upper right')
-ax14.legend(loc='upper right')
-ax15.legend(loc='upper right')
+ax11.legend()
+ax14.legend()
+ax15.legend()
 ax16.set_xticklabels("")
 ax16.set_yticklabels("")
 ax16.set_xticks([])
@@ -108,25 +135,20 @@ ax16.set_frame_on(False)
 
 ypos = 1
 for each in ('GPP','NPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"):
-    spinup_index = max_years_spinup(data[each],ncycle=nyears)
+    
     ypos = ypos-0.1
-    if spinup_index > 0:
-        max_date = data.time.isel(time=spinup_index).values
-        equi_value = equi_state(data[each],ncycle=nyears)
+    max_date, equi_value = equi_state(data[each],ncycle=nyears, final=postAD, start=start)
+    if max_date:
         print("%s \t %s \t %s " % (each, str(max_date)[:4], equi_value))
-        ax16.text(0.2,ypos,"%s - %s - %s" % (each, str(max_date)[:4], equi_value))
+        ax16.text(0.,ypos,"%s - %s - %s" % (each, str(max_date)[:4], equi_value))
         if ((each == 'GPP') or (each == 'NPP')):
             ax11.axhline(equi_value, ls=':', color='grey')
-            ax11.text(0, equi_value, "%2.2f" % equi_value)
         elif each == 'TLAI':
             ax12.axhline(equi_value, ls=':', color='grey')
-            ax12.text(0, equi_value, "%2.2f" % equi_value)
         elif ((each == 'TOTECOSYSC') or (each == 'TOTSOMC') or (each == 'TOTVEGC')):
             ax14.axhline(equi_value, ls=':', color='grey')
-            ax14.text(0, equi_value, "%2.2f" % equi_value)
         elif ((each == 'TOTECOSYSN') or (each == 'TOTSOMN') or (each == 'TOTVEGN')):
             ax15.axhline(equi_value, ls=':', color='grey')
-            ax15.text(0, equi_value, "%2.2f" % equi_value)
     else:
         print("%s \t Not in euqilibrium yet!" % (each))
         ax16.text(0.2,ypos,"%s - Not in euqilibrium yet!" % (each))
