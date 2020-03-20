@@ -31,7 +31,9 @@ def max_years_spinup(data, **karg):
     try:
         stop_spinup = np.where(test < bound)[0][0]
     except IndexError:
-        return(0)
+        print("WARNING: No equilibrium found.")
+        print(test)
+        return(-1)
     return(stop_spinup)
 
 def equi_state(data, **karg):
@@ -68,31 +70,33 @@ def equi_state(data, **karg):
         print("Start year: %s Stop year: %s" % (start_year, stop_year))
         data = data.sel(time=slice(start_year, stop_year))
     index = max_years_spinup(data, **karg)
-    if index > 0:
+    if index >= 0:
+        #print("Index:" % index)
         max_date = data.time.isel(time=index).values
         mean_state = data[index:].mean().values
         return(max_date, mean_state)
     else:
-        return()
+        print("Index: %d" % index)
+        return(0,0)
     
     
 # Clean up
 plt.close('all')
-#src = os.environ['CESM_RUN']+"/work/test_brazil_spin-up/run/*.clm2.h0.*"
-#src = os.environ['CESM_RUN']+"/archive/test_brazil_spin-up/lnd/hist/*.clm2.h0.*"
-#nyears = 11
-start = '0411'
+basedir = os.environ['CESM_RUN']
+case = ('test_brazil_spin-up', 'test_2000_brazil_spin-up_ozone', 'test_2000_brazil_spin-up_ozone2', 'test_2000_brazil_spin-up_ozone_luna')
+subdir1 = ('work', 'archive')
+subdir2 = {'work':'run/', 'archive':'lnd/hist/'}
+filename = "*.clm2.h0.*"
+nyears = 11 #(20, 11)
 
-#src = os.environ['CESM_RUN']+"/work/test_2000_brazil_spin-up_ozone/run/*.clm2.h0.*"
-#src = os.environ['CESM_RUN']+"/archive/test_2000_brazil_spin-up_ozone/lnd/hist/*.clm2.h0.*"
-#src = os.environ['CESM_RUN']+"/work/test_2000_brazil_spin-up/run/*.clm2.h0.*"
-src = os.environ['CESM_RUN']+"/archive/test_2000_brazil_spin-up/lnd/hist/*.clm2.h0.*"
-nyears = 20
-start = '0001'
+start = '0001' #('0411','0111')
+postAD = False
 
-postAD = True
+src = basedir + '/' + subdir1[1] + '/' + case[-1] + '/' + subdir2[subdir1[1]] + filename
 
 data_list = []
+data_list_ozone = []
+ozone_luna = True
 try:
     data
 except NameError:
@@ -100,7 +104,14 @@ except NameError:
         print(file)
         data = xr.open_dataset(file)
         data_list.append(data[['NPP','GPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"]])
+        try:
+            data_list_ozone.append(data[['O3COEFJMAXSHA', 'O3COEFJMAXSUN', 'O3COEFVCMAXSHA', 'O3COEFVCMAXSUN']])
+        except KeyError:
+            print('Old run')
+            ozone_luna = False
+            
     data = xr.concat(data_list, dim='time')
+    data_ozone = xr.concat(data_list_ozone, dim='time')
 
 # Plot it
 fig1 = plt.figure(1, figsize=(16,9))
@@ -153,7 +164,31 @@ for each in ('GPP','NPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", 
         print("%s \t Not in euqilibrium yet!" % (each))
         ax16.text(0.2,ypos,"%s - Not in euqilibrium yet!" % (each))
   
+if ozone_luna:
+    fig2 = plt.figure(2, figsize=(16,9))
+    fig2.canvas.set_window_title("luna_test_spinup_%s" % (file[file.rfind('/')+1:file.find('h0')+2]))
+
+    ax21 = plt.subplot(221)
+    ax23 = plt.subplot(223)
+    ax24 = plt.subplot(224)
+
+    data_ozone['O3COEFJMAXSHA'].plot(ax=ax21, label='O3COEFJMAXSHA')
+    data_ozone['O3COEFJMAXSUN'].plot(ax=ax21, label='O3COEFJMAXSUN')
+
+    data_ozone['O3COEFVCMAXSHA'].plot(ax=ax23, label='O3COEFVCMAXSHA')
+    data_ozone['O3COEFVCMAXSUN'].plot(ax=ax23, label='O3COEFVCMAXSUN')
+
+    ax21.legend()
+    ax23.legend()
+
+    ax24.set_xticklabels("")
+    ax24.set_yticklabels("")
+    ax24.set_xticks([])
+    ax24.set_yticks([])
+    ax24.set_frame_on(False)
+
     
+
         
 # Show it
 plt.show(block=False)
