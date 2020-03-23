@@ -83,16 +83,16 @@ def equi_state(data, **karg):
 # Clean up
 plt.close('all')
 basedir = os.environ['CESM_RUN']
-case = ('test_brazil_spin-up', 'test_2000_brazil_spin-up_ozone', 'test_2000_brazil_spin-up_ozone2', 'test_2000_brazil_spin-up_ozone_luna')
+case = ('test_brazil_spin-up', 'test_2000_brazil_spin-up_ozone', 'test_2000_brazil_spin-up_ozone2', 'test_2000_brazil_spin-up_ozone_luna', 'spin-up_brazil_2000', 'spin-up_brazil_2000_ozone','spin-up_brazil_2000_ozone_luna_0','spin-up_brazil_2000_ozone_luna_100')
 subdir1 = ('work', 'archive')
 subdir2 = {'work':'run/', 'archive':'lnd/hist/'}
 filename = "*.clm2.h0.*"
-nyears = 11 #(20, 11)
+nyears = 20 #(20, 11)
 
 start = '0001' #('0411','0111')
 postAD = False
 
-src = basedir + '/' + subdir1[1] + '/' + case[-1] + '/' + subdir2[subdir1[1]] + filename
+src = basedir + '/' + subdir1[0] + '/' + case[-1] + '/' + subdir2[subdir1[0]] + filename
 
 data_list = []
 data_list_ozone = []
@@ -111,7 +111,8 @@ except NameError:
             ozone_luna = False
             
     data = xr.concat(data_list, dim='time')
-    data_ozone = xr.concat(data_list_ozone, dim='time')
+    if ozone_luna:
+        data_ozone = xr.concat(data_list_ozone, dim='time')
 
 # Plot it
 fig1 = plt.figure(1, figsize=(16,9))
