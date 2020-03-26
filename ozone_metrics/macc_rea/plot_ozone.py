@@ -71,11 +71,11 @@ for istation in ('Esrange', 'Pallas', 'Jergul', 'Svanvik', 'Prestebakke'):
 
 # Plot it
 plt.close('all')
-fig1 = plt.figure(1, figsize=(16,9))
-fig1.canvas.set_window_title("ozone_climatologies")
-ax11 = plt.subplot(131)
-ax12 = plt.subplot(132)
-ax13 = plt.subplot(133)
+fig1 = plt.figure(1, figsize=(10,12))
+fig1.canvas.set_window_title("ozone_climatologies_portrait")
+ax11 = plt.subplot(311)
+ax12 = plt.subplot(312)
+ax13 = plt.subplot(313)
 
 
 for istation, color, marker in zip(('Esrange', 'Pallas', 'Jergul', 'Svanvik'), ('orange','black','blue', 'blueviolet'), ('o','^','v','d')):
