@@ -92,7 +92,7 @@ nyears = 20 #(20, 11)
 start = '0001' #('0411','0111')
 postAD = False
 
-src = basedir + '/' + subdir1[0] + '/' + case[-1] + '/' + subdir2[subdir1[0]] + filename
+src = basedir + '/' + subdir1[0] + '/' + case[-4] + '/' + subdir2[subdir1[0]] + filename
 
 data_list = []
 data_list_ozone = []
@@ -138,6 +138,7 @@ data['TOTVEGN'].plot(ax=ax15, label='TOTVEGN')
 ax11.legend()
 ax14.legend()
 ax15.legend()
+#ax11.set_ylim()
 ax16.set_xticklabels("")
 ax16.set_yticklabels("")
 ax16.set_xticks([])
