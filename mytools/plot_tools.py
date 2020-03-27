@@ -49,6 +49,11 @@ def plot_month_span(ax, **kargs):
     else:
         for i in np.arange(0,12):
             ax.axvline(daysinmonth[:i+1].sum(), color='grey', ls='--')
+    # Limit axis
+    ax.set_xticks(np.arange(0,366,30))
+    ax.set_xlim(-1,366)
+    ax.set_yticks(np.arange(0,25,6))
+
             
 def plot_month_name(ax, **kargs):
     '''
@@ -80,6 +85,12 @@ def plot_month_name(ax, **kargs):
     xpos = [daysinmonth[:i].sum() for i in np.arange(0,12)]
     for i in range(1,13):
         ax.text(xpos[i-1]+1, ypos, get_month_name(i, length=mlength), size=size)
+    # Limit axis
+    ax.set_xticks(np.round(np.linspace(0,365,12),0))
+    ax.set_xlim(-1,366)
+    ax.set_yticks(np.arange(0,25,6))
+
+    
 
 def set_pressure_axis(ax, **kargs):
     '''
