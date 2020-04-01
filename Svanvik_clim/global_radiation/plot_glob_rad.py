@@ -50,10 +50,10 @@ ax12.plot(xtime_hour, (data_svanvik['2018'].groupby(['month','day','hour']).max(
 ax12.plot(xtime_hour, (data_svanvik['2018'].groupby(['month','day','hour']).min()-data_svanvik_clim.groupby(['month','day','hour']).min()), color='blue', ls='-')
 ax12.plot(xtime_hour, (data_svanvik['2018'].groupby(['month','day','hour']).mean()-data_svanvik_clim.groupby(['month','day','hour']).mean()), color='black', ls=':', alpha=0.75)
 
-ax12.plot(xtime_hour[12::24*10], data_svanvik_clim.groupby(['month','day','hour']).std().groupby(['month','day']).max()[::10], color='grey', ls='-', linewidth=3, label='$1\sigma_{clim}$', alpha=0.9)
+ax12.plot(xtime_hour[12::24*10], data_svanvik_clim.groupby(['month','day','hour']).std().groupby(['month','day']).max()[::10], color='cyan', ls='-', linewidth=3, label='$1\sigma_{clim}$', alpha=0.9)
 #ax12.plot(xtime_hour[12::24*10], data_svanvik_clim.groupby(['month','day','hour']).std().groupby(['month','day']).min()[::10], color='grey', ls='-', linewidth=3)
 
-ax12.plot(xtime_hour[12::24*10], -(data_svanvik_clim.groupby(['month','day','hour']).std().groupby(['month','day']).max())[::10], color='grey', ls='-', linewidth=3, alpha=0.9)
+ax12.plot(xtime_hour[12::24*10], -(data_svanvik_clim.groupby(['month','day','hour']).std().groupby(['month','day']).max())[::10], color='cyan', ls='-', linewidth=3, alpha=0.9)
 
 
 ax13 = plt.subplot(224, sharex=ax11)
@@ -63,8 +63,8 @@ ax13.plot(xtime_hour, (data_svanvik['2019'].groupby(['month','day','hour']).max(
 ax13.plot(xtime_hour, (data_svanvik['2019'].groupby(['month','day','hour']).min()-data_svanvik_clim.groupby(['month','day','hour']).min()), color='blue', ls='-')
 ax13.plot(xtime_hour, (data_svanvik['2019'].groupby(['month','day','hour']).mean()-data_svanvik_clim.groupby(['month','day','hour']).mean()), color='black', ls=':', alpha=0.75)
 
-ax13.plot(xtime_hour[12::24*10], data_svanvik_clim.groupby(['month','day','hour']).std().groupby(['month','day']).max()[::10], color='grey', ls='-', linewidth=3, label='$1\sigma_{clim}$', alpha=0.9)
-ax13.plot(xtime_hour[12::24*10], -(data_svanvik_clim.groupby(['month','day','hour']).std().groupby(['month','day']).max())[::10], color='grey', ls='-', linewidth=3, alpha=0.9)
+ax13.plot(xtime_hour[12::24*10], data_svanvik_clim.groupby(['month','day','hour']).std().groupby(['month','day']).max()[::10], color='cyan', ls='-', linewidth=3, label='$1\sigma_{clim}$', alpha=0.9)
+ax13.plot(xtime_hour[12::24*10], -(data_svanvik_clim.groupby(['month','day','hour']).std().groupby(['month','day']).max())[::10], color='cyan', ls='-', linewidth=3, alpha=0.9)
 
 
 for ax in fig1.axes:
@@ -84,9 +84,9 @@ for ax in fig1.axes:
     ax.text((31+29+31+30+31+30+31+31+30+1)*24, ybound, "Oct")
     ax.text((31+29+31+30+31+30+31+31+30+31+1)*24, ybound, "Nov")
     ax.text((31+29+31+30+31+30+31+31+30+31+30+1)*24, ybound, "Dec")
-ax11.set_ylabel("Global radiation (W$\,m^{-2}s^{-1}$)")
+ax11.set_ylabel("Global radiation ($W\,m^{-2}$)")
 #ax11.set_xlabel("")
-ax12.set_ylabel("$\Delta$Global radiation (W$\,m^{-2}s^{-1}$)")
+ax12.set_ylabel("$\Delta$Global radiation ($W\,m^{-2}$)")
 
 
 fig2 = plt.figure(2)
@@ -108,7 +108,7 @@ for ax in fig2.axes:
 ax21.set_xlim(-100, 100)
 ax21.set_ylim(0,0.01)
 ax21.set_ylabel("Probability density", y=0)
-ax21.set_xlabel("$\Delta_{iyear-clim} Q_0$ (W $m^{-2}\,s^{-1}$)")
+ax21.set_xlabel("$\Delta_{iyear-clim} Q_0$ ($W\,m^{-2}$)")
 ax22.set_xlabel("$\Delta_{iyear-clim} Q_0/\sigma_{clim}$")
 
 fig3 = plt.figure(3)
