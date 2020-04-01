@@ -62,7 +62,7 @@ ax13.set_ylabel('$\Sigma_{d}$Precip (mm)')
 ax14 = plt.subplot(414)
 ax14.set_title('(d)')
 data_svanvik_rad.iloc[:,0].plot(ax=ax14, color='black')
-ax14.set_ylabel("$Q_0$ ($W\,m^{-2}\,s^{-1}$)")
+ax14.set_ylabel("$Q_0$ ($W\,m^{-2}$)")
 
 
 for ax in fig1.axes:
