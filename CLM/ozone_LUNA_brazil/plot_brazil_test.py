@@ -1,0 +1,152 @@
+import os, sys, glob
+import numpy as np
+import xarray as xr
+import matplotlib.pyplot as plt
+from mytools.plot_tools import print_all, plot_error_bands
+
+def load_data(src):
+    data_list = []
+    for file in sorted(glob.glob(src)):
+        print("Loading... %s" % (file))
+        data = xr.open_dataset(file)
+        data_list.append(data[['GSSHA', 'GSSUN', 'JMX25T', 'Jmx25Z', 'PSNSHA', 'PSNSUN', 'VCMX25T', 'Vcmx25Z']])
+    data = xr.concat(data_list, dim='time')
+    return(data)
+
+# Clean up
+plt.close("all")
+
+# Source
+run_archive = os.environ['CESM_RUN'] + '/archive/'
+land_hist = '/lnd/hist/*.clm2.h0.*.nc'
+case = ('brazil_2000', 'brazil_2000_ozone', 'brazil_2000_ozone_luna_100', 'brazil_2000_ozone_luna_100_pwu')
+
+# Load data
+brazil_test = {}
+
+for icase in case:
+    brazil_src = run_archive + icase + land_hist
+    brazil_test.update({icase:load_data(brazil_src)})
+
+
+# Plot it
+fig1 = plt.figure(1, figsize=(16,9))
+fig1.canvas.set_window_title("plot_brazil_test_gs_photosyn_absolute")
+ax11 = plt.subplot(221)
+ax12 = plt.subplot(222)
+ax13 = plt.subplot(223)
+ax14 = plt.subplot(224)
+
+fig2 = plt.figure(2, figsize=(16,9))
+fig2.canvas.set_window_title("plot_brazil_test_gs_photosyn_relative")
+ax21 = plt.subplot(221)
+ax22 = plt.subplot(222)
+ax23 = plt.subplot(223)
+ax24 = plt.subplot(224)
+
+fig3 = plt.figure(3, figsize=(16,9))
+fig3.canvas.set_window_title("plot_brazil_test_gs_photosyn_relative_clim")
+ax31 = plt.subplot(221)
+ax32 = plt.subplot(222)
+ax33 = plt.subplot(223)
+ax34 = plt.subplot(224)
+
+fig4 = plt.figure(4, figsize=(16,9))
+fig4.canvas.set_window_title("plot_brazil_test_jmax_vcmax_absolute")
+ax41 = plt.subplot(221)
+ax42 = plt.subplot(222)
+ax43 = plt.subplot(223)
+ax44 = plt.subplot(224)
+
+fig5 = plt.figure(5, figsize=(16,9))
+fig5.canvas.set_window_title("plot_brazil_test_jmax_vcmax_relative")
+ax51 = plt.subplot(221)
+ax52 = plt.subplot(222)
+ax53 = plt.subplot(223)
+ax54 = plt.subplot(224)
+
+fig6 = plt.figure(6, figsize=(16,9))
+fig6.canvas.set_window_title("plot_brazil_test_jmax_vcmax_relative_clim")
+ax61 = plt.subplot(221)
+ax62 = plt.subplot(222)
+ax63 = plt.subplot(223)
+ax64 = plt.subplot(224)
+
+
+for icase in case:
+    brazil_test[icase]['GSSHA'].plot(ax=ax11, label='%s' % (icase))
+    brazil_test[icase]['GSSUN'].plot(ax=ax12, label='%s' % (icase))
+
+    brazil_test[icase]['PSNSHA'].plot(ax=ax13, label='%s' % (icase))
+    brazil_test[icase]['PSNSUN'].plot(ax=ax14, label='%s' % (icase))
+
+    (brazil_test[icase]['GSSHA']-brazil_test['brazil_2000']['GSSHA']).plot(ax=ax21, label='%s' % (icase))
+    (brazil_test[icase]['GSSUN']-brazil_test['brazil_2000']['GSSUN']).plot(ax=ax22, label='%s' % (icase))
+
+    (brazil_test[icase]['PSNSHA']-brazil_test['brazil_2000']['PSNSHA']).plot(ax=ax23, label='%s' % (icase))
+    (brazil_test[icase]['PSNSUN']-brazil_test['brazil_2000']['PSNSUN']).plot(ax=ax24, label='%s' % (icase))
+
+    (brazil_test[icase]['GSSHA']-brazil_test['brazil_2000']['GSSHA']).groupby('time.dayofyear').mean().plot(ax=ax31, label='%s' % (icase))
+    plot_error_bands(ax31, np.arange(1,366), (brazil_test[icase]['GSSHA']-brazil_test['brazil_2000']['GSSHA']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['GSSHA']-brazil_test['brazil_2000']['GSSHA']).groupby('time.dayofyear').std().values.flatten(), color=ax31.lines[-1].get_color(), label='%s' % (icase))
+
+    (brazil_test[icase]['GSSUN']-brazil_test['brazil_2000']['GSSUN']).groupby('time.dayofyear').mean().plot(ax=ax32, label='%s' % (icase))
+    plot_error_bands(ax32, np.arange(1,366), (brazil_test[icase]['GSSUN']-brazil_test['brazil_2000']['GSSUN']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['GSSUN']-brazil_test['brazil_2000']['GSSUN']).groupby('time.dayofyear').std().values.flatten(), color=ax32.lines[-1].get_color(), label='%s' % (icase))
+
+    (brazil_test[icase]['PSNSHA']-brazil_test['brazil_2000']['PSNSHA']).groupby('time.dayofyear').mean().plot(ax=ax33, label='%s' % (icase))
+    plot_error_bands(ax33, np.arange(1,366), (brazil_test[icase]['PSNSHA']-brazil_test['brazil_2000']['PSNSHA']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['PSNSHA']-brazil_test['brazil_2000']['PSNSHA']).groupby('time.dayofyear').std().values.flatten(), color=ax33.lines[-1].get_color(), label='%s' % (icase))
+
+    (brazil_test[icase]['PSNSUN']-brazil_test['brazil_2000']['PSNSUN']).groupby('time.dayofyear').mean().plot(ax=ax34, label='%s' % (icase))
+
+    plot_error_bands(ax34, np.arange(1,366), (brazil_test[icase]['PSNSUN']-brazil_test['brazil_2000']['PSNSUN']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['PSNSUN']-brazil_test['brazil_2000']['PSNSUN']).groupby('time.dayofyear').std().values.flatten(), color=ax34.lines[-1].get_color(), label='%s' % (icase))
+    ##
+    brazil_test[icase]['JMX25T'].plot(ax=ax41, label='%s' % (icase))
+    brazil_test[icase]['Jmx25Z'].plot(ax=ax42, label='%s' % (icase))
+
+    brazil_test[icase]['VCMX25T'].plot(ax=ax43, label='%s' % (icase))
+    brazil_test[icase]['Vcmx25Z'].plot(ax=ax44, label='%s' % (icase))
+
+    (brazil_test[icase]['JMX25T']-brazil_test['brazil_2000']['JMX25T']).plot(ax=ax51, label='%s' % (icase))
+    (brazil_test[icase]['Jmx25Z']-brazil_test['brazil_2000']['Jmx25Z']).plot(ax=ax52, label='%s' % (icase))
+
+    (brazil_test[icase]['VCMX25T']-brazil_test['brazil_2000']['VCMX25T']).plot(ax=ax53, label='%s' % (icase))
+    (brazil_test[icase]['Vcmx25Z']-brazil_test['brazil_2000']['Vcmx25Z']).plot(ax=ax54, label='%s' % (icase))
+
+    (brazil_test[icase]['JMX25T']-brazil_test['brazil_2000']['JMX25T']).groupby('time.dayofyear').mean().plot(ax=ax61, label='%s' % (icase))
+    plot_error_bands(ax61, np.arange(1,366), (brazil_test[icase]['JMX25T']-brazil_test['brazil_2000']['JMX25T']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['JMX25T']-brazil_test['brazil_2000']['JMX25T']).groupby('time.dayofyear').std().values.flatten(), color=ax61.lines[-1].get_color(), label='%s' % (icase))
+
+    (brazil_test[icase]['Jmx25Z']-brazil_test['brazil_2000']['Jmx25Z']).groupby('time.dayofyear').mean().plot(ax=ax62, label='%s' % (icase))
+    plot_error_bands(ax62, np.arange(1,366), (brazil_test[icase]['Jmx25Z']-brazil_test['brazil_2000']['Jmx25Z']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['Jmx25Z']-brazil_test['brazil_2000']['Jmx25Z']).groupby('time.dayofyear').std().values.flatten(), color=ax62.lines[-1].get_color(), label='%s' % (icase))
+
+    (brazil_test[icase]['VCMX25T']-brazil_test['brazil_2000']['VCMX25T']).groupby('time.dayofyear').mean().plot(ax=ax63, label='%s' % (icase))
+    plot_error_bands(ax63, np.arange(1,366), (brazil_test[icase]['VCMX25T']-brazil_test['brazil_2000']['VCMX25T']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['VCMX25T']-brazil_test['brazil_2000']['VCMX25T']).groupby('time.dayofyear').std().values.flatten(), color=ax63.lines[-1].get_color(), label='%s' % (icase))
+
+    (brazil_test[icase]['Vcmx25Z']-brazil_test['brazil_2000']['Vcmx25Z']).groupby('time.dayofyear').mean().plot(ax=ax64, label='%s' % (icase))
+
+    plot_error_bands(ax64, np.arange(1,366), (brazil_test[icase]['Vcmx25Z']-brazil_test['brazil_2000']['Vcmx25Z']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['Vcmx25Z']-brazil_test['brazil_2000']['Vcmx25Z']).groupby('time.dayofyear').std().values.flatten(), color=ax64.lines[-1].get_color(), label='%s' % (icase))
+
+
+
+ax11.set_ylim(0, 1.5e5)
+ax12.set_ylim(0, 1e6)
+ax13.set_ylim(0, 2)
+ax14.set_ylim(0, 6)
+
+ax11.legend(ncol=2)
+ax21.legend(ncol=2)
+ax31.legend(ncol=2)
+ax41.legend(ncol=2)
+ax51.legend(ncol=2)
+ax61.legend(ncol=2)
+
+
+# Show it
+fig1.tight_layout()
+fig2.tight_layout()
+fig3.tight_layout()
+fig4.tight_layout()
+fig5.tight_layout()
+fig6.tight_layout()
+
+
+
+plt.show(block=False)
