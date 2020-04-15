@@ -74,18 +74,25 @@ ax64 = plt.subplot(224)
 
 
 for icase in case:
+    # Fig1
     brazil_test[icase]['GSSHA'].plot(ax=ax11, label='%s' % (icase))
     brazil_test[icase]['GSSUN'].plot(ax=ax12, label='%s' % (icase))
-
     brazil_test[icase]['PSNSHA'].plot(ax=ax13, label='%s' % (icase))
     brazil_test[icase]['PSNSUN'].plot(ax=ax14, label='%s' % (icase))
 
+    for ax in fig1.axes:
+        ax.set_xlabel("Time (years)")
+
+    # Fig2
     (brazil_test[icase]['GSSHA']-brazil_test['brazil_2000']['GSSHA']).plot(ax=ax21, label='%s' % (icase))
     (brazil_test[icase]['GSSUN']-brazil_test['brazil_2000']['GSSUN']).plot(ax=ax22, label='%s' % (icase))
-
     (brazil_test[icase]['PSNSHA']-brazil_test['brazil_2000']['PSNSHA']).plot(ax=ax23, label='%s' % (icase))
     (brazil_test[icase]['PSNSUN']-brazil_test['brazil_2000']['PSNSUN']).plot(ax=ax24, label='%s' % (icase))
 
+    for ax in fig2.axes:
+        ax.set_xlabel("Time (years)")
+
+    #Fig3
     (brazil_test[icase]['GSSHA']-brazil_test['brazil_2000']['GSSHA']).groupby('time.dayofyear').mean().plot(ax=ax31, label='%s' % (icase))
     plot_error_bands(ax31, np.arange(1,366), (brazil_test[icase]['GSSHA']-brazil_test['brazil_2000']['GSSHA']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['GSSHA']-brazil_test['brazil_2000']['GSSHA']).groupby('time.dayofyear').std().values.flatten(), color=ax31.lines[-1].get_color(), label='%s' % (icase))
 
@@ -96,21 +103,31 @@ for icase in case:
     plot_error_bands(ax33, np.arange(1,366), (brazil_test[icase]['PSNSHA']-brazil_test['brazil_2000']['PSNSHA']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['PSNSHA']-brazil_test['brazil_2000']['PSNSHA']).groupby('time.dayofyear').std().values.flatten(), color=ax33.lines[-1].get_color(), label='%s' % (icase))
 
     (brazil_test[icase]['PSNSUN']-brazil_test['brazil_2000']['PSNSUN']).groupby('time.dayofyear').mean().plot(ax=ax34, label='%s' % (icase))
-
     plot_error_bands(ax34, np.arange(1,366), (brazil_test[icase]['PSNSUN']-brazil_test['brazil_2000']['PSNSUN']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['PSNSUN']-brazil_test['brazil_2000']['PSNSUN']).groupby('time.dayofyear').std().values.flatten(), color=ax34.lines[-1].get_color(), label='%s' % (icase))
+
+    for ax in fig3.axes:
+        ax.set_xlabel("Time (days of year)")
+
     ##
+    # Fig4
     brazil_test[icase]['JMX25T'].plot(ax=ax41, label='%s' % (icase))
     brazil_test[icase]['Jmx25Z'].plot(ax=ax42, label='%s' % (icase))
-
     brazil_test[icase]['VCMX25T'].plot(ax=ax43, label='%s' % (icase))
     brazil_test[icase]['Vcmx25Z'].plot(ax=ax44, label='%s' % (icase))
 
+    for ax in fig4.axes:
+        ax.set_xlabel("Time (years)")
+
+    # Fig5
     (brazil_test[icase]['JMX25T']-brazil_test['brazil_2000']['JMX25T']).plot(ax=ax51, label='%s' % (icase))
     (brazil_test[icase]['Jmx25Z']-brazil_test['brazil_2000']['Jmx25Z']).plot(ax=ax52, label='%s' % (icase))
-
     (brazil_test[icase]['VCMX25T']-brazil_test['brazil_2000']['VCMX25T']).plot(ax=ax53, label='%s' % (icase))
     (brazil_test[icase]['Vcmx25Z']-brazil_test['brazil_2000']['Vcmx25Z']).plot(ax=ax54, label='%s' % (icase))
 
+    for ax in fig5.axes:
+        ax.set_xlabel("Time (years)")
+
+    # Fig6
     (brazil_test[icase]['JMX25T']-brazil_test['brazil_2000']['JMX25T']).groupby('time.dayofyear').mean().plot(ax=ax61, label='%s' % (icase))
     plot_error_bands(ax61, np.arange(1,366), (brazil_test[icase]['JMX25T']-brazil_test['brazil_2000']['JMX25T']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['JMX25T']-brazil_test['brazil_2000']['JMX25T']).groupby('time.dayofyear').std().values.flatten(), color=ax61.lines[-1].get_color(), label='%s' % (icase))
 
@@ -121,9 +138,10 @@ for icase in case:
     plot_error_bands(ax63, np.arange(1,366), (brazil_test[icase]['VCMX25T']-brazil_test['brazil_2000']['VCMX25T']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['VCMX25T']-brazil_test['brazil_2000']['VCMX25T']).groupby('time.dayofyear').std().values.flatten(), color=ax63.lines[-1].get_color(), label='%s' % (icase))
 
     (brazil_test[icase]['Vcmx25Z']-brazil_test['brazil_2000']['Vcmx25Z']).groupby('time.dayofyear').mean().plot(ax=ax64, label='%s' % (icase))
-
     plot_error_bands(ax64, np.arange(1,366), (brazil_test[icase]['Vcmx25Z']-brazil_test['brazil_2000']['Vcmx25Z']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['Vcmx25Z']-brazil_test['brazil_2000']['Vcmx25Z']).groupby('time.dayofyear').std().values.flatten(), color=ax64.lines[-1].get_color(), label='%s' % (icase))
 
+    for ax in fig6.axes:
+        ax.set_xlabel("Time (days of year)")
 
 
 ax11.set_ylim(0, 1.5e5)
@@ -137,6 +155,21 @@ ax31.legend(ncol=2)
 ax41.legend(ncol=2)
 ax51.legend(ncol=2)
 ax61.legend(ncol=2)
+
+for ax in fig2.axes:
+    ax.set_ylabel("$\Delta$%s" % ax.get_ylabel())
+for ax in fig3.axes:
+    ax.set_ylabel("$\Delta$%s" % ax.get_ylabel())
+
+
+ax41.set_ylabel(ax41.get_ylabel().replace("canopy profile of", "top patch"))
+ax42.set_ylabel(ax42.get_ylabel().replace("vcmax", "jmax"))
+ax43.set_ylabel(ax43.get_ylabel().replace("canopy profile of", "top patch"))
+
+for ax in fig5.axes:
+    ax.set_ylabel("$\Delta$%s" % ax.get_ylabel())
+for ax in fig6.axes:
+    ax.set_ylabel("$\Delta$%s" % ax.get_ylabel())
 
 
 # Show it
