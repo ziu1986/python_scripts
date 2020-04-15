@@ -78,33 +78,43 @@ ax12 = plt.subplot(312)
 ax13 = plt.subplot(313)
 
 
-for istation, color, marker in zip(('Esrange', 'Pallas', 'Jergul', 'Svanvik'), ('orange','black','blue', 'blueviolet'), ('o','^','v','d')):
+for istation, color, marker in zip(('Esrange', 'Pallas', 'Jergul', 'Svanvik'), ('blue','black','orange', 'blueviolet'), ('o','^','v','d')):
     doy_macc[istation].plot(ax=ax11, color=color, label=istation, marker=marker, ls='None')
     doy_cams[istation].plot(ax=ax12, color=color, label=istation, marker=marker, fillstyle='none', ls='None')
     doy_rra[istation].plot(ax=ax13, color=color, label=istation, marker=marker, fillstyle='top', ls='None')
 
 #
-doy_macc['Prestebakke'].plot(ax=ax11, color='red', label='Prestebakke', alpha=0.5)
-doy_cams['Prestebakke'].plot(ax=ax12, color='red', label='Prestebakke', alpha=0.5)
-doy_rra['Prestebakke'].plot(ax=ax13, color='red', label='Prestebakke', alpha=0.5)
+#doy_macc['Prestebakke'].plot(ax=ax11, color='red', label='Prestebakke', alpha=0.5)
+#doy_cams['Prestebakke'].plot(ax=ax12, color='red', label='Prestebakke', alpha=0.5)
+#doy_rra['Prestebakke'].plot(ax=ax13, color='red', label='Prestebakke', alpha=0.5)
 
 for ax in fig1.axes:
-    
     # Climatology from obs
-    ax.plot(np.linspace(1,367), climatology_nord(np.linspace(1,367)), ls='--', label='obs_clim: Nordkalotten')
-    ax.plot(np.linspace(1,367), climatology_prestebakke(np.linspace(1,367)), ls='-.', label='obs_clim: Prestebakke')
+    ax.plot(np.linspace(1,367), climatology_nord(np.linspace(1,367)), ls='--', label='climatology obs.')
+    #ax.plot(np.linspace(1,367), climatology_prestebakke(np.linspace(1,367)), ls='-.', label='obs_clim: Prestebakke')
     plot_error_bands(ax, np.arange(1,367), climatology_nord(np.arange(1,367)), yerr_mean_nord.values, color='black',ls='None')
-    plot_error_bands(ax, np.arange(1,367), climatology_prestebakke(np.arange(1,367)), yerr_mean_prestebakke.values, color='grey',ls='None')
+    #plot_error_bands(ax, np.arange(1,367), climatology_prestebakke(np.arange(1,367)), yerr_mean_prestebakke.values, color='grey',ls='None')
     ax.set_ylim(0,60)
-    ax.legend(loc='lower left', ncol=2)
-    ax.set_xlabel("Time (day of year)")
-    ax.set_ylabel("[$O_3$] (ppb)")
+    ax.legend(loc='lower center', ncol=3)
+    #ax.set_xlabel("Time (day of year)")
+    ax.set_xlabel("")
+    ax.set_ylabel("")
     plot_month_span(ax)
-    plot_month_name(ax, ypos=58)
+    plot_month_name(ax, ypos=56)
+    ax.set_yticks(np.arange(0,61,10))
 
-ax11.set_title("MACC reanalysis")
-ax12.set_title("CAMS reanalysis")
-ax13.set_title("Regional model ensemble reanalysis")
+ax11.set_xticklabels("")
+ax12.set_xticklabels("")
+ax12.set_ylabel("[$O_3$] (ppb)")
+ax13.set_xlabel("Time (day of year)")
+
+#ax11.set_title("MACC reanalysis")
+#ax12.set_title("CAMS reanalysis")
+#ax13.set_title("Regional model reanalysis ensemble mean")
+ax11.set_title("(a)")
+ax12.set_title("(b)")
+ax13.set_title("(c)")
+
 
 fig2 = plt.figure(2, figsize=(10,12))
 fig2.canvas.set_window_title("ozone_climatology_fenoscandic_obs_residuals")
@@ -119,11 +129,11 @@ ax26 = plt.subplot(326, sharex=ax22)
 
 ax21.set_title("Esrange", y=0.85, x=0.15)
 ax23.set_title("Pallas", y=0.85, x=0.15)
-ax25.set_title("Prestebakke", y=0.85, x=0.15)
+#ax25.set_title("Prestebakke", y=0.85, x=0.15)
 
 ax22.set_title("Esrange", y=0.85, x=0.15)
 ax24.set_title("Pallas", y=0.85, x=0.15)
-ax26.set_title("Prestebakke", y=0.85, x=0.15)
+#ax26.set_title("Prestebakke", y=0.85, x=0.15)
 
 
 hist21_2018 = ax21.hist((doy_macc['Esrange']-sample_spl_nord).values, density=True, histtype='step', color='blue', label='Esrange 2018')

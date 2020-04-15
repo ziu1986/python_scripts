@@ -280,7 +280,9 @@ if plot_residuals:
     fig9 = plt.figure(9, figsize=(10,12))
     fig9.canvas.set_window_title("ozone_climatology_fenoscandic_obs_residuals-Svanvik")
     ax91 = plt.subplot(211)
+    ax91.set_title("(a)", x=0.5, y=0.92)
     ax92 = plt.subplot(212)
+    ax92.set_title("(b)", x=0.5, y=0.92)
 
     # Compare Svanvik data with fennoscandic climatology
     # Truth: Climatology for the days with vaild measurements in the old Svanvik data; old Svanvik data
@@ -295,54 +297,65 @@ if plot_residuals:
     # Truth: Climatology from old Svanvik data for days with valid measurements in 2019; 2019 measurements
     hist92 = ax92.hist((svanvik_daily_2019.dropna()-sample_2019_svanvik).values, density=True, histtype='step', color='purple', label='Svanvik 2019')
 
-    ax91.set_xlabel("$<O_3>_{daily}^{Svanvik}-O_3^{clim}$ (ppb)")
-    ax92.set_xlabel("$<O_3>_{daily}^{Svanvik}-{O_3}^{clim}_{Svanvik}$ (ppb)")
+    ax91.set_xlabel("$(<[O_3]>-[O_3]^{clim}_{NF})_{daily}$ (ppb)")
+    ax92.set_xlabel("$(<[O_3]>-{[O_3]}^{clim}_{Svanvik})_{daily}$ (ppb)")
     ax91.set_ylabel("Probability density", y=-0.25)
 
     # Plot the fittes skrewed normal distributions with text
     ax91.plot(x_sample, pdf, color='black', label='Skew normal fit')
-    stats_text(ax91, stat, fit, name="Svanvik (1986-1996)", ypos=0.7)
+    stats_text(ax91, stat, fit, name="Svanvik (1986-1996)", ypos=0.68)
 
     ax91.plot(x_sample_2018, pdf_2018, color='black', ls='--', label='Skew normal fit: 2018')
-    stats_text(ax91, stat_2018, fit_2018, name="Svanvik 2018", ypos=0.4)
+    stats_text(ax91, stat_2018, fit_2018, name="Svanvik 2018", ypos=0.38)
 
     ax91.plot(x_sample_2019, pdf_2019, color='black', ls='-.', label='Skew normal fit: 2019')
-    stats_text(ax91, stat_2019, fit_2019, name="Svanvik 2019", ypos=0.1)
+    stats_text(ax91, stat_2019, fit_2019, name="Svanvik 2019", ypos=0.08)
 
     ax92.plot(x_sample_svanvik, pdf_svanvik, color='black', label='Skew normal fit: 2018')
-    stats_text(ax92, stat_svanvik, fit_svanvik, ypos=0.7)
+    stats_text(ax92, stat_svanvik, fit_svanvik, name="Svanvik 2018", ypos=0.7)
 
     ax92.plot(x_sample_svanvik_2019, pdf_svanvik_2019, color='black', label='Skew normal fit: 2019')
-    stats_text(ax92, stat_svanvik_2019, fit_svanvik_2019, ypos=0.4)
+    stats_text(ax92, stat_svanvik_2019, fit_svanvik_2019, name="Svanvik 2019", ypos=0.4)
 
-    ax91.legend()
-    ax92.legend()
+    for ax in fig9.axes:
+        ax.legend()
+        ax.set_xlim(-35,35)
+        ax.set_ylim(0,0.16)
 
-    fig10 = plt.figure(10, figsize=(10,12))
+    fig10 = plt.figure(10, figsize=(10,8))
     fig10.canvas.set_window_title("ozone_climatology_fenoscandic_obs_residuals")
-    ax101 = plt.subplot(311)
-    ax102 = plt.subplot(312, sharex=ax101)
-    ax103 = plt.subplot(313, sharex=ax101)
+    ax101 = plt.subplot(211)
+    ax101.set_title("(a)", x=0.5, y=0.91)
+    ax102 = plt.subplot(212, sharex=ax101)
+    ax102.set_title("(b)", x=0.5, y=0.91)
+    #ax103 = plt.subplot(313, sharex=ax101)
 
-    ax101.set_title("Esrange", loc='left', y=0.85, x=0.05)
-    ax102.set_title("Pallas", loc='left', y=0.85, x=0.05)
-    ax103.set_title("Prestebakke", loc='left', y=0.85, x=0.05)
+    #ax101.set_title("Esrange", loc='left', y=0.85, x=0.05)
+    #ax102.set_title("Pallas", loc='left', y=0.85, x=0.05)
+    #ax103.set_title("Prestebakke", loc='left', y=0.85, x=0.05)
 
     hist101_2018 = ax101.hist((esrange_daily_2018.dropna()-sample_2018_esrange).values, density=True, histtype='step', color='blue', label='Esrange 2018')
     hist102_2018 = ax102.hist((pallas_daily_2018.dropna()-sample_2018_pallas).values, density=True, histtype='step', color='black', label='Pallas 2018')
     hist103_2018 = ax103.hist((prestebakke_daily_2018.dropna()-sample_2018_prestebakke).values, density=True, histtype='step', color='red', label='Prestebakke 2018')
 
     ax101.plot(x_sample_esrange, pdf_esrange, color='black', label='Skew normal fit')
-    stats_text(ax101, stat_esrange, fit_esrange, ypos=0.4)
+    stats_text(ax101, stat_esrange, fit_esrange, ypos=0.68)
 
     ax102.plot(x_sample_pallas, pdf_pallas, color='black', label='Skew normal fit')
-    stats_text(ax102, stat_pallas, fit_pallas, ypos=0.4)
+    stats_text(ax102, stat_pallas, fit_pallas, ypos=0.68)
 
     ax103.plot(x_sample_prestebakke, pdf_prestebakke, color='black', label='Skew normal fit')
     stats_text(ax103, stat_prestebakke, fit_prestebakke, ypos=0.4)
 
-    ax103.set_xlabel("$<O_3>_{daily}-O_3^{clim}$ (ppb)")
-    ax102.set_ylabel("Probability density")
+    ax102.set_xlabel("$(<[O_3]>-[O_3]^{clim}_{NF})_{daily}$ (ppb)")
+    ax101.set_ylabel("Probability density", y=-0.25)
+
+    for ax in fig10.axes:
+        ax.legend()
+        ax.set_xlim(-35,35)
+        ax.set_ylim(0,0.16)
+        ax.set_yticks(np.arange(0,0.17,0.02))
+
 
 if plot_aot:
     fig11 = plt.figure(11, figsize=(16,9))
@@ -529,7 +542,9 @@ if plot_ttest:
     fig14 = plt.figure(14, figsize=(10,12))
     fig14.canvas.set_window_title("ozone_climatology_fenoscandic_obs_test-Svanvik")
     ax141 = plt.subplot(211)
+    ax141.set_title("(a)", x=0.5, y=0.92)
     ax142 = plt.subplot(212)
+    ax142.set_title("(b)", x=0.5, y=0.92)
 
     hist141 = ax141.hist(score_svanvik, range=(-10,10), density=True, color='blueviolet', label='Svanvik clim.')
     hist141_2018 = ax141.hist(score_svanvik_2018, range=(-10,10), density=True, histtype='step', color='violet', label='Svanvik 2018')
@@ -550,49 +565,54 @@ if plot_ttest:
     stats_text(ax141, stat_test_2019, fit_test_2019, name="Svanvik 2019", ypos=0.1)
 
     ax142.plot(x_test_svanvik, pdf_test_svanvik, color='black', label='Skew normal fit: 2018')
-    stats_text(ax142, stat_test_svanvik, fit_test_svanvik, ypos=0.7)
+    stats_text(ax142, stat_test_svanvik, fit_test_svanvik, name="Svanvik 2018", ypos=0.7)
 
     ax142.plot(x_test_svanvik_2019, pdf_test_svanvik_2019, color='black', label='Skew normal fit: 2019')
-    stats_text(ax142, stat_test_svanvik_2019, fit_test_svanvik_2019, ypos=0.4)
+    stats_text(ax142, stat_test_svanvik_2019, fit_test_svanvik_2019, name="Svanvik 2019", ypos=0.4)
     
-    ax141.set_xlabel("$<O_3>_{daily}-O_3^{clim}/\sigma_{daily}$")
-    ax142.set_xlabel("$<O_3>_{daily}-O_3^{clim_{svanvik}}/\sigma_{daily}$")
+    ax141.set_xlabel("$(<[O_3]>-[O_3]^{clim}_{NF})_{daily}/\sigma_{daily}$")
+    ax142.set_xlabel("$(<[O_3]>-[O_3]^{clim}_{svanvik})_{daily}/\sigma_{daily}$")
     ax141.set_ylabel("Probability density", y=-0.25)
-
-    ax141.legend()
-    ax142.legend()
 
     for ax in fig14.axes:
         ax.set_xlim(-12,12)
+        ax.set_ylim(0,0.7)
+        ax.legend()
 
-    fig15 = plt.figure(15, figsize=(10,12))
+    fig15 = plt.figure(15, figsize=(10,8))
     fig15.canvas.set_window_title("ozone_climatology_fenoscandic_obs_test")
-    ax151 = plt.subplot(311)
-    ax152 = plt.subplot(312, sharex=ax151)
-    ax153 = plt.subplot(313, sharex=ax151)
+    ax151 = plt.subplot(211)
+    ax151.set_title("(a)", x=0.5, y=0.91)
+    ax152 = plt.subplot(212, sharex=ax151)
+    ax152.set_title("(b)", x=0.5, y=0.91)
+    
+    #ax153 = plt.subplot(313, sharex=ax151)
 
-    ax151.set_title("Esrange", loc='left', y=0.85, x=0.05)
-    ax152.set_title("Pallas", loc='left', y=0.85, x=0.05)
-    ax153.set_title("Prestebakke", loc='left', y=0.85, x=0.05)
+    #ax151.set_title("Esrange", loc='left', y=0.85, x=0.05)
+    #ax152.set_title("Pallas", loc='left', y=0.85, x=0.05)
+    #ax153.set_title("Prestebakke", loc='left', y=0.85, x=0.05)
 
     hist151_2018 = ax151.hist(score_esrange_2018, density=True, range=(-10,10), histtype='step', color='blue', label='Esrange 2018')
     hist152_2018 = ax152.hist(score_pallas_2018, density=True, range=(-10,10), histtype='step', color='black', label='Pallas 2018')
-    hist153_2018 = ax153.hist(score_prestebakke_2018, density=True, range=(-10,10), histtype='step', color='red', label='Prestebakke 2018')
+    #hist153_2018 = ax153.hist(score_prestebakke_2018, density=True, range=(-10,10), histtype='step', color='red', label='Prestebakke 2018')
 
     ax151.plot(x_test_esrange_2018, pdf_test_esrange_2018, color='black', label='Skew normal fit')
-    stats_text(ax151, stat_test_esrange_2018, fit_test_esrange_2018, ypos=0.4)
+    stats_text(ax151, stat_test_esrange_2018, fit_test_esrange_2018, ypos=0.68)
 
     ax152.plot(x_test_pallas_2018, pdf_test_pallas_2018, color='black', label='Skew normal fit')
-    stats_text(ax152, stat_test_pallas_2018, fit_test_pallas_2018, ypos=0.4)
+    stats_text(ax152, stat_test_pallas_2018, fit_test_pallas_2018, ypos=0.68)
 
-    ax153.plot(x_test_prestebakke_2018, pdf_test_prestebakke_2018, color='black', label='Skew normal fit')
-    stats_text(ax153, stat_test_prestebakke_2018, fit_test_prestebakke_2018, ypos=0.4)
+    #ax153.plot(x_test_prestebakke_2018, pdf_test_prestebakke_2018, color='black', label='Skew normal fit')
+    #stats_text(ax153, stat_test_prestebakke_2018, fit_test_prestebakke_2018, ypos=0.4)
 
-    ax153.set_xlabel("$<O_3>_{daily}-O_3^{clim}/\sigma_{daily}$")
-    ax152.set_ylabel("Probability density")
+    ax152.set_xlabel("$(<[O_3]>-[O_3]^{clim}_{NF})_{daily}/\sigma_{daily}$")
+    ax151.set_ylabel("Probability density", y=-0.25)
     for ax in fig15.axes:
         ax.set_xlim(-12,12)
+        ax.set_ylim(0,0.35)
+        ax.legend()
 
+        
 if plot_cuo:
     fig16 = plt.figure(16, figsize=(16,9))
     fig16.canvas.set_window_title("ozone_obs_aot0")
