@@ -2,7 +2,7 @@
 plt.close('all')
 # Plot data
 # Stomatal conductance gs
-fig1 = plt.figure(1, figsize=(16,9))
+fig1 = plt.figure(1, figsize=(18,9))
 fig1.canvas.set_window_title("ozone_response")
 ax11 = plt.subplot(231)
 ax11.errorbar(xu_pcuo, xu_rgs,
@@ -20,12 +20,12 @@ ax11.errorbar(watanabe_pcuo-watanabe_pcuo_oc, watanabe_rgs_oc,
 ax11.errorbar(watanabe_pcuo-watanabe_pcuo_co, watanabe_rgs_co,
               xerr=np.sqrt(watanabe_pcuo_std**2+watanabe_pcuo_std_co**2), yerr=watanabe_rgs_sigma_co,
               ls='None', marker='s', color=ax11.lines[-1].get_color())
-ax11.errorbar(pelle14_pcuo[1::3], pelle14_rgs,
-              xerr=pelle14_pcuo_std[1::3], yerr=pelle14_rgs_sigma,
-              ls='None', marker='d', label='Pellegrini2014')
 ax11.errorbar(np.take(kinose_pcuo[1], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rgs,
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[1], (2,4,7))**2), yerr=kinose_rgs_sigma,
               ls='None', marker='^', label='Kinose2019')
+ax11.errorbar(pelle14_pcuo[1::3], pelle14_rgs,
+              xerr=pelle14_pcuo_std[1::3], yerr=pelle14_rgs_sigma,
+              ls='None', marker='d', label='Pellegrini2014')
 ax11.errorbar(np.take(kinose_pcuo[2], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rgs_s15,
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[2], (2,4,7))**2), yerr=kinose_rgs_s15_sigma,
               ls='None', marker='^', color=ax11.lines[-1].get_color())
@@ -56,15 +56,15 @@ ax12.errorbar(pelle_pcuo[1::3], pelle_rJmax,
               xerr=pelle_pcuo_std[1::3], yerr=pelle_rJmax_sigma,
               ls='None', marker='d')
 ax12.plot(-1,-1, ls='None', marker='s')
-ax12.errorbar(pelle14_pcuo[1::3], pelle14_rJmax,
-              xerr=pelle14_pcuo_std[1::3], yerr=pelle14_rJmax_sigma,
-              ls='None', marker='d')
 ax12.errorbar(np.take(kinose_pcuo[1], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rJmax,
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[1], (2,4,7))**2), yerr=kinose_rJmax_sigma,
               ls='None', marker='^')
 ax12.errorbar(np.take(kinose_pcuo[2], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rJmax_s15,
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[2], (2,4,7))**2), yerr=kinose_rJmax_s15_sigma,
               ls='None', marker='^', color=ax12.lines[-1].get_color())
+ax12.errorbar(pelle14_pcuo[1::3], pelle14_rJmax,
+              xerr=pelle14_pcuo_std[1::3], yerr=pelle14_rJmax_sigma,
+              ls='None', marker='d')
 ax12.errorbar(watanabe13_pcuo[1]-watanabe13_pcuo[0], watanabe13_rJmax_beech,
               xerr=((np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][0]**2),),(np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][1]**2),)), yerr=watanabe13_rJmax_beech_sigma,
               ls='None', marker='s')
@@ -98,15 +98,15 @@ ax13.errorbar(watanabe_pcuo-watanabe_pcuo_oc, watanabe_rVcmax_oc,
 ax13.errorbar(watanabe_pcuo-watanabe_pcuo_co, watanabe_rVcmax_co, 
               xerr=np.sqrt(watanabe_pcuo_std**2+watanabe_pcuo_std_co**2), yerr=watanabe_rVcmax_sigma_co, 
               ls='None', marker='s', color='black')
-ax13.errorbar(pelle14_pcuo[1::3], pelle14_rVcmax, 
-              xerr=pelle14_pcuo_std[1::3], yerr=pelle14_rVcmax_sigma, 
-              ls='None', marker='d')
 ax13.errorbar(np.take(kinose_pcuo[1], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rVcmax, 
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[1], (2,4,7))**2), yerr=kinose_rVcmax_sigma, 
               ls='None', marker='^')
 ax13.errorbar(np.take(kinose_pcuo[2], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rVcmax_s15, 
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[2], (2,4,7))**2), yerr=kinose_rVcmax_s15_sigma, 
               ls='None', marker='^', color=ax13.lines[-1].get_color())
+ax13.errorbar(pelle14_pcuo[1::3], pelle14_rVcmax, 
+              xerr=pelle14_pcuo_std[1::3], yerr=pelle14_rVcmax_sigma, 
+              ls='None', marker='d')
 ax13.errorbar(watanabe13_pcuo[1]-watanabe13_pcuo[0], watanabe13_rVcmax_beech, 
               xerr=((np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][0]**2),),(np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][1]**2),)), yerr=watanabe13_rVcmax_beech_sigma, 
               ls='None', marker='s')
@@ -133,15 +133,15 @@ ax14.errorbar(pelle_pcuo[1::3], pelle_rRd,
               ls='None', marker='d')
 ax14.plot(-1,-1, 
               ls='None', marker='s')
-ax14.errorbar(pelle14_pcuo[1::3], pelle14_rRd, 
-              xerr=pelle14_pcuo_std[1::3], yerr=pelle14_rRd_sigma, 
-              ls='None', marker='d')
 ax14.errorbar(np.take(kinose_pcuo[1], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rRd, 
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[1], (2,4,7))**2), yerr=kinose_rRd_sigma, 
               ls='None', marker='^')
 ax14.errorbar(np.take(kinose_pcuo[2], (2,4,7))-np.take(kinose_pcuo[0], (2,4,7)), kinose_rRd_s15, 
               xerr=np.sqrt(np.take(kinose_pcuo_std[0], (2,4,7))**2+np.take(kinose_pcuo_std[2], (2,4,7))**2), yerr=kinose_rRd_s15_sigma, 
               ls='None', marker='^', color=ax14.lines[-1].get_color())
+ax14.errorbar(pelle14_pcuo[1::3], pelle14_rRd, 
+              xerr=pelle14_pcuo_std[1::3], yerr=pelle14_rRd_sigma, 
+              ls='None', marker='d')
 ax14.errorbar(watanabe13_pcuo[1]-watanabe13_pcuo[0], watanabe13_rRd_beech, 
               xerr=((np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][0]**2),),(np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][1]**2),)), yerr=watanabe13_rRd_beech_sigma, 
               ls='None', marker='s')
@@ -164,9 +164,9 @@ ax15.errorbar([0,]+pelle_pcuo, pelle_rChl,
 ax15.plot(-1,-1, 
               ls='None', marker='s')
 ax15.plot(-1,-1, 
-              ls='None', marker='d')
-ax15.plot(-1,-1, 
               ls='None', marker='^')
+ax15.plot(-1,-1, 
+              ls='None', marker='d')
 ax15.errorbar(watanabe13_pcuo[1]-watanabe13_pcuo[0], watanabe13_rChl_beech, 
               xerr=((np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][0]**2),),(np.sqrt(watanabe13_pcuo_std[0]**2+watanabe13_pcuo_std[1][1]**2),)), yerr=watanabe13_rChl_beech_sigma, 
               ls='None', marker='s')
