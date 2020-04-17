@@ -72,6 +72,9 @@ ax62 = plt.subplot(222)
 ax63 = plt.subplot(223)
 ax64 = plt.subplot(224)
 
+fig7 = plt.figure(7)
+fig7.canvas.set_window_title("plot_brazil_test_jmax_vs_vcmax")
+ax71 = plt.subplot()
 
 for icase in case:
     # Fig1
@@ -142,6 +145,11 @@ for icase in case:
 
     for ax in fig6.axes:
         ax.set_xlabel("Time (days of year)")
+        
+    
+    ax71.scatter((brazil_test[icase]['Jmx25Z']/brazil_test['brazil_2000']['Jmx25Z']).values,
+                 (brazil_test[icase]['Vcmx25Z']/brazil_test['brazil_2000']['Vcmx25Z']).values, 
+                 marker='x', label='%s' % (icase))
 
 
 ax11.set_ylim(0, 1.5e5)
@@ -155,6 +163,7 @@ ax31.legend(ncol=2)
 ax41.legend(ncol=2)
 ax51.legend(ncol=2)
 ax61.legend(ncol=2)
+ax71.legend(ncol=2)
 
 for ax in fig2.axes:
     ax.set_ylabel("$\Delta$%s" % ax.get_ylabel())
@@ -171,6 +180,11 @@ for ax in fig5.axes:
 for ax in fig6.axes:
     ax.set_ylabel("$\Delta$%s" % ax.get_ylabel())
 
+ax71.set_xlim(0, 1.2)
+ax71.set_ylim(0, 1.2)
+ax71.set_xlabel("$J_{max}^{O_3}/J_{max}^0$")
+ax71.set_ylabel("$V_{cmax}^{O_3}/V_{cmax}^0$")
+ax71.plot(np.arange(2.1), np.arange(2.1), ls='--', color='grey')
 
 # Show it
 fig1.tight_layout()
@@ -179,7 +193,6 @@ fig3.tight_layout()
 fig4.tight_layout()
 fig5.tight_layout()
 fig6.tight_layout()
-
-
+fig7.tight_layout()
 
 plt.show(block=False)
