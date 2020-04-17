@@ -231,5 +231,17 @@ ax21.plot(np.arange(0,50), np.arange(0,50),
 ax21.legend()
 '''
 
+fig3 = plt.figure(3)
+fig3.canvas.set_window_title("ozone_respons_ratios_jmax_vcmax")
+ax31 = plt.subplot()
+
+#Robs = Jmax/Vcmax
+
+ax31.errorbar(flunder(Jmax), flunder(Vcmax), xerr=flunder(Jmax_std), yerr=flunder(Vcmax_std), ls='None')
+ax31.plot(np.arange(2.1), np.arange(2.1), ls='--', color='grey')
+ax31.set_xlabel("$J_{max}^{O_3}/J_{max}^{CF}$")
+ax31.set_ylabel("$V_{cmax}^{O_3}/V_{cmax}^{CF}$")
+ax31.set_xlim(0,1.2)
+ax31.set_ylim(0,1.2)
 #Show it
 plt.show(block=False)
