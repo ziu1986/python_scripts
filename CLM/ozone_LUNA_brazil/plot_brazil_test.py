@@ -196,3 +196,8 @@ fig6.tight_layout()
 fig7.tight_layout()
 
 plt.show(block=False)
+
+# Pickle the plot to merge with data from metastudy
+import pickle
+with open('brazil_test_vcmax_jmax_ratio.pkl', 'wb') as tgt: # should be 'wb' rather than 'w'
+    pickle.dump(fig7, tgt) 
