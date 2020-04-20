@@ -245,3 +245,8 @@ ax31.set_xlim(0,1.2)
 ax31.set_ylim(0,1.2)
 #Show it
 plt.show(block=False)
+
+# Pickle the plot to merge with CLM output
+import pickle
+with open('ozone_response_vcmax_jmax_ratio.pkl', 'wb') as tgt: # should be 'wb' rather than 'w'
+    pickle.dump(fig3, tgt) 
