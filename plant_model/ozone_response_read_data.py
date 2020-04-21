@@ -25,6 +25,11 @@ xu_gs_cf_sigma = data_xu['gs_sigma'][0::2]
 xu_gs_o3 = data_xu['gs_mean'][1::2]
 xu_gs_o3_sigma = data_xu['gs_sigma'][1::2]
 
+xu_A_cf = data_xu['A_mean'][0::2]
+xu_A_cf_sigma = data_xu['A_sigma'][0::2]
+xu_A_o3 = data_xu['A_mean'][1::2]
+xu_A_o3_sigma = data_xu['A_sigma'][1::2]
+
 xu_Jmax_cf = data_xu['Jmax_mean'][0::2]
 xu_Jmax_cf_sigma = data_xu['Jmax_sigma'][0::2]
 xu_Jmax_o3 = data_xu['Jmax_mean'][1::2]
@@ -56,6 +61,11 @@ pelle_gs_cf_sigma = data_pelle['gs_sigma'][0::2]
 pelle_gs_o3 = data_pelle['gs_mean'][1::2]
 pelle_gs_o3_sigma = data_pelle['gs_sigma'][1::2]
 
+pelle_A_cf = data_pelle['A_mean'][0::2]
+pelle_A_cf_sigma = data_pelle['A_sigma'][0::2]
+pelle_A_o3 = data_pelle['A_mean'][1::2]
+pelle_A_o3_sigma = data_pelle['A_sigma'][1::2]
+
 pelle_Jmax_cf = data_pelle['Jmax_mean'][4::6]
 pelle_Jmax_cf_sigma = data_pelle['Jmax_sigma'][4::6]
 pelle_Jmax_o3 = data_pelle['Jmax_mean'][5::6]
@@ -86,6 +96,9 @@ watanabe_o3_fumi = data_watanabe['fumigation']
 watanabe_gs_o3 = data_watanabe['gs_mean']
 watanabe_gs_o3_sigma = data_watanabe['gs_sigma']
 
+watanabe_A_o3 = data_watanabe['A_mean']
+watanabe_A_o3_sigma = data_watanabe['A_sigma']
+
 watanabe_Vcmax_o3 = data_watanabe['Vcmax_mean']
 watanabe_Vcmax_o3_sigma = data_watanabe['Vcmax_sigma']
 
@@ -99,6 +112,11 @@ pelle14_gs_cf = data_pelle14['gs_mean'][0::2]
 pelle14_gs_cf_sigma = data_pelle14['gs_sigma'][0::2]
 pelle14_gs_o3 = data_pelle14['gs_mean'][1::2]
 pelle14_gs_o3_sigma = data_pelle14['gs_sigma'][1::2]
+
+pelle14_A_cf = data_pelle14['A_mean'][0::2]
+pelle14_A_cf_sigma = data_pelle14['A_sigma'][0::2]
+pelle14_A_o3 = data_pelle14['A_mean'][1::2]
+pelle14_A_o3_sigma = data_pelle14['A_sigma'][1::2]
 
 pelle14_Jmax_cf = data_pelle14['Jmax_mean'][4::6]
 pelle14_Jmax_cf_sigma = data_pelle14['Jmax_sigma'][4::6]
@@ -124,6 +142,9 @@ kinose_o3_fumi = data_kinose['fumigation']
 kinose_gs_o3 = data_kinose['gs_mean']
 kinose_gs_o3_sigma = data_kinose['gs_sigma']
 
+kinose_A_o3 = data_kinose['A_mean']
+kinose_A_o3_sigma = data_kinose['A_sigma']
+
 kinose_Vcmax_o3 = data_kinose['Vcmax_mean']
 kinose_Vcmax_o3_sigma = data_kinose['Vcmax_sigma']
 kinose_Jmax_o3 = data_kinose['Jmax_mean']
@@ -139,6 +160,9 @@ watanabe13_o3_fumi = data_watanabe13['fumigation']
 
 watanabe13_gs_o3 = data_watanabe13['gs_mean']
 watanabe13_gs_o3_sigma = data_watanabe13['gs_sigma']
+
+watanabe13_A_o3 = data_watanabe13['A_mean']
+watanabe13_A_o3_sigma = data_watanabe13['A_sigma']
 
 watanabe13_Vcmax_o3 = data_watanabe13['Vcmax_mean']
 watanabe13_Vcmax_o3_sigma = data_watanabe13['Vcmax_sigma']
@@ -159,6 +183,9 @@ gao_o3_fumi = data_gao['fumigation']
 gao_gs_o3 = data_gao['gs_mean']
 gao_gs_o3_sigma = data_gao['gs_sigma']
 
+gao_A_o3 = data_gao['A_mean']
+gao_A_o3_sigma = data_gao['A_sigma']
+
 gao_Vcmax_o3 = data_gao['Vcmax_mean']
 gao_Vcmax_o3_sigma = data_gao['Vcmax_sigma']
 gao_Jmax_o3 = data_gao['Jmax_mean']
@@ -175,6 +202,9 @@ harmens_o3_fumi = data_harmens['fumigation']
 
 harmens_gs_o3 = data_harmens['gs_mean']
 harmens_gs_o3_sigma = data_harmens['gs_sigma']
+
+harmens_A_o3 = data_harmens['A_mean']
+harmens_A_o3_sigma = data_harmens['A_sigma']
 
 harmens_Vcmax_o3 = data_harmens['Vcmax_mean']
 harmens_Vcmax_o3_sigma = data_harmens['Vcmax_sigma']

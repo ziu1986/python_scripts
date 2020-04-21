@@ -1,55 +1,132 @@
-# JmaxO3/Jmax
-('Unweighted fit parameters:', array([-0.00567922]))
++++ gs +++
+('Unweighted fit parameters:', array([-0.00224813]))
 Covariance matrix:
-[[5.45422809e-07]]
-('rms error in fit:', 0.11676049633852313)
-('Weighted fit parameters:', array([-0.0035551]))
+[[9.85045869e-07]]
+('rms error in fit:', 0.19961651488334195)
+('Weighted fit parameters:', array([-0.00932219]))
 Covariance matrix:
-[[5.58405118e-08]]
-('rms error in fit:', 0.13237010048408995)
+[[5.07519478e-08]]
+('rms error in fit:', 0.2986969993943303)
 X-Y-uncertainty fit parameters:
-Beta: [-0.00371285]
-Beta Std Error: [0.00083029]
-Beta Covariance: [[5.64132663e-08]]
-Residual Variance: 12.2200669006
+Beta: [-0.00942044]
+Beta Std Error: [0.00056855]
+Beta Covariance: [[5.63049339e-08]]
+Residual Variance: 5.74105306799
 Inverse Condition #: 1.0
 Reason(s) for Halting:
   Sum of squares convergence
-('rms error in fit:', 0.1302522799364534)
+('rms error in fit:', 0.3009998141540869)
+('Unweighted fit parameters:', array([4.47245608e-04, 8.98402471e-01]))
+Covariance matrix:
+[[ 3.04260720e-06 -7.96405871e-05]
+ [-7.96405871e-05  3.00191577e-03]]
+('rms error in fit:', 0.1915530643609946)
+('Weighted fit parameters:', array([-0.01288388,  1.08062805]))
+Covariance matrix:
+[[ 2.64420076e-07 -4.83693878e-06]
+ [-4.83693878e-06  1.09496803e-04]]
+('rms error in fit:', 0.3436100675881794)
 
-# VcmaxO3/Vcmax
-('Unweighted fit parameters:', array([-0.00592888]))
++++ An +++
+('Unweighted fit parameters:', array([-0.00524197]))
 Covariance matrix:
-[[4.04288551e-07]]
-('rms error in fit:', 0.12800176190107046)
-('Weighted fit parameters:', array([-0.00886715]))
+[[5.9387289e-07]]
+('rms error in fit:', 0.15499403639577208)
+('Weighted fit parameters:', array([-0.0068681]))
 Covariance matrix:
-[[2.50364847e-07]]
-('rms error in fit:', 0.15785504844012385)
+[[8.95487648e-08]]
+('rms error in fit:', 0.16319337906258477)
 X-Y-uncertainty fit parameters:
-Beta: [-0.00933488]
-Beta Std Error: [0.00089325]
-Beta Covariance: [[3.60470478e-07]]
-Residual Variance: 2.2134713941
+Beta: [-0.00890984]
+Beta Std Error: [0.00146039]
+Beta Covariance: [[2.84568293e-07]]
+Residual Variance: 7.49468505144
 Inverse Condition #: 1.0
 Reason(s) for Halting:
   Sum of squares convergence
-('rms error in fit:', 0.16688732885715818)
+('rms error in fit:', 0.19312300699117302)
+('Unweighted fit parameters:', array([-0.00204489,  0.87949157]))
+Covariance matrix:
+[[ 1.62405987e-06 -4.25099513e-05]
+ [-4.25099513e-05  1.60233993e-03]]
+('rms error in fit:', 0.1399481531947409)
+('Weighted fit parameters:', array([0.00235686, 0.73978223]))
+Covariance matrix:
+[[ 2.39759577e-07 -4.23714823e-06]
+ [-4.23714823e-06  1.19521527e-04]]
+('rms error in fit:', 0.16132848458297053)
 
-# RdO3/Rd
-('Unweighted fit parameters:', array([0.01640965]))
++++ Jmax +++
+('Unweighted fit parameters:', array([-0.00568558]))
 Covariance matrix:
-[[4.01285867e-05]]
-('rms error in fit:', 0.4799927260681275)
-('Weighted fit parameters:', array([0.01254702]))
+[[5.51268222e-07]]
+('rms error in fit:', 0.11709035049883562)
+('Weighted fit parameters:', array([-0.00354149]))
 Covariance matrix:
-[[7.53644519e-06]]
-('rms error in fit:', 0.48590506695151325)
-('Unweighted fit parameters:', array([0.01349457]))
+[[5.57138717e-08]]
+('rms error in fit:', 0.13286307064226885)
+X-Y-uncertainty fit parameters:
+Beta: [-0.00369805]
+Beta Std Error: [0.00083005]
+Beta Covariance: [[5.61822806e-08]]
+Residual Variance: 12.2632533559
+Inverse Condition #: 1.0
+Reason(s) for Halting:
+  Sum of squares convergence
+('rms error in fit:', 0.13075881605659861)
+
++++ Vcmax +++
+('Unweighted fit parameters:', array([-0.0059253]))
 Covariance matrix:
-[[1.97598736e-05]]
-('rms error in fit:', 0.4814472878441711)
-('Weighted fit parameters:', array([0.01105694]))
+[[4.07660638e-07]]
+('rms error in fit:', 0.12841555438644978)
+('Weighted fit parameters:', array([-0.00887152]))
 Covariance matrix:
-[[4.67115552e-06]]
-('rms error in fit:', 0.4860015707701276)
+[[2.51545247e-07]]
+('rms error in fit:', 0.15828666109121092)
+X-Y-uncertainty fit parameters:
+Beta: [-0.0093506]
+Beta Std Error: [0.00089601]
+Beta Covariance: [[3.60992223e-07]]
+Residual Variance: 2.22398725533
+Inverse Condition #: 1.0
+Reason(s) for Halting:
+  Sum of squares convergence
+('rms error in fit:', 0.16752994968838977)
+
++++ Rd +++
+('Unweighted fit parameters:', array([0.01641993]))
+Covariance matrix:
+[[4.05679971e-05]]
+('rms error in fit:', 0.48070585996836435)
+('Weighted fit parameters:', array([0.01254741]))
+Covariance matrix:
+[[7.55965801e-06]]
+('rms error in fit:', 0.486593079475312)
+('Unweighted fit parameters:', array([0.01349048]))
+Covariance matrix:
+[[2.00543958e-05]]
+('rms error in fit:', 0.48234157046535786)
+('Weighted fit parameters:', array([0.01105011]))
+Covariance matrix:
+[[4.69286879e-06]]
+('rms error in fit:', 0.4868556669700954)
+
++++ JmaxO3/Jmax0/VcmaxO3/Vcmax0 +++
+('Unweighted fit parameters:', array([0.93048854]))
+Covariance matrix:
+[[0.00045926]]
+('rms error in fit:', 0.10012134715798492)
+('Weighted fit parameters:', array([0.91536159]))
+Covariance matrix:
+[[0.00015661]]
+('rms error in fit:', 0.1009777633108855)
+X-Y-uncertainty fit parameters:
+Beta: [0.92398066]
+Beta Std Error: [0.01766028]
+Beta Covariance: [[0.00024367]]
+Residual Variance: 1.27997430992
+Inverse Condition #: 1.0
+Reason(s) for Halting:
+  Sum of squares convergence
+('rms error in fit:', 0.10028041053097245)

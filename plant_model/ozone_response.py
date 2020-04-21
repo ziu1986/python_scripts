@@ -38,6 +38,9 @@ execfile("ozone_response_pcuo.py")
 # Stomatal contuctance
 execfile("ozone_response_rgs.py")
 
+# Photosynthesis
+execfile("ozone_response_rA.py")
+
 # Maximum electron transport rate Jmax
 execfile("ozone_response_rJmax.py")
 
@@ -78,6 +81,63 @@ pcuo_std = np.array((xu_pcuo_std,
                      np.sqrt(harmens_pcuo_std[0::2][1::2]**2+harmens_pcuo_std[0::2][0::2]**2),
                      np.sqrt(harmens_pcuo_std[1::2][1::2]**2+harmens_pcuo_std[1::2][0::2]**2)
 ))
+
+gs = np.array((xu_rgs,
+               pelle_rgs,
+               watanabe_rgs,
+               watanabe_rgs_oc,
+               watanabe_rgs_co,
+               pelle14_rgs,
+               kinose_rgs,
+               kinose_rgs_s15,
+               watanabe13_rgs_beech,
+               watanabe13_rgs_oak,
+               gao_rgs,
+               harmens_rgs_1,
+               harmens_rgs_2))
+
+gs_std = np.array((xu_rgs_sigma,
+                   pelle_rgs_sigma,
+                   watanabe_rgs_sigma,
+                   watanabe_rgs_sigma_oc,
+                   watanabe_rgs_sigma_co,
+                   pelle14_rgs_sigma,
+                   kinose_rgs_sigma,
+                   kinose_rgs_s15_sigma,
+                   watanabe13_rgs_beech_sigma,
+                   watanabe13_rgs_oak_sigma,
+                   gao_rgs_sigma,
+                   harmens_rgs_1_sigma,
+                   harmens_rgs_2_sigma))
+
+A = np.array((xu_rA,
+               pelle_rA,
+               watanabe_rA,
+               watanabe_rA_oc,
+               watanabe_rA_co,
+               pelle14_rA,
+               kinose_rA,
+               kinose_rA_s15,
+               watanabe13_rA_beech,
+               watanabe13_rA_oak,
+               gao_rA,
+               harmens_rA_1,
+               harmens_rA_2))
+
+A_std = np.array((xu_rA_sigma,
+                   pelle_rA_sigma,
+                   watanabe_rA_sigma,
+                   watanabe_rA_sigma_oc,
+                   watanabe_rA_sigma_co,
+                   pelle14_rA_sigma,
+                   kinose_rA_sigma,
+                   kinose_rA_s15_sigma,
+                   watanabe13_rA_beech_sigma,
+                   watanabe13_rA_oak_sigma,
+                   gao_rA_sigma,
+                   harmens_rA_1_sigma,
+                   harmens_rA_2_sigma))
+
 
 Jmax = np.array((xu_rJmax,
                  pelle_rJmax,
