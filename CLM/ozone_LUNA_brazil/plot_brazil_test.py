@@ -198,6 +198,22 @@ fig7.tight_layout()
 plt.show(block=False)
 
 # Pickle the plot to merge with data from metastudy
-import pickle
-with open('brazil_test_vcmax_jmax_ratio.pkl', 'wb') as tgt: # should be 'wb' rather than 'w'
-    pickle.dump(fig7, tgt) 
+#import pickle
+#with open('brazil_test_vcmax_jmax_ratio.pkl', 'wb') as tgt: # should be 'wb' rather than 'w'
+#    pickle.dump(fig7, tgt) 
+
+# Unweighted fit
+from scipy.optimize import curve_fit
+def poly_origin(x, m):
+    '''
+    Line through origin
+    '''
+    return(m*x)
+for icase in case:
+    popt, pcov = curve_fit(poly_origin, 
+                           (brazil_test[icase]['Jmx25Z']/brazil_test['brazil_2000']['Jmx25Z']).values.flatten(),
+                           (brazil_test[icase]['Vcmx25Z']/brazil_test['brazil_2000']['Vcmx25Z']).values.flatten(), 
+                           [1,])
+    print(icase, popt[0], pcov[0])
+    ax71.plot(np.arange(0,2.1,0.1), poly_origin(np.arange(0,2.1,0.1), *popt), label="fit %s" % icase)
+    
