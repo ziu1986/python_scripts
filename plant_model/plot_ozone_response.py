@@ -244,12 +244,18 @@ ax16.set_ylabel("$Chl_{a+b}^{O_3}/Chl_{a+b}^{CF}$")
 ax11.plot(np.arange(0,100), yfit_gs, ls='--', color='black', label="lin. fit: no uncert.")
 ax11.plot(np.arange(0,100), yfit_gs2, ls=':', color='red', label="lin. fit: y uncert.")
 ax11.plot(np.arange(0,100), yfit_gs_2, ls='-.', color='blue', label="lin. fit: x-y uncert.")
-ax11.plot(np.arange(0,100), yfit_gs_free, ls='--', color='orange', label="lin. fit; 2 dof; no uncert.")
+ax11.plot(np.arange(0,100), yfit_gs_free, ls='--', color='orange', label="lin. fit; 2 dof; non")
+ax11.plot(np.arange(0,100), yfit_gs2_free, ls=':', color='orange', label="lin. fit: 2 dof; y")
+ax11.plot(np.arange(0,100), yfit_gs_2_free, ls='-.', color='orange', label="lin. fit: 2 dof; x-y")
+
 
 ax12.plot(np.arange(0,100), yfit_A, ls='--', color='black', label="lin. fit: no uncert.")
 ax12.plot(np.arange(0,100), yfit_A2, ls=':', color='red', label="lin. fit: y uncert.")
 ax12.plot(np.arange(0,100), yfit_A_2, ls='-.', color='blue', label="lin. fit: x-y uncert.")
-ax12.plot(np.arange(0,100), yfit_A_free, ls='--', color='orange', label="lin. fit: 2 dof; no uncert.")
+ax12.plot(np.arange(0,100), yfit_A_free, ls='--', color='orange', label="lin. fit: 2 dof; non")
+ax12.plot(np.arange(0,100), yfit_A2_free, ls=':', color='orange', label="lin. fit: 2 dof; y")
+ax12.plot(np.arange(0,100), yfit_A_2_free, ls='-.', color='orange', label="lin. fit: 2 dof; x-y")
+
 
 ax13.plot(np.arange(0,100), yfit_Rd, ls='--', color='black', label="lin. fit: no uncert.")
 ax13.plot(np.arange(0,100), yfit_Rd2, ls=':', color='red', label="lin. fit: y uncert.")

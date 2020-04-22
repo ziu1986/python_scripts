@@ -15,11 +15,14 @@ def poly_origin(x, m):
     '''
     return(m*x)
 
-def poly_free(x, m, b):
+def poly_free(x, m, b=None):
     '''
     Line through with free ordinate
     '''
-    return(m*x+b)
+    if b is not None:
+        return(m*x+b)
+    else:
+        return(m[0]*x+m[1])
 
 def poly2(x, m):
     '''
@@ -42,23 +45,21 @@ def or_fit(x, y, x_std, y_std, **karg):
     fit_range = karg.pop('range', np.arange(0,100))
 
     f_y, f_y_std, f_x_y, f_x_std_y = f_flunder(x, y, x_std, y_std)
-            
+
+    p0 = [(f_y.max()-f_y.min())/(f_x_y.min()-f_x_y.max()),]
+        
     if deg==1:
-        p0 = [(f_y.max()-f_y.min())/(f_x_y.min()-f_x_y.max()),]
         func = poly1
     elif deg==2:
-        p0 = ((f_y.max()-f_y.min())/(f_x_y.min()-f_x_y.max()),)
         func = poly2
     elif deg=='exp':
-        p0 = ((f_y.max()-f_y.min())/(f_x_y.min()-f_x_y.max()),)
         func = expo
     elif deg=='origin':
-        p0 = [(f_y.max()-f_y.min())/(f_x_y.min()-f_x_y.max()),]
         func = poly_origin
     elif deg=='free':
-        p0 = [(f_y.max()-f_y.min())/(f_x_y.min()-f_x_y.max()), 1]
+        p0.append(1)
         func = poly_free
-    
+    print('p0', p0)
 
     if type(f_x_std_y) == int:
         
@@ -81,8 +82,10 @@ def or_fit(x, y, x_std, y_std, **karg):
         return(yfit, yfit2)
     else:
         print('X-Y-uncertainty fit parameters:')
+        # Need to flip function arguments, because ODR expects parameters (list!) to come first,
+        # while the other fitters expect them to be last
         flip_func = flip(func)
-        x_fit, y_fit = xy_uncertainty_regression(f_x_y, f_y, f_x_std_y, f_y_std, flip_func, range=fit_range)
+        x_fit, y_fit = xy_uncertainty_regression(f_x_y, f_y, f_x_std_y, f_y_std, flip_func, p0, range=fit_range)
         
         
         return(y_fit)
@@ -108,7 +111,7 @@ def f_flunder(x, y, x_std, y_std):
     #print(f_y, f_y_std, f_x_y, f_x_std_y)
     return(f_y, f_y_std, f_x_y, f_x_std_y)
     
-def xy_uncertainty_regression(x, y, x_err, y_err, func, **karg):
+def xy_uncertainty_regression(x, y, x_err, y_err, func, par, **karg):
     from scipy.odr import *
 
     fit_range = karg.pop('range', np.arange(0,100))
@@ -119,7 +122,7 @@ def xy_uncertainty_regression(x, y, x_err, y_err, func, **karg):
     data = RealData(x, y, sx=x_err, sy=y_err)
 
     # Set up ODR with the model and data.
-    odr = ODR(data, model, beta0=[0.,])
+    odr = ODR(data, model, beta0=par)
 
     # Run the regression.
     out = odr.run()
@@ -144,10 +147,12 @@ print("+++ gs +++")
 yfit_gs, yfit_gs2 = or_fit(pcuo, gs, 0, gs_std)
 yfit_gs_2 = or_fit(pcuo, gs, pcuo_std, gs_std)
 yfit_gs_free, yfit_gs2_free = or_fit(pcuo, gs, 0, gs_std, deg='free')
+yfit_gs_2_free = or_fit(pcuo, gs, pcuo_std, gs_std, deg='free')
 print("+++ An +++")
 yfit_A, yfit_A2 = or_fit(pcuo, A, 0, A_std)
 yfit_A_2 = or_fit(pcuo, A, pcuo_std, A_std)
 yfit_A_free, yfit_A2_free = or_fit(pcuo, A, 0, A_std, deg='free')
+yfit_A_2_free = or_fit(pcuo, A, pcuo_std, A_std, deg='free')
 print("+++ Jmax +++")
 yfit_Jmax, yfit_Jmax2 = or_fit(pcuo, Jmax, 0, Jmax_std)
 yfit_Jmax_2 = or_fit(pcuo, Jmax, pcuo_std, Jmax_std)
