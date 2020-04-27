@@ -316,7 +316,6 @@ ax31.set_ylim(0,1.2)
 #Show it
 plt.show(block=False)
 
-# Pickle the plot to merge with CLM output
-#import pickle
-#with open('ozone_response_vcmax_jmax_ratio.pkl', 'wb') as tgt: # should be 'wb' rather than 'w'
-#    pickle.dump(fig3, tgt) 
+# Save
+save_data = pd.DataFrame({'Vcmax_ratio':flunder(Vcmax), 'Vcmax_ratio_std': flunder(Vcmax_std), 'Jmax_ratio':flunder(Jmax), 'Jmax_ratio_std':flunder(Jmax_std)})
+#save_data.to_cvs("Vcmax_Jmax_ratios_articles.cvs")
