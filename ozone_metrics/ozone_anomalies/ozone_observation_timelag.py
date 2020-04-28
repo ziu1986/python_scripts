@@ -19,8 +19,10 @@ for i in time_lag:
     lag_svanvik_janiskoski.append(time_lagged_corr(data['Svanvik'], data['Janiskoski'], lag=i, pandas=True))
     lag_jergkara_janiskoski.append(time_lagged_corr(data_jergkara, data['Janiskoski'], lag=i, pandas=True))
 # Print maximum in lag
+lag_max = {}
 print("Lag correlation")
 for i,lag in zip(lag_label,(lag_jergkara_esrange, lag_jergkara_pallas, lag_svanvik_esrange, lag_svanvik_pallas, lag_svanvik_jergkara, lag_svanvik_janiskoski, lag_jergkara_janiskoski)):
-    print("%s max at %d h" % (i, np.array(time_lag)[np.where(np.array(lag)==np.array(lag).max())[0]]))
+    lag_max.update({i:np.array(time_lag)[np.where(np.array(lag)==np.array(lag).max())[0]][0]})
+    print("%s max at %d h" % (i, lag_max[i]))
 
 

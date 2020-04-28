@@ -336,7 +336,7 @@ if plot_residuals:
 
     hist101_2018 = ax101.hist((esrange_daily_2018.dropna()-sample_2018_esrange).values, density=True, histtype='step', color='blue', label='Esrange 2018')
     hist102_2018 = ax102.hist((pallas_daily_2018.dropna()-sample_2018_pallas).values, density=True, histtype='step', color='black', label='Pallas 2018')
-    hist103_2018 = ax103.hist((prestebakke_daily_2018.dropna()-sample_2018_prestebakke).values, density=True, histtype='step', color='red', label='Prestebakke 2018')
+    #hist103_2018 = ax103.hist((prestebakke_daily_2018.dropna()-sample_2018_prestebakke).values, density=True, histtype='step', color='red', label='Prestebakke 2018')
 
     ax101.plot(x_sample_esrange, pdf_esrange, color='black', label='Skew normal fit')
     stats_text(ax101, stat_esrange, fit_esrange, ypos=0.68)
@@ -344,8 +344,8 @@ if plot_residuals:
     ax102.plot(x_sample_pallas, pdf_pallas, color='black', label='Skew normal fit')
     stats_text(ax102, stat_pallas, fit_pallas, ypos=0.68)
 
-    ax103.plot(x_sample_prestebakke, pdf_prestebakke, color='black', label='Skew normal fit')
-    stats_text(ax103, stat_prestebakke, fit_prestebakke, ypos=0.4)
+    #ax103.plot(x_sample_prestebakke, pdf_prestebakke, color='black', label='Skew normal fit')
+    #stats_text(ax103, stat_prestebakke, fit_prestebakke, ypos=0.4)
 
     ax102.set_xlabel("$(<[O_3]>-[O_3]^{clim}_{NF})_{daily}$ (ppb)")
     ax101.set_ylabel("Probability density", y=-0.25)
