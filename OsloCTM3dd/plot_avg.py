@@ -7,8 +7,8 @@ import cartopy as cp        # Globe projections
 import cartopy.util as ccrs_util  # Add cyclic
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from scipy.constants import *     # Get physics constants
-from mytools.met_tools import *
-from mytools.netcdf_tools import *
+from mytools.plot_tools import *
+from mytools.ozone_tools import *
 
 def compute_column_density(press, atm_var, **kargs):
     '''
