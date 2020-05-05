@@ -197,6 +197,9 @@ def get_molarweight(data):
     -------
     tracer_molweight : a dictionary with corresponding molmasses.
     '''
+    import xarray as xr
+    import numpy as np
+    
     tracer_names = np.squeeze(data['tracer_name'].data)          # Extract the names of the tracers
     tracer_names = [name.strip() for name in tracer_names]       # Trim whitespace
     tracer_molweight = np.squeeze(data['tracer_molweight'].data) # Extract the molarweight
@@ -270,6 +273,9 @@ def compute_column_density(press, atm_var, **kargs):
     atm_new : xarray
         Global field of the tracer.    
     '''
+    import numpy as np
+    import xarray as xr
+    
     # Keyword arguments
     unit = kargs.pop('unit', 'molecules/cm2')
     b_accu = kargs.pop('accumulate', True)
