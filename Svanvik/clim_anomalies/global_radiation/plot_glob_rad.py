@@ -32,6 +32,13 @@ except NameError:
     data_svanvik.loc[:,'hour'] = data_svanvik.index.hour.values
     data_svanvik.loc[:,'day'] = data_svanvik.index.day.values
     data_svanvik.loc[:,'month'] = data_svanvik.index.month.values
+
+# Save data to file
+pd.DataFrame({'Q0 (Wm^2)':data_svanvik['2018'].groupby(['month','day','hour']).mean().values.flatten()}, index=data_svanvik['2018'].index.values).to_csv(os.environ['DATA']+'/DO3SE_input/'+"svanvik_global_irradiance_2018.csv")
+pd.DataFrame({'Q0 (Wm^2)':data_svanvik['2019'].groupby(['month','day','hour']).mean().values.flatten()}, index=data_svanvik['2019'].index.values).to_csv(os.environ['DATA']+'/DO3SE_input/'+"svanvik_global_irradiance_2019.csv")
+# Drop Feb 29 from climatology and reindex it
+save_data = pd.DataFrame({'Q0 (Wm^2)':data_svanvik_clim.groupby(['month','day','hour']).mean().drop(data_svanvik_clim.groupby(['month','day','hour']).mean().loc[2,29,:].index).values.flatten()}, index=pd.date_range('2018-01-01', '2018-12-31 23:00', freq='1H'))
+save_data.to_csv(os.environ['DATA']+'/DO3SE_input/'+"svanvik_global_irradiance-climatology.csv")
     
 # Plot it
 fig1 = plt.figure(1)
