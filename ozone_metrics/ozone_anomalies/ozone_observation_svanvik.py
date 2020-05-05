@@ -54,11 +54,12 @@ ax13.set_title('(c)')
 
 reco_svanvik.plot(ax=ax13, ls='-', color='magenta', marker='*', label='Reco. Svanvik')
 data_svanvik_OzoNorClim['2018-07'].plot(ax=ax13, color='blueviolet', fillstyle='none', ls='None', marker='d', label='Svanvik')
+data_svanvik_rra.to_pandas().plot(ax=ax13, color='orange', fillstyle='none', ls=':', label='Regional Model Reanalysis')
 
 ax13.set_ylabel("$[O_3] (ppb)$")
 ax13.set_ylim(0,75)
 ax13.set_xlabel('Time (days)')
-ax13.legend()
+ax13.legend(ncol=3)
 
 plt.show(block=False)
 
@@ -86,3 +87,10 @@ ax12.set_ylabel("Probability density")
 ax12.set_xlabel("$[O_3]_{2018}-[O_3]_{clim}/\sigma [O_3]_{clim}$")
 ax12.legend(loc='upper right')
 """
+
+# Save reconstruction to csv file
+save_data = pd.concat((data_svanvik_OzoNorClim['2018-01':'2018-06'], reco_anomaly_svanvik.dropna(), data_svanvik_OzoNorClim['2018-07-31 21:00':]))
+
+save_data.to_csv("svanvik_ozone_2018.csv")
+data_svanvik_OzoNorClim['2019'].to_csv("svanvik_ozone_2019.csv")
+(sample_clim_hourly_svanvik[0]+bias_corr).to_csv("svanvik_ozone_corr-climatology.csv")

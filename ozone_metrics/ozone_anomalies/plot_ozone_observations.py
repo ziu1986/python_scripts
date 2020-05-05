@@ -179,25 +179,42 @@ if plot_correlation:
     ax54.text(60,75, "$r^2 = %1.2f$" % (data['Pallas'].corr(data['Svanvik'])), size='large')
 
 #
+bSvanvik = True
 if plot_timelag:
-    fig6 = plt.figure(figsize=(16,9))
-    fig6.canvas.set_window_title("ozone_observation_timelag")
-  
-    ax61 = plt.subplot(121)
-    ax62 = plt.subplot(122)
-    #ax63 = plt.subplot(133)
-    ax61.set_title("Jergul/Karasjok")
-    ax62.set_title("Svanvik")
-    #ax63.set_title("Svanvik")
-    ax61.plot(time_lag, lag_jergkara_esrange, color='blue', label='Esrange')
-    ax61.plot(time_lag, lag_jergkara_pallas, color='black', label='Pallas')
-    ax61.plot(np.array(time_lag)*(-1), lag_svanvik_jergkara, ls='--', color='blueviolet', label='Svanvik')
-    ax61.plot(time_lag, lag_jergkara_janiskoski, color='grey', ls='--', label='Janiskoski')
+    
+    if(bSvanvik):
+        fig6 = plt.figure(figsize=(9,6))
+        fig6.canvas.set_window_title("ozone_observation_timelag_svanvik")
 
-    ax62.plot(time_lag, lag_svanvik_esrange, color='blue', ls='--', label='Esrange')
-    ax62.plot(time_lag, lag_svanvik_pallas, color='black', ls='--', label='Pallas')
-    ax62.plot(time_lag, lag_svanvik_jergkara, color='orange', ls='--', label='Jergul/Karasjok')
-    ax62.plot(time_lag, lag_svanvik_janiskoski, color='grey', label='Janiskoski')
+        ax61 = plt.subplot()
+        ax61.set_title("")
+
+        ax61.plot(time_lag, lag_svanvik_pallas, color='black', ls='-', label='Pallas')
+        ax61.plot(time_lag, lag_svanvik_esrange, color='blue', ls='--', label='Esrange')
+        ax61.plot(time_lag, lag_svanvik_jergkara, color='orange', ls='-.', label='Jergul/Karasjok')
+        ax61.plot(time_lag, lag_svanvik_janiskoski, color='grey', ls=':', label='Janiskoski')
+
+        ax61.set_ylim(0.3, 0.7)
+
+    else:
+        fig6 = plt.figure(figsize=(16,9))
+        fig6.canvas.set_window_title("ozone_observation_timelag")
+
+        ax61 = plt.subplot(121)
+        ax62 = plt.subplot(122)
+    
+        ax61.set_title("Jergul/Karasjok")
+        ax62.set_title("Svanvik")
+    
+        ax61.plot(time_lag, lag_jergkara_esrange, color='blue', label='Esrange')
+        ax61.plot(time_lag, lag_jergkara_pallas, color='black', label='Pallas')
+        ax61.plot(np.array(time_lag)*(-1), lag_svanvik_jergkara, ls='--', color='blueviolet', label='Svanvik')
+        ax61.plot(time_lag, lag_jergkara_janiskoski, color='grey', ls='--', label='Janiskoski')
+
+        ax62.plot(time_lag, lag_svanvik_esrange, color='blue', ls='--', label='Esrange')
+        ax62.plot(time_lag, lag_svanvik_pallas, color='black', ls='--', label='Pallas')
+        ax62.plot(time_lag, lag_svanvik_jergkara, color='orange', ls='--', label='Jergul/Karasjok')
+        ax62.plot(time_lag, lag_svanvik_janiskoski, color='grey', label='Janiskoski')
 
     for ax in fig6.axes:
         ax.set_xlabel('Lag (hours)')
