@@ -23,7 +23,7 @@ if plot_timeseries:
 
     #    
     fig2 = plt.figure(2, figsize=(16,9))
-    fig2.canvas.set_window_title("ozone_timeseries_fenoscandic_obs")
+    fig2.canvas.set_window_title("ozone_timeseries_fennoscandic_obs")
     ax21 = plt.subplot(511)
     ax22 = plt.subplot(512, sharex=ax21)
     ax23 = plt.subplot(513, sharex=ax21)
@@ -48,7 +48,7 @@ if plot_timeseries:
 #
 if plot_climatology:
     fig3 = plt.figure(3, figsize=(16,9))
-    fig3.canvas.set_window_title("ozone_climatology_fenoscandic_obs")
+    fig3.canvas.set_window_title("ozone_climatology_fennoscandic_obs")
     ax31 = plt.subplot()
 
     data['Prestebakke'].groupby(data['Prestebakke'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Prestebakke (NOR)', color='red')
@@ -224,7 +224,7 @@ if plot_timelag:
 #
 if plot_climatology:
     fig7 = plt.figure(7, figsize=(16,9))
-    fig7.canvas.set_window_title("ozone_climatology_fenoscandic_obs_norm")
+    fig7.canvas.set_window_title("ozone_climatology_fennoscandic_obs_norm")
     ax71 = plt.subplot()
 
     (data['Prestebakke'].groupby(data['Prestebakke'].index.dayofyear).apply(np.nanmean)-data['Prestebakke'].mean()).plot(ax=ax71, label='Prestebakke (NOR)', color='red')
@@ -246,7 +246,7 @@ if plot_climatology:
 #
 if plot_splines:
     fig8 = plt.figure(8, figsize=(10,12))
-    fig8.canvas.set_window_title("ozone_climatology_fenoscandic_obs_spline")
+    fig8.canvas.set_window_title("ozone_climatology_fennoscandic_obs_spline")
     ax81 = plt.subplot(211)
     ax82 = plt.subplot(212)
 
@@ -295,7 +295,7 @@ if plot_splines:
 #
 if plot_residuals:
     fig9 = plt.figure(9, figsize=(10,12))
-    fig9.canvas.set_window_title("ozone_climatology_fenoscandic_obs_residuals-Svanvik")
+    fig9.canvas.set_window_title("ozone_climatology_fennoscandic_obs_residuals-Svanvik")
     ax91 = plt.subplot(211)
     ax91.set_title("(a)", x=0.5, y=0.92)
     ax92 = plt.subplot(212)
@@ -340,7 +340,7 @@ if plot_residuals:
         ax.set_ylim(0,0.16)
 
     fig10 = plt.figure(10, figsize=(10,8))
-    fig10.canvas.set_window_title("ozone_climatology_fenoscandic_obs_residuals")
+    fig10.canvas.set_window_title("ozone_climatology_fennoscandic_obs_residuals")
     ax101 = plt.subplot(211)
     ax101.set_title("(a)", x=0.5, y=0.91)
     ax102 = plt.subplot(212, sharex=ax101)
@@ -376,7 +376,7 @@ if plot_residuals:
 
 if plot_aot:
     fig11 = plt.figure(11, figsize=(16,9))
-    fig11.canvas.set_window_title("ozone_fenoscandic_obs_aot40")
+    fig11.canvas.set_window_title("ozone_fennoscandic_obs_aot40")
     ax111 = plt.subplot()
     compute_aot(data['Prestebakke'], month_start=6, month_end=8).plot(label='Prestebakke (NOR)', color='red')
     compute_aot(data_jergkara, month_start=6, month_end=8).plot(label='Jergul/Karasjok (NOR)', color='orange')
@@ -399,7 +399,7 @@ if plot_aot:
 
 if plot_rollingsum:
     fig12 = plt.figure(12, figsize=(16,14))
-    fig12.canvas.set_window_title("ozone_fenoscandic_obs_rolling_sum40")
+    fig12.canvas.set_window_title("ozone_fennoscandic_obs_rolling_sum40")
     ax121 = plt.subplot(211)
     ax122 = plt.subplot(212)
 
@@ -557,7 +557,7 @@ if plot_rollingsum:
 
 if plot_ttest:
     fig14 = plt.figure(14, figsize=(10,12))
-    fig14.canvas.set_window_title("ozone_climatology_fenoscandic_obs_test-Svanvik")
+    fig14.canvas.set_window_title("ozone_climatology_fennoscandic_obs_test-Svanvik")
     ax141 = plt.subplot(211)
     ax141.set_title("(a)", x=0.5, y=0.92)
     ax142 = plt.subplot(212)
@@ -597,7 +597,7 @@ if plot_ttest:
         ax.legend()
 
     fig15 = plt.figure(15, figsize=(10,8))
-    fig15.canvas.set_window_title("ozone_climatology_fenoscandic_obs_test")
+    fig15.canvas.set_window_title("ozone_climatology_fennoscandic_obs_test")
     ax151 = plt.subplot(211)
     ax151.set_title("(a)", x=0.5, y=0.91)
     ax152 = plt.subplot(212, sharex=ax151)
