@@ -4,15 +4,7 @@ import xarray as xr
 import pandas as pd
 import matplotlib.pyplot as plt
 from mytools.plot_tools import print_all, plot_error_bands
-
-def load_data(src):
-    data_list = []
-    for file in sorted(glob.glob(src)):
-        print("Loading... %s" % (file))
-        data = xr.open_dataset(file)
-        data_list.append(data[['GSSHA', 'GSSUN', 'JMX25T', 'Jmx25Z', 'PSNSHA', 'PSNSUN', 'RSSHA','RSSUN', 'VCMX25T', 'Vcmx25Z']])
-    data = xr.concat(data_list, dim='time')
-    return(data)
+from clm_tools import *
 
 # Clean up
 plt.close("all")
