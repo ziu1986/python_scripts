@@ -90,7 +90,7 @@ def plot_month_name(ax, **kargs):
     ax.set_xlim(-1,366)
     ax.set_yticks(np.arange(0,25,6))
 
-    
+from scipy.constants import *     # Get physics constants    
 
 def set_pressure_axis(ax, **kargs):
     '''
@@ -109,7 +109,6 @@ def set_pressure_axis(ax, **kargs):
     '''
     from met_tools import USstdP
     import matplotlib.pyplot as plt
-    from scipy.constants import *     # Get physics constants
     import calendar
     limits = sorted(kargs.pop("limits", (1000., USstdP(30*kilo)/hecto)))[::-1] # reverse sorted
     ticks = kargs.pop("ticks", [20, 50, 100, 200, 500, 1000])
