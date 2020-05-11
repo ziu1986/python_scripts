@@ -308,11 +308,27 @@ def seconds_in_month(month, year):
 #    return np.ma.add.reduce(atm_new, axis=1)*constant*1e-2/2.69e16 # 1 DU := 2.69 molecules/cm2; factor 1e-2 from units conversation
 def compute_column_density(press, atm_var, **kargs):
     '''
-    Compute the column density. 
-    Warning: Make sure pressure is in units of hPa!
+    Compute the column density.
+    Parameters
+    ----------
+    press : xarray
+        The atmospheric pressure field in hPa!
+    atm_var : xarray
+        The atmospheric tracer field in mol/mol.
+    Keyword arguments
+    -----------------
+    unit : sting
+        Define the unit for the output.
+        Standard: molecules/cm3
+        Option: DU
+    accumulate : boolean
+        Accumulate all levels.
+        Standard: True
+    
     '''
     # Keyword arguments
     unit = kargs.pop('unit', 'molecules/cm2')
+    cdef bool b_accu = kargs.pop('accumulate', True)
     # Conversion factors
     cdef double Mdry = 0.0289645    # molec. wt. of dry air, kg/mol
     cdef double constant = N_A/(g*Mdry) # molecules*s2/(m*kg)
@@ -331,10 +347,12 @@ def compute_column_density(press, atm_var, **kargs):
         for i in range(len(p1)):
             atm_new[:,i,:,:] = np.fabs(0.5*(p1[i]-p2[i]))*atm_var[:,i+1,:,:]
     # Sum it up == integration
+    if b_accu:
+        atm_new = atm_new.sum(dim='lev')
     if unit == 'DU':
-        atm_new = atm_new.sum(dim='lev')*constant*DU
+        atm_new = atm_new*constant*DU
     else:
-        atm_new = atm_new.sum(dim='lev')*constant*cm2
+        atm_new = atm_new*constant*cm2
     # Set the new units
     atm_new.attrs['units'] = unit
     return atm_new

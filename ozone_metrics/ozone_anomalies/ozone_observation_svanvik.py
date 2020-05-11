@@ -1,21 +1,69 @@
 plt.close('all')
 
-fig1 = plt.figure(1)
-fig1.canvas.set_window_title("ozone_obs_2018_07")
-ax11 = plt.subplot(211)
-data_svanvik_OzoNorClim.loc['2018-07'].plot(ax=ax11, color='blueviolet', ls='None', marker='x', label='Svanvik (2018)')
-data['Esrange'].loc['2018-07'].plot(ls='None', marker='o', color='blue', label="Esrange (2018)")
-data['Pallas'].loc['2018-07'].plot(ls='None', marker='^', color='black', label="Pallas (2018)")
-ax11.plot(pd.date_range("2018-07","2018-07-31 23:00", freq='H'), clim_hourly.loc[7].values, color='red', label="Hourly clim.")
-ax11.plot(pd.date_range("2018-07","2018-07-31 23:00", freq='H'), clim_hourly_svanvik.loc[7].values, color='magenta', label="Hourly clim. Svanvik")
+# Bias correction for historical climatology to present day
+bias_corr = 1.2
+# Time lag corection (same for Esrange and Pallas)
+time_lag_corr = lag_max['svanvik_esrange']
 
-plt.plot((scaling_max_pallas*sample_clim_hourly_svanvik[0]['2018-07']+sample_clim_hourly_svanvik[0]['2018-07']), color='grey', label='corr. Svanvik')
-data_svanvik_rra.plot(color='orange', label='rra Svanvik')
+# Scaling factor
+scaling = sample_clim_hourly_svanvik/sample_clim_hourly.shift(-time_lag_corr)
+anomaly_pallas = data['Pallas']['07-2018']-sample_clim_hourly['07-2018'][0]
+anomaly_esrange = data['Esrange']['07-2018']-sample_clim_hourly['07-2018'][0]
+anomaly_svanvik = data_svanvik_OzoNorClim['2018-07']-sample_clim_hourly_svanvik[0][data_svanvik_OzoNorClim['2018-07'].index]-bias_corr
+
+reco_anomaly_svanvik = anomaly_pallas.shift(-time_lag_corr)*scaling['07-2018'][0]
+reco_svanvik = reco_anomaly_svanvik+sample_clim_hourly_svanvik['2018-07'][0]+bias_corr
+
+
+fig1 = plt.figure(1, figsize=(10,12))
+fig1.canvas.set_window_title("ozone_reconstruction_2018_07")
+ax11 = plt.subplot(311)
+ax11.set_title('(a)')
+
+data['Esrange']['2018-07'].plot(ax=ax11, ls='None', marker='o', fillstyle='none', color='blue', label="Esrange")
+data['Pallas']['2018-07'].plot(ax=ax11, ls='None', marker='^', fillstyle='none', color='black', label="Pallas")
+data_svanvik_OzoNorClim['2018-07'].plot(ax=ax11, color='blueviolet', ls='None', marker='d', label='Svanvik')
+sample_clim_hourly['07-2018'][0].plot(ax=ax11, color='red', label="Hourly clim.")
+sample_clim_hourly.shift(-time_lag_corr)['2018-07'][0].plot(ax=ax11, color='red', ls='--', label="Hourly clim. + time lag corr.")
+sample_clim_hourly_svanvik['07-2018'][0].plot(ax=ax11, color='red', ls='-.', label="Hourly clim. Svanvik")
 
 ax11.set_ylabel("$[O_3] (ppb)$")
-ax11.set_ylim(0,80)
+ax11.set_ylim(0,75)
+ax11.set_xticklabels("")
+ax11.set_xlabel('')
 ax11.legend(ncol=2)
+#
+ax12 = plt.subplot(312)
+ax12.set_title('(b)')
+anomaly_pallas.plot(ax=ax12, ls='None', marker='^', fillstyle='none', color='black', label="Pallas")
+anomaly_esrange.plot(ax=ax12, ls='None', marker='o', fillstyle='none', color='blue', label="Esrange")
 
+anomaly_svanvik.plot(ax=ax12, ls='None', color='blueviolet', label='Svanvik', marker='d')
+reco_anomaly_svanvik.plot(ax=ax12, color='magenta', label='Reco. Svanvik')
+
+
+ax12.set_ylabel("$\Delta [O_3]$ (ppb)")
+#ax12.set_xlabel("Time (days)")
+ax12.set_ylim(-30, 30)
+ax12.legend(ncol=2)
+
+#fig2 = plt.figure(2, figsize=(16,9))
+#fig2.canvas.set_window_title("ozone_reconstruction_svanvik")
+ax13 = plt.subplot(313)
+ax13.set_title('(c)')
+
+reco_svanvik.plot(ax=ax13, ls='-', color='magenta', marker='*', label='Reco. Svanvik')
+data_svanvik_OzoNorClim['2018-07'].plot(ax=ax13, color='blueviolet', fillstyle='none', ls='None', marker='d', label='Svanvik')
+data_svanvik_rra.to_pandas().plot(ax=ax13, color='orange', fillstyle='none', ls=':', label='Regional Model Reanalysis')
+
+ax13.set_ylabel("$[O_3] (ppb)$")
+ax13.set_ylim(0,75)
+ax13.set_xlabel('Time (days)')
+ax13.legend(ncol=3)
+
+plt.show(block=False)
+
+"""
 ax12 = plt.subplot(212)
 ax12.hist((data['Pallas'].loc['2018-07'].values-clim_hourly.loc[7].values.flatten())/clim_hourly_err.loc[7].values.flatten(), density=True, histtype='step', label='Pallas 2018')
 ax12.hist((data['Esrange'].loc['2018-07'].values-clim_hourly.loc[7].values.flatten())/clim_hourly_err.loc[7].values.flatten(), density=True, histtype='step', color='blue', label='Esrange 2018')
@@ -38,55 +86,11 @@ stats_text(ax12, stat_test_svanvik_rra_hourly_2018, fit_test_svanvik_rra_hourly_
 ax12.set_ylabel("Probability density")
 ax12.set_xlabel("$[O_3]_{2018}-[O_3]_{clim}/\sigma [O_3]_{clim}$")
 ax12.legend(loc='upper right')
+"""
 
+# Save reconstruction to csv file
+save_data = pd.concat((data_svanvik_OzoNorClim['2018-01':'2018-06'], reco_anomaly_svanvik.dropna(), data_svanvik_OzoNorClim['2018-07-31 21:00':]))
 
-# Monthly anomalies
-data_svanvik = data_svanvik_OzoNorClim.copy()
-data_svanvik.index = pd.to_datetime(data_svanvik.index.values.astype(str))
-data_svanvik.loc[:,'day'] = data_svanvik.index.day.values
-data_svanvik.loc[:,'month'] = data_svanvik.index.month.values
-data_svanvik.loc[:,'hour'] = data_svanvik.index.hour.values
-
-data_svanvik_clim = data['Svanvik'].copy()
-data_svanvik_clim.loc[:,'day'] = data_svanvik_clim.index.day.values
-data_svanvik_clim.loc[:,'month'] = data_svanvik_clim.index.month.values
-data_svanvik_clim.loc[:,'hour'] = data_svanvik_clim.index.hour.values
-
-svanvik_ozone_clim = data_svanvik_clim.groupby(['month','day','hour']).mean().iloc[:,0]
-svanvik_ozone_clim_std = data_svanvik_clim.groupby(['month','day','hour']).std().iloc[:,0]
-
-fig3 = plt.figure(3)
-fig3.canvas.set_window_title("ozone_signific")
-ax31 = plt.subplot(211)
-ax31.set_title("(a)")
-ax32 = plt.subplot(212)
-ax32.set_title("(b)")
-for iyear, iax, icolor in zip((2018, 2019),(ax31, ax32), ('violet', 'purple')):
-    tmp = (data_svanvik['%d' % iyear].dropna()).groupby(['month','day','hour']).mean()
-    test = ((tmp-svanvik_ozone_clim)/svanvik_ozone_clim_std)
-    (test.where(test>1).dropna().groupby(['month']).apply(np.size).astype(float)/(test.groupby(['month']).apply(np.size))*100).plot.bar(ax=iax, color=icolor)
-    (test.where(test<-1).dropna().groupby(['month']).apply(np.size).astype(float)/(test.groupby(['month']).apply(np.size))*-100).plot.bar(ax=iax, color=icolor)
-    iax.set_xlabel("")
-    iax.set_ylabel("")
-    iax.set_ylim(-60, 60)
-    iax.axhline(0, color='grey', ls=':')
-    iax.axhline(15.9, color='grey', ls='--')
-    iax.axhline(-15.9, color='grey', ls='--')
-    
-    iax.text(9.25,53, '$>+1\,\sigma$: %3.2f %s' % (test.where(test>1).dropna().size/float(test.size)*100, "%"), size='x-large')
-    iax.text(9.5,-55, '$<-1\,\sigma$: %3.2f %s' % (test.where(test<-1).dropna().size/float(test.size)*100, "%"), size='x-large')
-    iax.tick_params(labelrotation=0)
-    iax.set_xticklabels([get_month_name(imonth, length=3) for imonth in np.arange(1,13)])
-    
-    print('%d %3.2f' % (iyear, test.where(test>1).dropna().size/float(test.size)*100))
-    print('%d %3.2f' % (iyear, test.where(test<-1).dropna().size/float(test.size)*100))
-   
-    print('%d %s' % (iyear, test.where(test>1).dropna().groupby(['month']).apply(np.size).astype(float)/(test.groupby(['month']).apply(np.size))*100))
-    print('%d %s' % (iyear, test.where(test<-1).dropna().groupby(['month']).apply(np.size).astype(float)/(test.groupby(['month']).apply(np.size))*100))
-    
-    
-ax32.set_xlabel("Time (months)")
-ax32.set_ylabel("#Days above $\pm 1\sigma_{clim}$ (%)", y=1)
-
-
-plt.show(block=False)
+save_data.to_csv("svanvik_ozone_2018.csv")
+data_svanvik_OzoNorClim['2019'].to_csv("svanvik_ozone_2019.csv")
+(sample_clim_hourly_svanvik[0]+bias_corr).to_csv("svanvik_ozone_corr-climatology.csv")

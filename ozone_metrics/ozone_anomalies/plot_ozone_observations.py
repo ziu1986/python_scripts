@@ -23,7 +23,7 @@ if plot_timeseries:
 
     #    
     fig2 = plt.figure(2, figsize=(16,9))
-    fig2.canvas.set_window_title("ozone_timeseries_fenoscandic_obs")
+    fig2.canvas.set_window_title("ozone_timeseries_fennoscandic_obs")
     ax21 = plt.subplot(511)
     ax22 = plt.subplot(512, sharex=ax21)
     ax23 = plt.subplot(513, sharex=ax21)
@@ -48,7 +48,7 @@ if plot_timeseries:
 #
 if plot_climatology:
     fig3 = plt.figure(3, figsize=(16,9))
-    fig3.canvas.set_window_title("ozone_climatology_fenoscandic_obs")
+    fig3.canvas.set_window_title("ozone_climatology_fennoscandic_obs")
     ax31 = plt.subplot()
 
     data['Prestebakke'].groupby(data['Prestebakke'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Prestebakke (NOR)', color='red')
@@ -179,25 +179,42 @@ if plot_correlation:
     ax54.text(60,75, "$r^2 = %1.2f$" % (data['Pallas'].corr(data['Svanvik'])), size='large')
 
 #
+bSvanvik = True
 if plot_timelag:
-    fig6 = plt.figure(figsize=(16,9))
-    fig6.canvas.set_window_title("ozone_observation_timelag")
-  
-    ax61 = plt.subplot(121)
-    ax62 = plt.subplot(122)
-    #ax63 = plt.subplot(133)
-    ax61.set_title("Jergul/Karasjok")
-    ax62.set_title("Svanvik")
-    #ax63.set_title("Svanvik")
-    ax61.plot(time_lag, lag_jergkara_esrange, color='blue', label='Esrange')
-    ax61.plot(time_lag, lag_jergkara_pallas, color='black', label='Pallas')
-    ax61.plot(np.array(time_lag)*(-1), lag_svanvik_jergkara, ls='--', color='blueviolet', label='Svanvik')
-    ax61.plot(time_lag, lag_jergkara_janiskoski, color='grey', ls='--', label='Janiskoski')
+    
+    if(bSvanvik):
+        fig6 = plt.figure(figsize=(9,6))
+        fig6.canvas.set_window_title("ozone_observation_timelag_svanvik")
 
-    ax62.plot(time_lag, lag_svanvik_esrange, color='blue', ls='--', label='Esrange')
-    ax62.plot(time_lag, lag_svanvik_pallas, color='black', ls='--', label='Pallas')
-    ax62.plot(time_lag, lag_svanvik_jergkara, color='orange', ls='--', label='Jergul/Karasjok')
-    ax62.plot(time_lag, lag_svanvik_janiskoski, color='grey', label='Janiskoski')
+        ax61 = plt.subplot()
+        ax61.set_title("")
+
+        ax61.plot(time_lag, lag_svanvik_pallas, color='black', ls='-', label='Pallas')
+        ax61.plot(time_lag, lag_svanvik_esrange, color='blue', ls='--', label='Esrange')
+        ax61.plot(time_lag, lag_svanvik_jergkara, color='orange', ls='-.', label='Jergul/Karasjok')
+        ax61.plot(time_lag, lag_svanvik_janiskoski, color='grey', ls=':', label='Janiskoski')
+
+        ax61.set_ylim(0.3, 0.7)
+
+    else:
+        fig6 = plt.figure(figsize=(16,9))
+        fig6.canvas.set_window_title("ozone_observation_timelag")
+
+        ax61 = plt.subplot(121)
+        ax62 = plt.subplot(122)
+    
+        ax61.set_title("Jergul/Karasjok")
+        ax62.set_title("Svanvik")
+    
+        ax61.plot(time_lag, lag_jergkara_esrange, color='blue', label='Esrange')
+        ax61.plot(time_lag, lag_jergkara_pallas, color='black', label='Pallas')
+        ax61.plot(np.array(time_lag)*(-1), lag_svanvik_jergkara, ls='--', color='blueviolet', label='Svanvik')
+        ax61.plot(time_lag, lag_jergkara_janiskoski, color='grey', ls='--', label='Janiskoski')
+
+        ax62.plot(time_lag, lag_svanvik_esrange, color='blue', ls='--', label='Esrange')
+        ax62.plot(time_lag, lag_svanvik_pallas, color='black', ls='--', label='Pallas')
+        ax62.plot(time_lag, lag_svanvik_jergkara, color='orange', ls='--', label='Jergul/Karasjok')
+        ax62.plot(time_lag, lag_svanvik_janiskoski, color='grey', label='Janiskoski')
 
     for ax in fig6.axes:
         ax.set_xlabel('Lag (hours)')
@@ -207,7 +224,7 @@ if plot_timelag:
 #
 if plot_climatology:
     fig7 = plt.figure(7, figsize=(16,9))
-    fig7.canvas.set_window_title("ozone_climatology_fenoscandic_obs_norm")
+    fig7.canvas.set_window_title("ozone_climatology_fennoscandic_obs_norm")
     ax71 = plt.subplot()
 
     (data['Prestebakke'].groupby(data['Prestebakke'].index.dayofyear).apply(np.nanmean)-data['Prestebakke'].mean()).plot(ax=ax71, label='Prestebakke (NOR)', color='red')
@@ -229,7 +246,7 @@ if plot_climatology:
 #
 if plot_splines:
     fig8 = plt.figure(8, figsize=(10,12))
-    fig8.canvas.set_window_title("ozone_climatology_fenoscandic_obs_spline")
+    fig8.canvas.set_window_title("ozone_climatology_fennoscandic_obs_spline")
     ax81 = plt.subplot(211)
     ax82 = plt.subplot(212)
 
@@ -278,7 +295,7 @@ if plot_splines:
 #
 if plot_residuals:
     fig9 = plt.figure(9, figsize=(10,12))
-    fig9.canvas.set_window_title("ozone_climatology_fenoscandic_obs_residuals-Svanvik")
+    fig9.canvas.set_window_title("ozone_climatology_fennoscandic_obs_residuals-Svanvik")
     ax91 = plt.subplot(211)
     ax91.set_title("(a)", x=0.5, y=0.92)
     ax92 = plt.subplot(212)
@@ -323,7 +340,7 @@ if plot_residuals:
         ax.set_ylim(0,0.16)
 
     fig10 = plt.figure(10, figsize=(10,8))
-    fig10.canvas.set_window_title("ozone_climatology_fenoscandic_obs_residuals")
+    fig10.canvas.set_window_title("ozone_climatology_fennoscandic_obs_residuals")
     ax101 = plt.subplot(211)
     ax101.set_title("(a)", x=0.5, y=0.91)
     ax102 = plt.subplot(212, sharex=ax101)
@@ -336,7 +353,7 @@ if plot_residuals:
 
     hist101_2018 = ax101.hist((esrange_daily_2018.dropna()-sample_2018_esrange).values, density=True, histtype='step', color='blue', label='Esrange 2018')
     hist102_2018 = ax102.hist((pallas_daily_2018.dropna()-sample_2018_pallas).values, density=True, histtype='step', color='black', label='Pallas 2018')
-    hist103_2018 = ax103.hist((prestebakke_daily_2018.dropna()-sample_2018_prestebakke).values, density=True, histtype='step', color='red', label='Prestebakke 2018')
+    #hist103_2018 = ax103.hist((prestebakke_daily_2018.dropna()-sample_2018_prestebakke).values, density=True, histtype='step', color='red', label='Prestebakke 2018')
 
     ax101.plot(x_sample_esrange, pdf_esrange, color='black', label='Skew normal fit')
     stats_text(ax101, stat_esrange, fit_esrange, ypos=0.68)
@@ -344,8 +361,8 @@ if plot_residuals:
     ax102.plot(x_sample_pallas, pdf_pallas, color='black', label='Skew normal fit')
     stats_text(ax102, stat_pallas, fit_pallas, ypos=0.68)
 
-    ax103.plot(x_sample_prestebakke, pdf_prestebakke, color='black', label='Skew normal fit')
-    stats_text(ax103, stat_prestebakke, fit_prestebakke, ypos=0.4)
+    #ax103.plot(x_sample_prestebakke, pdf_prestebakke, color='black', label='Skew normal fit')
+    #stats_text(ax103, stat_prestebakke, fit_prestebakke, ypos=0.4)
 
     ax102.set_xlabel("$(<[O_3]>-[O_3]^{clim}_{NF})_{daily}$ (ppb)")
     ax101.set_ylabel("Probability density", y=-0.25)
@@ -359,7 +376,7 @@ if plot_residuals:
 
 if plot_aot:
     fig11 = plt.figure(11, figsize=(16,9))
-    fig11.canvas.set_window_title("ozone_fenoscandic_obs_aot40")
+    fig11.canvas.set_window_title("ozone_fennoscandic_obs_aot40")
     ax111 = plt.subplot()
     compute_aot(data['Prestebakke'], month_start=6, month_end=8).plot(label='Prestebakke (NOR)', color='red')
     compute_aot(data_jergkara, month_start=6, month_end=8).plot(label='Jergul/Karasjok (NOR)', color='orange')
@@ -382,7 +399,7 @@ if plot_aot:
 
 if plot_rollingsum:
     fig12 = plt.figure(12, figsize=(16,14))
-    fig12.canvas.set_window_title("ozone_fenoscandic_obs_rolling_sum40")
+    fig12.canvas.set_window_title("ozone_fennoscandic_obs_rolling_sum40")
     ax121 = plt.subplot(211)
     ax122 = plt.subplot(212)
 
@@ -540,7 +557,7 @@ if plot_rollingsum:
 
 if plot_ttest:
     fig14 = plt.figure(14, figsize=(10,12))
-    fig14.canvas.set_window_title("ozone_climatology_fenoscandic_obs_test-Svanvik")
+    fig14.canvas.set_window_title("ozone_climatology_fennoscandic_obs_test-Svanvik")
     ax141 = plt.subplot(211)
     ax141.set_title("(a)", x=0.5, y=0.92)
     ax142 = plt.subplot(212)
@@ -580,7 +597,7 @@ if plot_ttest:
         ax.legend()
 
     fig15 = plt.figure(15, figsize=(10,8))
-    fig15.canvas.set_window_title("ozone_climatology_fenoscandic_obs_test")
+    fig15.canvas.set_window_title("ozone_climatology_fennoscandic_obs_test")
     ax151 = plt.subplot(211)
     ax151.set_title("(a)", x=0.5, y=0.91)
     ax152 = plt.subplot(212, sharex=ax151)

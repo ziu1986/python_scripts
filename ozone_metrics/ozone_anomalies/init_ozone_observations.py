@@ -49,7 +49,7 @@ except NameError:
 #---------------------------------------------------------------------------------------------------------------------------------
 #Control
 plot_timeseries = False
-plot_timelag = False
+plot_timelag = True
 plot_correlation = False
 plot_splines = False
 plot_climatology = False
@@ -58,8 +58,8 @@ plot_map = False
 plot_aot = False
 plot_cuo = True
 plot_rollingsum = False
-plot_residuals = True
-plot_ttest = True
+plot_residuals = False
+plot_ttest = False
 plot_svanvik = False
 
 #---------------------------------------------------------------------------------------------------------------------------------
