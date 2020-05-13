@@ -16,12 +16,14 @@ land_hist = '/lnd/hist/*.clm2.h0.*.nc'
 case = ('brazil_2000_ozone_luna_100', 'brazil_2000_ozone_luna_100_thresh_', 'brazil_2000_ozone_luna_')
 threshold = (0.8, 0.4, 0.6, 0.7, 0.85, 0.9, 1)
 ozone = (100, 0, 40, 60, 80)
+ozone_deep = np.arange(42, 60, 2)
 
 # Load data
 ref_data = pd.read_csv(ref_data_src)
 
 brazil_test = {}
 brazil_test_ozone = {}
+brazil_test_ozone_deep = {}
 brazil_ref_ozone = {}
 # Load reference simulation
 brazil_src = run_archive + case[0] + land_hist
@@ -39,7 +41,9 @@ for iozone in ozone[2:]:
     brazil_src = run_archive + case[2] + "%s" % iozone + land_hist
     brazil_test_ozone.update({iozone:load_data(brazil_src)})
     brazil_ref_ozone.update({iozone:load_data(brazil_src.replace('luna_',''))})
-
+for iozone in ozone_deep:
+    brazil_src = run_archive + case[2] + "%s" % iozone + land_hist
+    brazil_test_ozone_deep.update({iozone:load_data(brazil_src)})
 
 # Plot it
 fig1 = plt.figure(1,figsize=(16,9))
@@ -123,6 +127,20 @@ for ithresh in ozone:
     ax24.errorbar(ithresh, probe['Vcmx25Z'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['Vcmx25Z'], color='black', marker='s', fillstyle='none', label='avg - OzoneMod')
     ax24.errorbar(ithresh, probe['VCMX25T'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['VCMX25T'], color='black', marker='s', label='top - OzoneMod')
 
+for ithresh in ozone_deep:
+    probe = (brazil_test_ozone_deep[ithresh]-brazil_test_ozone[ozone[0]])#/brazil_test_ozone[ozone[0]]*100
+    
+    ax21.errorbar(ithresh, probe['GSSHA'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['GSSHA'], color='blue', marker='o', fillstyle='none', label="shade - OzoneLunaMod")
+    ax21.errorbar(ithresh, probe['GSSUN'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['GSSUN'], color='blue', marker='o', label='sun - OzoneLunaMod')
+
+    ax22.errorbar(ithresh, probe['PSNSHA'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['PSNSHA'], color='blue', marker='o', fillstyle='none', label='shade - OzoneLunaMod')
+    ax22.errorbar(ithresh, probe['PSNSUN'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['PSNSUN'], color='blue', marker='o', label='sun - OzoneLunaMod')
+
+    ax23.errorbar(ithresh, probe['Jmx25Z'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['Jmx25Z'], color='blue', marker='o', fillstyle='none', label='avg - OzoneLunaMod')
+    ax23.errorbar(ithresh, probe['JMX25T'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['JMX25T'], color='blue', marker='o', label='top - OzoneLunaMod')
+
+    ax24.errorbar(ithresh, probe['Vcmx25Z'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['Vcmx25Z'], color='blue', marker='o', fillstyle='none', label='avg - OzoneLunaMod')
+    ax24.errorbar(ithresh, probe['VCMX25T'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['VCMX25T'], color='blue', marker='o', label='top - OzoneLunaMod')
 
 for ax in fig2.axes:
     ax.set_yscale('symlog', linthreshy=1e-10)
