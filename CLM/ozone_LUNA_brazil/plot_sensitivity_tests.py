@@ -11,6 +11,8 @@ def plot_data(fig, data, iter_data, **karg):
     mode = karg.pop('mode', 'threshold')
     # option: abs, rel
     scale = karg.pop('scale', 'abs')
+    comp_idx = karg.pop('compare_index', 0)
+    # Plot adjustments
     label = karg.pop('label', '')
     color = karg.pop('color', 'blue')
     marker = karg.pop('marker', 'o')
@@ -24,9 +26,9 @@ def plot_data(fig, data, iter_data, **karg):
     # Iterate through data
     for ithresh in iter_data:
         if scale == 'abs':
-            probe = (data[ithresh]-data[iter_data[0]])
+            probe = (data[ithresh]-data[iter_data[comp_idx]])
         else:
-            probe = (data[ithresh]-data[iter_data[0]])/data[iter_data[0]]*100
+            probe = (data[ithresh]-data[iter_data[comp_idx]])/data[iter_data[comp_idx]]*100
 
         ax1.errorbar(ithresh, probe['GSSHA'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['GSSHA'], color=color, marker=marker, fillstyle='none', label="shade%s" % label)
         ax1.errorbar(ithresh, probe['GSSUN'].mean(), yerr=probe.apply(lambda x: x.std()/np.sqrt(x.size))['GSSUN'], color=color, marker=marker, label='sun%s' % label)
@@ -115,9 +117,9 @@ for iozone in ozone_deep:
 
 # Plot it
 fig1 = plt.figure(1,figsize=(16,9))
-fig1.canvas.set_window_title("OzoneLunaMod_threshold_sensitivity")
-plot_data(fig1, brazil_test, threshold)
-plot_data(fig1, brazil_test_40, threshold_2, label='_40', color='black', marker='s')
+fig1.canvas.set_window_title("ozone_threshold_sensitivity")
+plot_data(fig1, brazil_test, threshold, compare_index=1)
+plot_data(fig1, brazil_test_40, threshold_2, label='_40', color='black', marker='s', compare_index=1)
 
 for ax in fig1.axes:
     handles, labels = ax.get_legend_handles_labels()
@@ -140,9 +142,9 @@ for ax in fig2.axes:
 
 
 fig3 = plt.figure(3,figsize=(16,9))
-fig3.canvas.set_window_title("OzoneLunaMod_threshold_sensitivity_rel")
-plot_data(fig3, brazil_test, threshold, scale='rel')
-plot_data(fig3, brazil_test_40, threshold_2, label='_40', color='black', marker='s', scale='rel')
+fig3.canvas.set_window_title("ozone_threshold_sensitivity_rel")
+plot_data(fig3, brazil_test, threshold, scale='rel', compare_index=1)
+plot_data(fig3, brazil_test_40, threshold_2, label='_40', color='black', marker='s', scale='rel', compare_index=1)
 
 for ax in fig3.axes:
     handles, labels = ax.get_legend_handles_labels()
