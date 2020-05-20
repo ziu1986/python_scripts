@@ -28,7 +28,7 @@ except NameError:
     # Concate Jergul and Karasjok data
     data_jergkara = pd.concat((data['Jergul'], data['Karasjok']))
 
-    # Read and convert xls file data
+    # Read and convert file data
     data_svanvik_OzoNorClim = []
     for file in sorted(glob.glob(src_svanvik_OzoNorClim)):
         tmp_data_svanvik = pd.read_csv(file)

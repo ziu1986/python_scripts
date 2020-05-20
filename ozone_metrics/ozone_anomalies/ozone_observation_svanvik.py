@@ -89,7 +89,7 @@ ax12.legend(loc='upper right')
 """
 
 # Save reconstruction to csv file
-save_data = pd.concat((data_svanvik_OzoNorClim['2018-01':'2018-06'], reco_anomaly_svanvik.dropna(), data_svanvik_OzoNorClim['2018-07-31 21:00':]))
+save_data = pd.concat((data_svanvik_OzoNorClim['2018-01':'2018-07-09 9:00'], reco_svanvik['2018-07-09 9:00':'2018-07-24 8:00'].dropna(), data_svanvik_OzoNorClim['2018-07-24 9:00':]))
 
 save_data.to_csv("svanvik_ozone_2018.csv")
 data_svanvik_OzoNorClim['2019'].to_csv("svanvik_ozone_2019.csv")
