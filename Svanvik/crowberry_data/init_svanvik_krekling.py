@@ -9,6 +9,16 @@ from mytools.netcdf_tools import *
 src = os.environ['DATA']+'/astra_data/observations/krekling_svanvik/Krekling juni aug sept 2019 Photo og Cond.xlsx'
 
 # Open the file
-data_krekling = pd.read_excel(src)
+try:
+    data_krekling
+except NameError:
+    data_krekling = pd.read_excel(src)
 
+# Contant
 k_O3 = 1.67
+
+# Fit data
+execfile("fits_svanvik_krekling.py")
+
+# Plot data
+execfile("plot_svanvik_krekling.py")

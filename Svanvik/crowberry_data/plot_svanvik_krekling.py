@@ -55,5 +55,34 @@ ax24.set_ylabel("$g_{sto}$ $(mmol\,m^{-2}\,s^{-1}\,g^{-1})$")
 #ax24.set_xlabel("PAR $(\mu\,mol\,m^{-2}\,s^{-1})$")
 ax24.set_xlabel("log(PAR)")
 ax24.legend()
+
+fig3 = plt.figure(3)
+ax31 = plt.subplot()
+
+ax31.plot(data_krekling['HHMMSS'], data_krekling['PARo'], ls='None', marker='x', label='Jun')
+ax31.plot(data_krekling['HHMMSS.1'], data_krekling['PARo.1'], ls='None', marker='+', color='red', label='Aug')
+ax31.plot(data_krekling['HHMMSS.2'], data_krekling['PARo.2'], ls='None', marker='o', color='blue', label='Sept')
+
+ax31.set_xlabel("Time (hours)")
+ax31.set_ylabel("PAR $(\mu\,mol\,m^{-2}\,s^{-1})$")
+
+##
+
+fig6 = plt.figure(6)
+ax61 = plt.subplot()
+ax61.plot((data_krekling['PARo']), (1e3*k_O3*data_krekling['June Cond'].where((np.log(data_krekling['PARo'])>3)))/gmax, ls='None', marker='x', label='Jun')
+ax61.plot((data_krekling['PARo.1']), (1e3*k_O3*data_krekling['Aug Cond'].where((np.log(data_krekling['PARo.1'])>3)))/gmax, ls='None', marker='+', color='red', label='Aug')
+ax61.plot((data_krekling['PARo.2']), (1e3*k_O3*data_krekling['Sept Cond'].where((np.log(data_krekling['PARo.2'])>3)))/gmax, ls='None', marker='.', color='blue', label='Sep')
+
+# Plot fit
+sample_ppfd = np.arange(0,2000)
+ax61.plot(sample_ppfd, f_light(sample_ppfd, fit_params[0]), color='orange', ls='--', lw=5)
+ax61.text(900, 1, "Fit\n alpha = %0.9f+/-%0.9f" % (fit_params[0],cov_mat[0][0]))
+
+ax61.set_xlabel("PPFD $(\mu\,mol\,m^{-2}\,s^{-1})$")
+ax61.set_ylabel("$g_{sto}^{rel}$")
+ax61.legend()
+
+
 # Show it
 plt.show(block=False)
