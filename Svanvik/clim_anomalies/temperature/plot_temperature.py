@@ -126,6 +126,7 @@ ax32.set_title("(b)")
 for iyear, iax, icolor in zip((2018, 2019),(ax31, ax32), ('violet', 'purple')):
     tmp = (data_svanvik['%d' % iyear].where((data_svanvik['%d' % iyear][u"Svanvik | Ambient Temperature | degC"]>-50) & (data_svanvik['%d' % iyear][u"Svanvik | Ambient Temperature | degC"]<50)).dropna()).groupby(['month','day','hour']).max()[u"Svanvik | Ambient Temperature | degC"]+273.15
     test = ((tmp-svanvik_temp_clim)/svanvik_temp_clim_std)
+    
     probe_p.append((test.where(test>1).dropna().groupby(['month']).apply(np.size).astype(float)/(test.groupby(['month']).apply(np.size))*100))
     probe_n.append((test.where(test<-1).dropna().groupby(['month']).apply(np.size).astype(float)/(test.groupby(['month']).apply(np.size))*-100))
     probe_p[-1].plot.bar(ax=iax, color=icolor)
@@ -158,6 +159,7 @@ ax32.set_ylabel("#Days above $\pm 1\sigma_{clim}$ (%)", y=1)
 fig4 = plt.figure(4, figsize=(12,8))
 fig4.canvas.set_window_title("temperature_signific_1")
 ax41 = plt.subplot()
+ax41.axhspan(-15.9, 15.9, color='linen')
 
 plot_data_p = pd.DataFrame({"2018":probe_p[0], "2019":probe_p[1]})
 plot_data_n = pd.DataFrame({"2018":probe_n[0], "2019":probe_n[1]})
@@ -165,18 +167,22 @@ plot_data_n = pd.DataFrame({"2018":probe_n[0], "2019":probe_n[1]})
 plot_data_p.plot.bar(ax=ax41, width=0.85, color=('violet', 'purple'))
 plot_data_n.plot.bar(ax=ax41, width=0.85, color=('violet', 'purple'))
 
-ax41.legend(["2018","2019","_","_"], loc='upper left')
+ax41.legend(["_","2018","2019","_","_"], loc='upper left')
 
 ax41.set_ylim(-60, 60)
-ax41.axhline(0, color='grey', ls=':')
+
+ax41.axhline(0, color='black', ls=':')
 ax41.axhline(15.9, color='grey', ls='--')
 ax41.axhline(-15.9, color='grey', ls='--')
+ax41.axhspan(-15.9, 15.9, facecolor='None', edgecolor='black', hatch='//', alpha=0.5)
 
-ax41.text(9.25,53, '$>+1\,\sigma$: %3.2f %s' % (text_p[0], "%"), size='x-large', color='violet')
-ax41.text(9.5,-51, '$<-1\,\sigma$: %3.2f %s' % (text_n[0], "%"), size='x-large', color='violet')
+ax41.text(9.75, 55, '$>+1\,\sigma$', size='x-large', color='black')
+ax41.text(9.25, 51, '2018: %2.2f %s' % (text_p[0], "%"), size='x-large', color='violet')
+ax41.text(9.25, 47, '2019: %2.2f %s' % (text_p[1], "%"), size='x-large', color='purple')
 
-ax41.text(9.25,49, '$>+1\,\sigma$: %3.2f %s' % (text_p[1], "%"), size='x-large', color='purple')
-ax41.text(9.5,-55, '$<-1\,\sigma$: %3.2f %s' % (text_n[1], "%"), size='x-large', color='purple')
+ax41.text(9.75, -47, '$>-1\,\sigma$', size='x-large', color='black')
+ax41.text(9.25, -51, '2018: %2.2f %s' % (text_n[0], "%"), size='x-large', color='violet')
+ax41.text(9.25, -55, '2019: %2.2f %s' % (text_n[1], "%"), size='x-large', color='purple')
 
     
     
