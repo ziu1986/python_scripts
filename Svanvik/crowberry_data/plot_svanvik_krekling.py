@@ -4,9 +4,9 @@ plt.close('all')
 fig1 = plt.figure(1, figsize=(16,9))
 fig1.canvas.set_window_title("svanvik_krekling_conductance")
 ax1 = plt.subplot()
-(1e3*k_O3*data_krekling['June Cond']).where(np.log(data_krekling['PARo'])>=4).hist(ax=ax1, bins=100, density=True, label='Jun')
-(1e3*k_O3*data_krekling['Aug Cond']).where(np.log(data_krekling['PARo.1'])>=4).hist(ax=ax1, bins=100, histtype='step', density=True, color='red', label='Aug' )
-(1e3*k_O3*data_krekling['Sept Cond']).where(np.log(data_krekling['PARo.2'])>=4).hist(ax=ax1, bins=100, histtype='step', density=True, color='blue', label='Sep')
+(1e3*k_O3*data_krekling['June Cond']).where(np.log(data_krekling['PARo'])>photosynth_loglimit).hist(ax=ax1, bins=100, density=True, label='Jun')
+(1e3*k_O3*data_krekling['Aug Cond']).where(np.log(data_krekling['PARo.1'])>photosynth_loglimit).hist(ax=ax1, bins=100, histtype='step', density=True, color='red', label='Aug' )
+(1e3*k_O3*data_krekling['Sept Cond']).where(np.log(data_krekling['PARo.2'])>photosynth_loglimit).hist(ax=ax1, bins=100, histtype='step', density=True, color='blue', label='Sep')
 
 ax1.plot(x_sample, pdf, label="fit")
 stats_text(ax1, stat, fit, name="Conductance", ypos=0.7)
@@ -88,15 +88,23 @@ ax61.legend()
 fig7 = plt.figure(7)
 fig7.canvas.set_window_title("svanvik_krekling_f_temp")
 ax71 = plt.subplot()
-ax71.plot((data_krekling['Tleaf (air)']), (1e3*k_O3*data_krekling['June Cond'].where((np.log(data_krekling['PARo'])>photosynth_loglimit)))/gmax, ls='None', marker='x', label='Jun')
-ax71.plot((data_krekling['Tleaf (air).1']), (1e3*k_O3*data_krekling['Aug Cond'].where((np.log(data_krekling['PARo.1'])>photosynth_loglimit)))/gmax, ls='None', marker='+', color='red', label='Aug')
-ax71.plot((data_krekling['Tleaf (air).2']), (1e3*k_O3*data_krekling['Sept Cond'].where((np.log(data_krekling['PARo.2'])>photosynth_loglimit)))/gmax, ls='None', marker='.', color='blue', label='Sep')
+ax71.plot((data_krekling['Tleaf (air)']),
+          (1e3*k_O3*data_krekling['June Cond'].where((np.log(data_krekling['PARo'])>photosynth_loglimit)))/gmax,
+          ls='None', marker='x', label='Jun')
+ax71.plot((data_krekling['Tleaf (air).1']),
+          (1e3*k_O3*data_krekling['Aug Cond'].where((np.log(data_krekling['PARo.1'])>photosynth_loglimit)))/gmax,
+          ls='None', marker='+', color='red', label='Aug')
+ax71.plot((data_krekling['Tleaf (air).2']),
+          (1e3*k_O3*data_krekling['Sept Cond'].where((np.log(data_krekling['PARo.2'])>photosynth_loglimit)))/gmax,
+          ls='None', marker='.', color='blue', label='Sep')
 
 sample_temp = np.arange(0,50)
-ax71.plot(sample_temp, f_temp(sample_temp, 12, 0, 25), color='grey', ls='--', lw=5)
+ax71.plot(sample_temp, f_temp((sample_temp, fmin), 12., 0., 25.), color='grey', ls='--', lw=5)
 
-ax71.plot(sample_temp, f_temp(sample_temp, fit_params_temp[0], fit_params_temp[1], fit_params_temp[2]), color='orange', ls='--', lw=5)
-ax61.text(0.5, 0.9, "Fit\n alpha = %0.2E+/-%0.2E" % (Decimal(fit_params[0]),Decimal(cov_mat[0][0])), size='large', color='orange', transform=ax61.transAxes)
+ax71.plot(sample_temp, f_temp((sample_temp, fmin), fit_params_temp[0], fit_params_temp[1], fit_params_temp[2]), color='orange', ls='--', lw=5)
+ax71.text(0.5, 0.88, "Fit\n T_opt = %0.2E+/-%0.2E\n T_min = %0.2E+/-%0.2E\n T_max = %0.2E+/-%0.2E" % (Decimal(fit_params_temp[0]),Decimal(cov_mat_temp[0][0]), Decimal(fit_params_temp[1]),Decimal(cov_mat_temp[1][1]), Decimal(fit_params_temp[2]),Decimal(cov_mat_temp[2][2])), size='large', color='orange', transform=ax61.transAxes)
+
+ax71.text(0.5, 0.76, "Guess\n T_opt = %d\n T_min = %d\n T_max = %d" % (12, 0, 25), size='large', color='grey', transform=ax61.transAxes)
 
 
 ax71.set_xlabel("T $(^\circ C)$")
@@ -104,6 +112,35 @@ ax71.set_ylabel("$g_{sto}^{rel}$")
 ax71.legend()
 
 ax71.set_xlim(0, 50)
+
+
+fig8 = plt.figure(8)
+fig8.canvas.set_window_title("svanvik_krekling_f_vpd")
+ax81 = plt.subplot()
+ax81.plot(VPD(data_krekling['RH_R'], data_krekling['Tleaf (air)'], version='buck')/kilo,
+          (1e3*k_O3*data_krekling['June Cond'].where((np.log(data_krekling['PARo'])>photosynth_loglimit)))/gmax,
+           ls='None', marker='x', label='Jun')
+ax81.plot(VPD(data_krekling['RH_R.1'], data_krekling['Tleaf (air).1'], version='buck')/kilo,
+          (1e3*k_O3*data_krekling['Aug Cond'].where((np.log(data_krekling['PARo.1'])>photosynth_loglimit)))/gmax,
+          ls='None', marker='+', color='red', label='Aug')
+ax81.plot(VPD(data_krekling['RH_R.2'], data_krekling['Tleaf (air).2'], version='buck')/kilo,
+          (1e3*k_O3*data_krekling['Sept Cond'].where((np.log(data_krekling['PARo.2'])>photosynth_loglimit)))/gmax,
+          ls='None', marker='.', color='blue', label='Sep')
+
+sample_temp = np.arange(0,5)
+#ax81.plot(sample_temp, f_temp((sample_temp, fmin), 12., 0., 25.), color='grey', ls='--', lw=5)
+
+#ax81.plot(sample_temp, f_temp((sample_temp, fmin), fit_params_temp[0], fit_params_temp[1], fit_params_temp[2]), color='orange', ls='--', lw=5)
+#ax81.text(0.5, 0.88, "Fit\n T_opt = %0.2E+/-%0.2E\n T_min = %0.2E+/-%0.2E\n T_max = %0.2E+/-%0.2E" % (Decimal(fit_params_temp[0]),Decimal(cov_mat_temp[0][0]), Decimal(fit_params_temp[1]),Decimal(cov_mat_temp[1][1]), Decimal(fit_params_temp[2]),Decimal(cov_mat_temp[2][2])), size='large', color='orange', transform=ax61.transAxes)
+
+#ax81.text(0.5, 0.76, "Guess\n T_opt = %d\n T_min = %d\n T_max = %d" % (12, 0, 25), size='large', color='grey', transform=ax61.transAxes)
+
+
+ax81.set_xlabel("VPD $(kPa)$")
+ax81.set_ylabel("$g_{sto}^{rel}$")
+ax81.legend()
+
+ax81.set_xlim(0, 5)
 
 # Show it
 plt.show(block=False)
