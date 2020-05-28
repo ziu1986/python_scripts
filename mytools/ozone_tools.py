@@ -158,7 +158,7 @@ def compute_climatology(data, **karg):
     return(clim_ozone, clim_ozone_std, clim_ozone_stderr)
 
 
-def flunder(x, **kwarg):
+def flunder(x, **karg):
     '''
     Flatten any kind of list of lists, numpy.arrays, and numbers.
     Parameters
@@ -172,7 +172,7 @@ def flunder(x, **kwarg):
     Flat numpy array.
     '''
     import numpy as np
-    verbose = kwarg.pop('verbose', False)
+    verbose = karg.pop('verbose', False)
     result = []
     for elem in x:
         try:
@@ -308,4 +308,64 @@ def compute_column_density(press, atm_var, **kargs):
     return atm_new
 
 
+def vapor_press(temperature, **karg):
+    '''
+    Compute water vapor pressure in air.
+    Parameters:
+    -----------
+    temperature : float
+        The air temperature in deg C.
+    Keyword arguments:
+    ------------------
+    version : string
+      Optionsn:
+        - buck (Buck, 1981)
+        - campbell (Campbell & Norman, 2000)
+    Returns:
+    --------
+    press : float
+        Satuation water vapor pressure in Pa
+    '''
+    import numpy as np
+    
+    version = karg.pop("version", "buck")
+
+    if version == 'buck':
+        coeff_a =   0.61121 # kPa
+        coeff_b =  18.678   # deg C
+        coeff_c = 234.5     # deg C
+        coeff_d = 257.14    # deg C
+        press = coeff_a * np.exp((coeff_b-temperature/coeff_c)*(temperature/(coeff_d+temperature)))
+    elif version == 'campbell':
+        coeff_a =   0.611   # kPa
+        coeff_b =  17.502   # 1
+        coeff_c = 240.97    # deg C
+        press = coeff_a * np.exp(coeff_b*temperature / (temperature+coeff_c))
+    # Return saturation water vapor pressure in Pa
+    return(press*1e3)
+
+def VPD(relhum, temperature, **karg):
+    '''
+    Compute water vapor pressure deficite.
+    Parameters:
+    -----------
+    relhum : float
+        Relative humidity in procent
+    temperature : float
+        Temperature in deg C
+    Keyword arguments:
+    ------------------
+    version : string
+    Optionsn:
+        - buck (Buck, 1981)
+        - campbell (Campbell & Norman, 2000)
+    Returns:
+    --------
+    vpd : float
+        water vapor pressure devicite in Pa
+    '''
+    Ps = vapor_press(temperature, **karg)
+    vpd = Ps * (1-relhum/100)
+    # Return VPD in Pa
+    return(vpd)
 
