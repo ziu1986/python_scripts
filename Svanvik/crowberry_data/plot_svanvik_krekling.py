@@ -31,6 +31,11 @@ ax21.plot(data_krekling['HHMMSS'], (data_krekling['June Photo']), ls='None', mar
 ax21.plot(data_krekling['HHMMSS.1'], (data_krekling['Aug Photo']), ls='None', marker='+', color='red', label='Aug')
 ax21.plot(data_krekling['HHMMSS.2'], (data_krekling['Sept Photo']), ls='None', marker='.', color='blue', label='Sep')
 
+ax21.plot(data_krekling['HHMMSS'], A_net_o3_month['Jun'], ls='None', marker='o', fillstyle='none', markersize=10, label='_')
+ax21.plot(data_krekling['HHMMSS.1'], A_net_o3_month['Aug'], ls='None', marker='o', fillstyle='none', markersize=10, color='red', label='_')
+ax21.plot(data_krekling['HHMMSS.2'], A_net_o3_month['Sep'], ls='None', marker='o', fillstyle='none', markersize=10, color='blue', label='_')
+
+
 ax21.set_ylabel("$A_{net}$ $(mol\,m^{-2}\,s^{-1}\,g^{-1})$")
 ax21.set_xlabel("Time")
 
@@ -38,6 +43,11 @@ ax22 = plt.subplot(222)
 ax22.plot(data_krekling['HHMMSS'], (1e3*k_O3*data_krekling['June Cond']), ls='None', marker='x', label='Jun')
 ax22.plot(data_krekling['HHMMSS.1'], (1e3*k_O3*data_krekling['Aug Cond']), ls='None', marker='+', color='red', label='Aug')
 ax22.plot(data_krekling['HHMMSS.2'], (1e3*k_O3*data_krekling['Sept Cond']), ls='None', marker='.', color='blue', label='Sep')
+
+ax22.plot(data_krekling['HHMMSS'], g_sto_o3_month['Jun'], ls='None', marker='o', fillstyle='none', markersize=10, label='_')
+ax22.plot(data_krekling['HHMMSS.1'], g_sto_o3_month['Aug'], ls='None', marker='o', fillstyle='none', markersize=10, color='red', label='_')
+ax22.plot(data_krekling['HHMMSS.2'], g_sto_o3_month['Sep'], ls='None', marker='o', fillstyle='none', markersize=10, color='blue', label='_')
+
 
 ax22.set_ylabel("$g_{sto}$ $(mmol\,m^{-2}\,s^{-1}\,g^{-1})$")
 ax22.set_xlabel("Time")
@@ -105,6 +115,29 @@ ax41.set_ylabel("VPD $(kPa)$")
 ax41.set_zlabel("$g_{sto}^{rel}$")
 
 ax41.legend()
+
+fig5 = plt.figure(5)
+fig5.canvas.set_window_title("svanvik_krekling_3d_ppfd_relhum")
+ax51 = plt.subplot(projection='3d')
+ax51.scatter((data_krekling['PARo']),
+             data_krekling['RH_R'],
+             g_sto_o3_month['Jun']/gmax,
+             marker='x', label='Jun')
+ax51.scatter((data_krekling['PARo.1']),
+             data_krekling['RH_R.1'],
+             g_sto_o3_month['Aug']/gmax,
+             marker='+', color='red', label='Aug')
+ax51.scatter((data_krekling['PARo.2']),
+             data_krekling['RH_R.2'],
+             g_sto_o3_month['Sep']/gmax,
+             marker='o', color='blue', label='Sep')
+
+ax51.set_xlabel("PAR $(\mu\,mol\,m^{-2}\,s^{-1})$")
+ax51.set_ylabel("RelHum $(\%)$")
+ax51.set_zlabel("$g_{sto}^{rel}$")
+
+ax51.legend()
+
 ##
 
 fig6 = plt.figure(6)

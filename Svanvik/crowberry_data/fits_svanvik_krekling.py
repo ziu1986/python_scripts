@@ -92,6 +92,11 @@ fmin = g_sto_o3.min()/gmax
 print("gmax = %3.2f mu mol O_3 m^-2 s^-1 kg^-1" % gmax )
 print("fmin = %3.2f" % fmin )
 
+A_net_o3_month = {"Jun":(data_krekling['June Photo'].where(np.log(data_krekling['PARo'])>photosynth_loglimit)),
+                  "Aug":(data_krekling['Aug Photo'].where(np.log(data_krekling['PARo.1'])>photosynth_loglimit)),
+                  "Sep":(data_krekling['Sept Photo'].where(np.log(data_krekling['PARo.2'])>photosynth_loglimit))}
+
+
 from scipy.optimize import curve_fit
 
 # f_light
