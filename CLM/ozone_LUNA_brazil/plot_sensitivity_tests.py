@@ -56,7 +56,7 @@ def plot_data(fig, data, iter_data, **karg):
         ax4.set_ylabel("$\Delta_{0.8, 100} V_{cmax}$ ($\mu mol m^{-2}s^{-1}$)")
     else:
         for ax in fig.axes:
-            ax.set_yscale('symlog', linthreshy=1e-16)
+            ax.set_yscale('symlog', linthreshy=1e-9)
 
         ax1.set_ylabel("$\Delta_{0.8, 100} G_{sto}$ (%)")
         ax2.set_ylabel("$\Delta_{0.8, 100} A_{n}$ (%)")
@@ -73,47 +73,56 @@ plt.close("all")
 
 # Source
 ref_data_src = os.environ['PY_SCRIPTS'] + '/plant_model/test.cvs'
-run_archive = os.environ['CESM_RUN'] + '/archive/'
+try:
+    run_archive = os.environ['CESM_RUN'] + '/archive/'
+except KeyError:
+    run_archive = os.environ['DATA'] + '/astra_data/clm_results/'
+    
 land_hist = '/lnd/hist/*.clm2.h0.*.nc'
 case = ('brazil_2000_ozone_luna_100', 'brazil_2000_ozone_luna_100_thresh_', 'brazil_2000_ozone_luna_')
 threshold = (0.8, 0.0, 0.05, 0.1, 0.15, 0.2, 0.4, 0.6, 0.7, 0.85, 0.9, 1, 2, 3, 4, 5)
 threshold_2 = (0.8, 0, 0.2, 0.5, 1, 2, 3, 4, 5)
 ozone = (100, 0, 40, 60, 80)
 ozone_deep = np.arange(42, 60, 2)
-ozone_deep.put(0,100)
 
 # Load data
 ref_data = pd.read_csv(ref_data_src)
 
-brazil_test = {}
-brazil_test_40 = {}
-brazil_test_ozone = {}
-brazil_test_ozone_deep = {}
-brazil_ref_ozone = {}
-# Load reference simulation
-brazil_src = run_archive + case[0] + land_hist
-brazil_test.update({threshold[0]:load_data(brazil_src)})
-brazil_test_40.update({threshold[0]:load_data(brazil_src.replace('100', '40'))})
-brazil_test_ozone.update({ozone[0]:load_data(brazil_src)})
-brazil_test_ozone.update({ozone[1]:load_data(brazil_src.replace('_ozone_luna_100', ''))})
-brazil_ref_ozone.update({ozone[0]:load_data(brazil_src.replace('_luna_100', ''))})
-brazil_ref_ozone.update({ozone[1]:load_data(brazil_src.replace('_ozone_luna_100', ''))})
+try:
+    brazil_test
+except NameError:
 
-# Load sensitivity tests
-for ithresh in threshold[1:]:
-    brazil_src = run_archive + case[1] + "%s" % ithresh + land_hist
-    brazil_test.update({ithresh:load_data(brazil_src)})
-for ithresh in threshold_2[1:]:
-    brazil_src = run_archive + case[1] + "%s" % ithresh + land_hist
-    brazil_test_40.update({ithresh:load_data(brazil_src.replace('100', '40'))})
+    brazil_test = {}
+    brazil_test_40 = {}
+    brazil_test_ozone = {}
+    brazil_test_ozone_deep = {}
+    brazil_ref_ozone = {}
+    # Load reference simulation
+    brazil_src = run_archive + case[0] + land_hist
+    brazil_test.update({threshold[0]:load_data(brazil_src)})
+    brazil_test_40.update({threshold[0]:load_data(brazil_src.replace('100', '40'))})
+    brazil_test_ozone.update({ozone[0]:load_data(brazil_src)})
+    brazil_test_ozone.update({ozone[1]:load_data(brazil_src.replace('_ozone_luna_100', ''))})
+    brazil_ref_ozone.update({ozone[0]:load_data(brazil_src.replace('_luna_100', ''))})
+    brazil_ref_ozone.update({ozone[1]:load_data(brazil_src.replace('_ozone_luna_100', ''))})
 
-for iozone in ozone[2:]:
-    brazil_src = run_archive + case[2] + "%s" % iozone + land_hist
-    brazil_test_ozone.update({iozone:load_data(brazil_src)})
-    brazil_ref_ozone.update({iozone:load_data(brazil_src.replace('luna_',''))})
-for iozone in ozone_deep:
-    brazil_src = run_archive + case[2] + "%s" % iozone + land_hist
-    brazil_test_ozone_deep.update({iozone:load_data(brazil_src)})
+    # Load sensitivity tests
+    for ithresh in threshold[1:]:
+        brazil_src = run_archive + case[1] + "%s" % ithresh + land_hist
+        brazil_test.update({ithresh:load_data(brazil_src)})
+    for ithresh in threshold_2[1:]:
+        brazil_src = run_archive + case[1] + "%s" % ithresh + land_hist
+        brazil_test_40.update({ithresh:load_data(brazil_src.replace('100', '40'))})
+
+    for iozone in ozone[2:]:
+        brazil_src = run_archive + case[2] + "%s" % iozone + land_hist
+        brazil_test_ozone.update({iozone:load_data(brazil_src)})
+        brazil_ref_ozone.update({iozone:load_data(brazil_src.replace('luna_',''))})
+    for iozone in ozone_deep:
+        brazil_src = run_archive + case[2] + "%s" % iozone + land_hist
+        brazil_test_ozone_deep.update({iozone:load_data(brazil_src)})
+# Merge fine reolution scan ozone deep
+brazil_test_ozone.update(brazil_test_ozone_deep)
 
 # Plot it
 fig1 = plt.figure(1,figsize=(16,9))
@@ -130,9 +139,9 @@ for ax in fig1.axes:
 
 fig2 = plt.figure(2,figsize=(16,9))
 fig2.canvas.set_window_title("ozone_sensitivity")
-plot_data(fig2, brazil_test_ozone, ozone, label=' - OzoneLunaMod', mode='ozone')
+plot_data(fig2, brazil_test_ozone, np.append(ozone, ozone_deep), label=' - OzoneLunaMod', mode='ozone')
 plot_data(fig2, brazil_ref_ozone, ozone, label=' - OzoneMod', mode='ozone', color='black', marker='s')
-plot_data(fig2, brazil_test_ozone_deep, ozone_deep, label=' - OzoneLunaMod', mode='ozone')
+#plot_data(fig2, brazil_test_ozone_deep, ozone_deep, label=' - OzoneLunaMod', mode='ozone')
 
 for ax in fig2.axes:
     handles, labels = ax.get_legend_handles_labels()
@@ -155,9 +164,9 @@ for ax in fig3.axes:
 
 fig4 = plt.figure(4,figsize=(16,9))
 fig4.canvas.set_window_title("ozone_sensitivity_rel")
-plot_data(fig4, brazil_test_ozone, ozone, label=' - OzoneLunaMod', mode='ozone', scale='rel')
-plot_data(fig4, brazil_ref_ozone, ozone, label=' - OzoneMod', mode='ozone', color='black', marker='s', scale='rel')
-plot_data(fig4, brazil_test_ozone_deep, ozone_deep, label=' - OzoneLunaMod', mode='ozone', scale='rel')
+plot_data(fig4, brazil_test_ozone, np.append(ozone, ozone_deep), label=' - OzoneLunaMod', mode='ozone', scale='rel', compare_index=1)
+plot_data(fig4, brazil_ref_ozone, ozone, label=' - OzoneMod', mode='ozone', color='black', marker='s', scale='rel', compare_index=1)
+#plot_data(fig4, brazil_test_ozone_deep, ozone_deep, label=' - OzoneLunaMod', mode='ozone', scale='rel', compare_index=1)
 
 for ax in fig4.axes:
     handles, labels = ax.get_legend_handles_labels()
@@ -165,6 +174,12 @@ for ax in fig4.axes:
     handles_new = [handles[i] for i in np.unique(labels, return_index=True)[1]]
     ax.legend(handles_new, labels_new, ncol=2, loc='center right')
 
+
+# 3D plot
+#from mpl_toolkits.mplot3d import Axes3D # Register 3d projection
+#fig5 = plt.figure(5)
+#fig5.canvas.set_window_title("ozone_sensitivity_rel_3d")
+#ax51 = plt.subplot(projection='3d')
 
 
 # Show it
