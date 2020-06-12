@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from mytools.met_tools import print_all
 from mytools.netcdf_tools import *
-from mytools.ozone_tools import VPD
+from mytools.ozone_tools import VPD, dew_point
 
 # The source data
 src = os.environ['DATA']+'/astra_data/observations/krekling_svanvik/Krekling juni aug sept 2019 Photo og Cond.xlsx'

@@ -222,5 +222,12 @@ ax81.legend()
 
 ax81.set_xlim(0, 5)
 
+fig9 = plt.figure(9)
+ax91 = plt.subplot()
+
+ax91.hist(temp-dew_point(relHum, temp))
+ax91.set_xlabel("$T_{dp} - T_{leaf}$")
+ax91.set_ylabel("Counts")
+
 # Show it
 plt.show(block=False)

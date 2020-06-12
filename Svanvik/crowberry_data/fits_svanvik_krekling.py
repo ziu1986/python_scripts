@@ -70,16 +70,19 @@ def f_vpd(M, VPDmax, VPDmin):
     return(gs)
     
 
-# gsto 
-
 photosynth_loglimit = 4
+dew_point_limit = 5.5
 
+# gsto 
 g_sto_o3 = np.concatenate(((1e3*k_O3*data_krekling['June Cond']).where(np.log(data_krekling['PARo'])>photosynth_loglimit).dropna().values,(1e3*k_O3*data_krekling['Aug Cond']).where(np.log(data_krekling['PARo.1'])>photosynth_loglimit).dropna().values,(1e3*k_O3*data_krekling['Sept Cond']).where(np.log(data_krekling['PARo.2'])>photosynth_loglimit).dropna().values))
 x_sample, pdf, fit, stat = fit_skew_normal(g_sto_o3)
 
-g_sto_o3_month = {"Jun":(1e3*k_O3*data_krekling['June Cond'].where(np.log(data_krekling['PARo'])>photosynth_loglimit)),
-                  "Aug":(1e3*k_O3*data_krekling['Aug Cond'].where(np.log(data_krekling['PARo.1'])>photosynth_loglimit)),
-                  "Sep":(1e3*k_O3*data_krekling['Sept Cond'].where(np.log(data_krekling['PARo.2'])>photosynth_loglimit))}
+g_sto_o3_month = {"Jun":(1e3*k_O3*data_krekling['June Cond'].where((np.log(data_krekling['PARo'])>photosynth_loglimit) &
+                                                                   (data_krekling['Tleaf (air)']-dew_point(data_krekling['RH_R'],data_krekling['Tleaf (air)'])>dew_point_limit))),
+                  "Aug":(1e3*k_O3*data_krekling['Aug Cond'].where((np.log(data_krekling['PARo.1'])>photosynth_loglimit) &
+                                                                  (data_krekling['Tleaf (air).1']-dew_point(data_krekling['RH_R.1'],data_krekling['Tleaf (air).1'])>dew_point_limit))),
+                  "Sep":(1e3*k_O3*data_krekling['Sept Cond'].where((np.log(data_krekling['PARo.2'])>photosynth_loglimit) &
+                                                                   (data_krekling['Tleaf (air).2']-dew_point(data_krekling['RH_R.2'],data_krekling['Tleaf (air).2'])>dew_point_limit)))}
 fit_results_month = {}
 for imonth in ('Jun', 'Aug', 'Sep'):
     x_sample_month, pdf_month, fit_month, stat_month = fit_skew_normal(g_sto_o3_month[imonth].dropna().values)
@@ -92,9 +95,12 @@ fmin = g_sto_o3.min()/gmax
 print("gmax = %3.2f mu mol O_3 m^-2 s^-1 kg^-1" % gmax )
 print("fmin = %3.2f" % fmin )
 
-A_net_o3_month = {"Jun":(data_krekling['June Photo'].where(np.log(data_krekling['PARo'])>photosynth_loglimit)),
-                  "Aug":(data_krekling['Aug Photo'].where(np.log(data_krekling['PARo.1'])>photosynth_loglimit)),
-                  "Sep":(data_krekling['Sept Photo'].where(np.log(data_krekling['PARo.2'])>photosynth_loglimit))}
+A_net_o3_month = {"Jun":(data_krekling['June Photo'].where((np.log(data_krekling['PARo'])>photosynth_loglimit) &
+                                                           (data_krekling['Tleaf (air)']-dew_point(data_krekling['RH_R'],data_krekling['Tleaf (air)'])>dew_point_limit))),
+                  "Aug":(data_krekling['Aug Photo'].where((np.log(data_krekling['PARo.1'])>photosynth_loglimit) &
+                                                          (data_krekling['Tleaf (air).1']-dew_point(data_krekling['RH_R.1'],data_krekling['Tleaf (air).1'])>dew_point_limit))),
+                  "Sep":(data_krekling['Sept Photo'].where((np.log(data_krekling['PARo.2'])>photosynth_loglimit) &
+                                                           (data_krekling['Tleaf (air).2']-dew_point(data_krekling['RH_R.2'],data_krekling['Tleaf (air).2'])>dew_point_limit)))}
 
 
 from scipy.optimize import curve_fit
