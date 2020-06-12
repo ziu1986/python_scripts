@@ -310,7 +310,7 @@ def compute_column_density(press, atm_var, **kargs):
 
 def vapor_press(temperature, **karg):
     '''
-    Compute water vapor pressure in air.
+    Compute satuation water vapor pressure in air.
     Parameters:
     -----------
     temperature : float
@@ -318,7 +318,7 @@ def vapor_press(temperature, **karg):
     Keyword arguments:
     ------------------
     version : string
-      Optionsn:
+      Options:
         - buck (Buck, 1981)
         - campbell (Campbell & Norman, 2000)
     Returns:
@@ -369,3 +369,43 @@ def VPD(relhum, temperature, **karg):
     # Return VPD in Pa
     return(vpd)
 
+def dew_point(relhum, temperature, **karg):
+    '''
+    Compute dew point temperature in air.
+    Parameters:
+    -----------
+    temperature : float
+        The air temperature in deg C.
+    relhum : float
+        The relative humidity in range (0-100].
+    Keyword arguments:
+    ------------------
+    version : string
+      Options:
+        - buck (Buck, 1981)
+        - campbell (Campbell & Norman, 2000)
+    Returns:
+    --------
+    Tdp : float
+        Dew point temperature in degC.
+    '''
+    import numpy as np
+    
+    version = karg.pop("version", "buck")
+
+    if version == 'buck':
+        coeff_a =   0.61121 # kPa
+        coeff_b =  18.678   # deg C
+        coeff_c = 234.5     # deg C
+        coeff_d = 257.14    # deg C
+        press = coeff_a * np.exp((coeff_b-temperature/coeff_c)*(temperature/(coeff_d+temperature)))
+    elif version == 'campbell':
+        coeff_a =   0.611   # kPa
+        coeff_b =  17.502   # 1
+        coeff_c = 240.97    # deg C
+        press = coeff_a * np.exp(coeff_b*temperature / (temperature+coeff_c))
+
+    gamma_m = np.log(relhum/float(100)*press/coeff_a)
+    Tdp = coeff_c*gamma_m/(coeff_b - gamma_m)
+    # Return return the dew point temperature in degC.
+    return(Tdp)
