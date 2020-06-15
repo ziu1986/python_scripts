@@ -92,7 +92,7 @@ nyears = 20 #(20, 11)
 start = '0001' #('0411','0111')
 postAD = False
 
-src = basedir + '/' + subdir1[1] + '/' + case[-1] + '/' + subdir2[subdir1[1]] + filename
+src = basedir + '/' + subdir1[1] + '/' + case[-2] + '/' + subdir2[subdir1[1]] + filename
 
 data_list = []
 data_list_ozone = []
@@ -147,13 +147,17 @@ ax16.set_frame_on(False)
 
 
 ypos = 1
+outfile = open(file[file.rfind('/')+1:file.find('h0')+2]+".dat", 'w')
+
 for each in ('GPP','NPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"):
     
     ypos = ypos-0.1
     max_date, equi_value = equi_state(data[each],ncycle=nyears, final=postAD, start=start)
     if max_date:
-        print("%s \t %s \t %s " % (each, str(max_date)[:4], equi_value))
+        print("%s \t %s \t %s " % (each, str(max_date)[:4], equi_value), file=outfile)
+
         ax16.text(0.,ypos,"%s - %s - %s" % (each, str(max_date)[:4], equi_value))
+        
         if ((each == 'GPP') or (each == 'NPP')):
             ax11.axhline(equi_value, ls=':', color='grey')
         elif each == 'TLAI':
@@ -190,7 +194,7 @@ if ozone_luna:
     ax24.set_frame_on(False)
 
     
-
+outfile.close()
         
 # Show it
 plt.show(block=False)
