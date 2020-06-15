@@ -69,11 +69,13 @@ ax62 = plt.subplot(222)
 ax63 = plt.subplot(223)
 ax64 = plt.subplot(224)
 
-fig7 = plt.figure(7)
+fig7 = plt.figure(7, figsize=(10,8))
 fig7.canvas.set_window_title("plot_brazil_test_jmax_vs_vcmax")
 ax71 = plt.subplot()
+marker = ('o', '+', 'x', 'o', '+', 'x')
 
-for icase in case:
+
+for icase, imarker in zip(case, marker):
     # Fig1
     brazil_test[icase]['GSSHA'].groupby('time.dayofyear').mean().plot(ax=ax11, label='%s' % (icase))
     plot_error_bands(ax11, np.arange(1,366), (brazil_test[icase]['GSSHA']).groupby('time.dayofyear').mean().values.flatten(), error=(brazil_test[icase]['GSSHA']).groupby('time.dayofyear').std().values.flatten(), color=ax11.lines[-1].get_color(), label='%s' % (icase))
@@ -170,9 +172,9 @@ for icase in case:
         ax.set_xlabel("Time (days of year)")
         
     # Fig 7
-    ax71.scatter((brazil_test[icase]['Jmx25Z']/brazil_test[case[0]]['Jmx25Z']).values,
+    ax71.plot((brazil_test[icase]['Jmx25Z']/brazil_test[case[0]]['Jmx25Z']).values,
                  (brazil_test[icase]['Vcmx25Z']/brazil_test[case[0]]['Vcmx25Z']).values, 
-                 marker='x', label='%s' % (icase))
+                 marker=imarker, label='%s' % (icase), fillstyle='none', ls='')
 
 # Referance data
 ax71.errorbar(ref_data['Jmax_ratio'], ref_data['Vcmax_ratio'], xerr=ref_data['Jmax_ratio_std'], yerr=ref_data['Vcmax_ratio_std'], ls='None', color='black', label='Ref. data')
@@ -183,12 +185,19 @@ def poly_origin(x, m):
     Line through origin
     '''
     return(m*x)
+
+def poly(x, m, b):
+    '''
+    Line fit
+    '''
+    return(m*x+b)
+
 for icase in case:
-    popt, pcov = curve_fit(poly_origin, 
+    popt, pcov = curve_fit(poly, 
                            (brazil_test[icase]['Jmx25Z']/brazil_test[case[0]]['Jmx25Z']).values.flatten(),
                            (brazil_test[icase]['Vcmx25Z']/brazil_test[case[0]]['Vcmx25Z']).values.flatten(), 
-                           [1,])
-    print(icase, popt[0], pcov[0])
+                           [1,0])
+    print(icase, popt, pcov)
     #ax71.plot(np.arange(0,2.1,0.1), poly_origin(np.arange(0,2.1,0.1), *popt), label="fit %s" % icase)
 
 

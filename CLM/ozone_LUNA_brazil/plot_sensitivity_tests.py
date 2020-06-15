@@ -94,6 +94,9 @@ except NameError:
 
     brazil_test = {}
     brazil_test_40 = {}
+    brazil_test_20 = {}
+    brazil_test_60 = {}
+    brazil_test_80 = {}
     brazil_test_ozone = {}
     brazil_test_ozone_deep = {}
     brazil_ref_ozone = {}
@@ -113,6 +116,16 @@ except NameError:
     for ithresh in threshold_2[1:]:
         brazil_src = run_archive + case[1] + "%s" % ithresh + land_hist
         brazil_test_40.update({ithresh:load_data(brazil_src.replace('100', '40'))})
+    for ithresh in threshold_2[1:]:
+        brazil_src = run_archive + case[1] + "%s" % ithresh + land_hist
+        brazil_test_20.update({ithresh:load_data(brazil_src.replace('100', '20'))})
+    for ithresh in threshold_2[1:]:
+        brazil_src = run_archive + case[1] + "%s" % ithresh + land_hist
+        brazil_test_60.update({ithresh:load_data(brazil_src.replace('100', '60'))})
+    for ithresh in threshold_2[1:]:
+        brazil_src = run_archive + case[1] + "%s" % ithresh + land_hist
+        brazil_test_80.update({ithresh:load_data(brazil_src.replace('100', '80'))})
+
 
     for iozone in ozone[2:]:
         brazil_src = run_archive + case[2] + "%s" % iozone + land_hist
