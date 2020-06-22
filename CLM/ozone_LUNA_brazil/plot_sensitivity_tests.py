@@ -12,6 +12,7 @@ def plot_data(fig, data, iter_data, **karg):
     # option: abs, rel
     scale = karg.pop('scale', 'abs')
     comp_idx = karg.pop('compare_index', 0)
+    b_3d = karg.pop('3d', False)
     # Plot adjustments
     label = karg.pop('label', '')
     color = karg.pop('color', 'blue')
@@ -104,6 +105,9 @@ except NameError:
     brazil_src = run_archive + case[0] + land_hist
     brazil_test.update({threshold[0]:load_data(brazil_src)})
     brazil_test_40.update({threshold[0]:load_data(brazil_src.replace('100', '40'))})
+    brazil_test_20.update({threshold[0]:load_data(brazil_src.replace('100', '20'))})
+    brazil_test_60.update({threshold[0]:load_data(brazil_src.replace('100', '60'))})
+    brazil_test_80.update({threshold[0]:load_data(brazil_src.replace('100', '80'))})
     brazil_test_ozone.update({ozone[0]:load_data(brazil_src)})
     brazil_test_ozone.update({ozone[1]:load_data(brazil_src.replace('_ozone_luna_100', ''))})
     brazil_ref_ozone.update({ozone[0]:load_data(brazil_src.replace('_luna_100', ''))})
@@ -140,8 +144,11 @@ brazil_test_ozone.update(brazil_test_ozone_deep)
 # Plot it
 fig1 = plt.figure(1,figsize=(16,9))
 fig1.canvas.set_window_title("ozone_threshold_sensitivity")
-plot_data(fig1, brazil_test, threshold, compare_index=1)
+plot_data(fig1, brazil_test, threshold, label='_100', compare_index=1)
 plot_data(fig1, brazil_test_40, threshold_2, label='_40', color='black', marker='s', compare_index=1)
+plot_data(fig1, brazil_test_20, threshold_2, label='_20', color='black', marker='d', compare_index=1)
+plot_data(fig1, brazil_test_60, threshold_2, label='_60', color='black', marker='^', compare_index=1)
+plot_data(fig1, brazil_test_80, threshold_2, label='_80', color='black', marker='v', compare_index=1)
 
 for ax in fig1.axes:
     handles, labels = ax.get_legend_handles_labels()
@@ -165,8 +172,11 @@ for ax in fig2.axes:
 
 fig3 = plt.figure(3,figsize=(16,9))
 fig3.canvas.set_window_title("ozone_threshold_sensitivity_rel")
-plot_data(fig3, brazil_test, threshold, scale='rel', compare_index=1)
+plot_data(fig3, brazil_test, threshold, label='_100', scale='rel', compare_index=1)
 plot_data(fig3, brazil_test_40, threshold_2, label='_40', color='black', marker='s', scale='rel', compare_index=1)
+plot_data(fig3, brazil_test_20, threshold_2, label='_20', color='black', marker='d', scale='rel', compare_index=1)
+plot_data(fig3, brazil_test_60, threshold_2, label='_60', color='black', marker='^', scale='rel', compare_index=1)
+plot_data(fig3, brazil_test_80, threshold_2, label='_80', color='black', marker='v', scale='rel', compare_index=1)
 
 for ax in fig3.axes:
     handles, labels = ax.get_legend_handles_labels()
@@ -189,11 +199,33 @@ for ax in fig4.axes:
 
 
 # 3D plot
-#from mpl_toolkits.mplot3d import Axes3D # Register 3d projection
-#fig5 = plt.figure(5)
-#fig5.canvas.set_window_title("ozone_sensitivity_rel_3d")
-#ax51 = plt.subplot(projection='3d')
+from mpl_toolkits.mplot3d import Axes3D # Register 3d projection
+import matplotlib as mpl
+fig5 = plt.figure(5)
+fig5.canvas.set_window_title("ozone_sensitivity_rel_3d")
+ax51 = plt.subplot(projection='3d')
+cmap = plt.cm.get_cmap('hot')
+norm = mpl.colors.Normalize(vmin=np.log(brazil_test[0].mean()['GSSUN']), vmax=np.log(brazil_ref_ozone[0].mean()['GSSUN']))
 
+for ithresh in threshold:
+    z = cmap(norm(np.log(brazil_test[ithresh]['GSSUN'].mean())))
+    ax51.scatter(ithresh, 100, np.log(brazil_test[ithresh]['GSSUN'].mean()),cmap='hot',c=z)
+for ithresh in threshold_2:
+    z = cmap(norm(np.log(brazil_test_20[ithresh]['GSSUN'].mean())))
+    ax51.scatter(ithresh, 20, np.log(brazil_test_20[ithresh]['GSSUN'].mean()), marker='d', cmap='hot',c=z)
+    z = cmap(norm(np.log(brazil_test_40[ithresh]['GSSUN'].mean())))
+    ax51.scatter(ithresh, 40, np.log(brazil_test_40[ithresh]['GSSUN'].mean()), marker='s', cmap='hot',c=z)    
+    z = cmap(norm(np.log(brazil_test_60[ithresh]['GSSUN'].mean())))
+    ax51.scatter(ithresh, 60, np.log(brazil_test_60[ithresh]['GSSUN'].mean()), marker='^', cmap='hot',c=z)
+    z = cmap(norm(np.log(brazil_test_80[ithresh]['GSSUN'].mean())))
+    ax51.scatter(ithresh, 80, np.log(brazil_test_80[ithresh]['GSSUN'].mean()), marker='v', cmap='hot',c=z)
 
+z = cmap(norm(np.log(brazil_ref_ozone[0]['GSSUN'].mean())))
+ax51.scatter(0,0, np.log(brazil_ref_ozone[0]['GSSUN'].mean()), marker='*', c=z)
+
+#ax51.set_zscale('log')
+ax51.set_xlabel("$O_3^{threshold}$ (nmol $m^{-2} s^{-1}$)")
+ax51.set_ylabel("$[O_3]$ (ppb)")
+ax51.set_zlabel("$log(G_{sto})$ ($\mu mol H_20 m^{-2}s^{-1}$)")
 # Show it
 plt.show(block=False)
