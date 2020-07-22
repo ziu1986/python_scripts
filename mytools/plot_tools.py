@@ -90,6 +90,28 @@ def plot_month_name(ax, **kargs):
     ax.set_xlim(-1,366)
     ax.set_yticks(np.arange(0,25,6))
 
+def seconds_in_month(month, year):
+    import calendar
+    '''
+    Compute the corresponding seconds for a month.
+    Parameters
+    ----------
+    month : int
+        The month for which the seconds shall be computed.
+    year : int
+        The year for which the seconds shall be computed.
+        Takes leap years into account.
+    Keyword arguments
+    -----------------
+    none
+    Returns
+    -------
+    secondsinmonth : int
+        Seconds in the given month.
+    '''
+    nomatter, daysinmonth = calendar.monthrange(year, month)
+    return daysinmonth * 24 * 60 * 60
+
 from scipy.constants import *     # Get physics constants    
 
 def set_pressure_axis(ax, **kargs):
