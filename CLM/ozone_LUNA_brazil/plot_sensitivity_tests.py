@@ -69,38 +69,129 @@ def plot_data(fig, data, iter_data, **karg):
     else:
         ax3.set_xlabel("$[O_3]$ (ppb)", x=1)
 
-# Clean up
-plt.close("all")
+# 3D plot
+def plot_3d(**karg):
+    from mpl_toolkits.mplot3d import Axes3D # Register 3d projection
+    import matplotlib as mpl
+    variable = karg.pop("variable", "GSSUN")
 
-# Source
-ref_data_src = os.environ['PY_SCRIPTS'] + '/plant_model/test.cvs'
-try:
-    run_archive = os.environ['CESM_RUN'] + '/archive/'
-except KeyError:
-    run_archive = os.environ['DATA'] + '/astra_data/clm_results/'
+    fig5 = plt.figure(5)
+    fig5.canvas.set_window_title("ozone_sensitivity_rel_3d_%s" % (variable))
+    ax51 = plt.subplot(projection='3d')
+    cmap = plt.cm.get_cmap('viridis')
+    #key_max = max(my_dict.keys(), key=(lambda k: my_dict[k]))
+    #key_min = min(my_dict.keys(), key=(lambda k: my_dict[k]))
+    z_data = []
+    x_data = []
+    y_data = []
+   
+    if variable == 'C:N':
+        for ithresh in threshold:
+            x_data.append(ithresh)
+            y_data.append(100)
+            z_data.append((brazil_test[ithresh]['TOTVEGC']/brazil_test[ithresh]['TOTVEGN']).mean().values)
+            
+        for ithresh in threshold_2:
+            x_data.append(ithresh)
+            y_data.append(20)
+            z_data.append((brazil_test_20[ithresh]['TOTVEGC']/brazil_test_20[ithresh]['TOTVEGN']).mean().values)
+        
+            x_data.append(ithresh)
+            y_data.append(40)
+            z_data.append((brazil_test_40[ithresh]['TOTVEGC']/brazil_test_20[ithresh]['TOTVEGN']).mean().values)
+        
+            x_data.append(ithresh)
+            y_data.append(60)
+            z_data.append((brazil_test_60[ithresh]['TOTVEGC']/brazil_test_20[ithresh]['TOTVEGN']).mean().values)   
+            x_data.append(ithresh)
+            y_data.append(80)
+            z_data.append((brazil_test_80[ithresh]['TOTVEGC']/brazil_test_20[ithresh]['TOTVEGN']).mean().values)
+        
+        x_data.append(0)
+        y_data.append(0)
+        z_data.append((brazil_ref_ozone[0]['TOTVEGC']/brazil_ref_ozone[0]['TOTVEGN']).mean().values)
+        # Define colormap norm
+        vmin = min(z_data)
+        vmax = max(z_data)
+        
+        norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+        z = cmap(norm(z_data[-1]))
+        #ax51.scatter(0,0, z_data[-1], c=z)
+
+    else:
+        vmin = min((np.log(brazil_test[0].mean()[variable]),np.log(brazil_test_20[5].mean()[variable])))
+        vmax = max((np.log(brazil_test[0].mean()[variable]),np.log(brazil_test_20[5].mean()[variable])))
+        norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+
+        for ithresh in threshold:
+            x_data.append(ithresh)
+            y_data.append(100)
+            #z_data.append(np.log(brazil_test[ithresh][variable].mean().values))
+            z_data.append((brazil_test[ithresh][variable].mean().values))
+            z = cmap(norm(np.log(z_data[-1])))
+            ax51.scatter(ithresh, 100, z_data[-1],cmap='viridis',c=z)
+        for ithresh in threshold_2:
+            x_data.append(ithresh)
+            y_data.append(20)
+            #z_data.append(np.log(brazil_test_20[ithresh][variable].mean().values))
+            z_data.append((brazil_test_20[ithresh][variable].mean().values))
+            z = cmap(norm(np.log(z_data[-1])))
+            ax51.scatter(ithresh, 20, z_data[-1], marker='d', cmap='viridis',c=z)
+            x_data.append(ithresh)
+            y_data.append(40)
+            #z_data.append(np.log(brazil_test_40[ithresh][variable].mean().values))
+            z_data.append((brazil_test_40[ithresh][variable].mean().values))
+            z = cmap(norm(np.log(z_data[-1])))
+            ax51.scatter(ithresh, 40, z_data[-1], marker='s', cmap='viridis',c=z) 
+            x_data.append(ithresh)
+            y_data.append(60)
+            #z_data.append(np.log(brazil_test_60[ithresh][variable].mean().values))   
+            z_data.append((brazil_test_60[ithresh][variable].mean().values))   
+            z = cmap(norm(np.log(z_data[-1])))
+            ax51.scatter(ithresh, 60, z_data[-1], marker='^', cmap='viridis',c=z)
+            x_data.append(ithresh)
+            y_data.append(80)
+            #z_data.append(np.log(brazil_test_80[ithresh][variable].mean().values))
+            z_data.append((brazil_test_80[ithresh][variable].mean().values))
+            z = cmap(norm(np.log(z_data[-1]))),
+            ax51.scatter(ithresh, 80, z_data[-1], marker='v', cmap='viridis',c=z)
+
+        x_data.append(0)
+        y_data.append(0)
+        #z_data.append(np.log(brazil_ref_ozone[0][variable].mean().values))
+        z_data.append((brazil_ref_ozone[0][variable].mean().values))
+        z = cmap(norm(np.log(z_data[-1])))
     
-land_hist = '/lnd/hist/*.clm2.h0.*.nc'
-case = ('brazil_2000_ozone_luna_100', 'brazil_2000_ozone_luna_100_thresh_', 'brazil_2000_ozone_luna_')
-threshold = (0.8, 0.0, 0.05, 0.1, 0.15, 0.2, 0.4, 0.6, 0.7, 0.85, 0.9, 1, 2, 3, 4, 5)
-threshold_2 = (0.8, 0, 0.2, 0.5, 1, 2, 3, 4, 5)
-ozone = (100, 0, 40, 60, 80)
-ozone_deep = np.arange(42, 60, 2)
+    ax51.scatter(threshold_2, np.array((0,)*len(threshold_2)), np.array((z_data[-1],)*len(threshold_2)), marker='*', c='black')
 
-# Load data
-ref_data = pd.read_csv(ref_data_src)
+    print("Min %s\n Max %s" %(vmin, vmax))
+    x_data_plot = np.array(x_data)[16:-1].reshape(len(threshold_2),4)
+    y_data_plot = np.array(y_data)[16:-1].reshape(len(threshold_2),4)
+    z_data_plot = np.array(z_data)[16:-1].reshape(len(threshold_2),4)
+    ax51.plot_wireframe(x_data_plot, y_data_plot, z_data_plot, color='grey')
+    #ax51.plot_surface(np.array(x_data)[16:-1].reshape(9,4), np.array(y_data)[16:-1].reshape(9,4), np.array(z_data)[16:-1].reshape(9,4), cmap='viridis', vmin=vmin, vmax=vmax)
+    #ax51.plot_surface(np.array(x_data)[:16], np.array(y_data)[:16], np.array(z_data)[:16], cmap='viridis', vmin=vmin, vmax=vmax)
+    
+    #ax51.set_zscale('log')
+    ax51.view_init(30, -170)
+    ax51.set_xlabel("$O_3^{threshold}$ (nmol $m^{-2} s^{-1}$)")
+    ax51.set_ylabel("$[O_3]$ (ppb)")
+    if variable.find('GS')>=0:
+        ax51.set_zlabel("$G_{sto}$ ($\mu mol H_20 m^{-2}s^{-1}$)")
+    elif variable.find('PSN')>=0:
+        ax51.set_zlabel("$A_{n}$ ($\mu molCO_2 m^{-2}s^{-1}$)")
+    elif variable.find("Jmx")>=0:
+        ax51.set_zlabel("$J_{max}$ ($\mu mol m^{-2}s^{-1}$)")
+    elif variable.find("Vcmx")>=0:
+        ax51.set_zlabel("$V_{cmax}$ ($\mu mol m^{-2}s^{-1}$)")
+    elif variable.find("TOTVEGC")>=0:
+        ax51.set_zlabel("$C_{tot}^{veg}$ ($g m^{-2}$)")
+    elif variable.find("TOTVEGN")>=0:
+        ax51.set_zlabel("$N_{tot}^{veg}$ ($g m^{-2}$)")
+    else:
+        ax51.set_zlabel('C:N')
 
-try:
-    brazil_test
-except NameError:
-
-    brazil_test = {}
-    brazil_test_40 = {}
-    brazil_test_20 = {}
-    brazil_test_60 = {}
-    brazil_test_80 = {}
-    brazil_test_ozone = {}
-    brazil_test_ozone_deep = {}
-    brazil_ref_ozone = {}
+def load_date():
     # Load reference simulation
     brazil_src = run_archive + case[0] + land_hist
     brazil_test.update({threshold[0]:load_data(brazil_src)})
@@ -138,8 +229,53 @@ except NameError:
     for iozone in ozone_deep:
         brazil_src = run_archive + case[2] + "%s" % iozone + land_hist
         brazil_test_ozone_deep.update({iozone:load_data(brazil_src)})
-# Merge fine reolution scan ozone deep
-brazil_test_ozone.update(brazil_test_ozone_deep)
+
+    # Merge fine resolution scan ozone deep
+    brazil_test_ozone.update(brazil_test_ozone_deep)
+
+def save_data():
+    for ithr in threshold:
+        brazil_test[ithr].groupby('time.month').mean().to_netcdf("brazil_100_%s.nc" % ithr)
+    for ithr in threshold_2:
+        brazil_test_40[ithr].groupby('time.month').mean().to_netcdf("brazil_40_%s.nc" % ithr)
+        brazil_test_20[ithr].groupby('time.month').mean().to_netcdf("brazil_20_%s.nc" % ithr)
+        brazil_test_60[ithr].groupby('time.month').mean().to_netcdf("brazil_60_%s.nc" % ithr)
+        brazil_test_80[ithr].groupby('time.month').mean().to_netcdf("brazil_80_%s.nc" % ithr)
+    for ioz in ozone:
+        brazil_ref_ozone[ioz].groupby('time.month').mean().to_netcdf("brazil_%s_ref.nc" % ioz)
+
+# Clean up
+plt.close("all")
+
+# Source
+ref_data_src = os.environ['PY_SCRIPTS'] + '/plant_model/test.cvs'
+try:
+    run_archive = os.environ['CESM_RUN'] + '/archive/'
+except KeyError:
+    run_archive = os.environ['DATA'] + '/astra_data/clm_results/'
+    
+land_hist = '/lnd/hist/*.clm2.h0.*.nc'
+case = ('brazil_2000_ozone_luna_100', 'brazil_2000_ozone_luna_100_thresh_', 'brazil_2000_ozone_luna_')
+threshold = (0.8, 0.0, 0.05, 0.1, 0.15, 0.2, 0.4, 0.6, 0.7, 0.85, 0.9, 1, 2, 3, 4, 5)
+threshold_2 = (0.8, 0, 0.2, 0.5, 1, 2, 3, 4, 5)
+ozone = (100, 0, 40, 60, 80)
+ozone_deep = np.arange(42, 60, 2)
+
+# Load data
+
+ref_data = pd.read_csv(ref_data_src)
+
+brazil_test = {}
+brazil_test_40 = {}
+brazil_test_20 = {}
+brazil_test_60 = {}
+brazil_test_80 = {}
+brazil_test_ozone = {}
+brazil_test_ozone_deep = {}
+brazil_ref_ozone = {}
+
+load_date()
+
 
 # Plot it
 fig1 = plt.figure(1,figsize=(16,9))
@@ -197,35 +333,9 @@ for ax in fig4.axes:
     handles_new = [handles[i] for i in np.unique(labels, return_index=True)[1]]
     ax.legend(handles_new, labels_new, ncol=2, loc='center right')
 
+plt.close('all')
 
-# 3D plot
-from mpl_toolkits.mplot3d import Axes3D # Register 3d projection
-import matplotlib as mpl
-fig5 = plt.figure(5)
-fig5.canvas.set_window_title("ozone_sensitivity_rel_3d")
-ax51 = plt.subplot(projection='3d')
-cmap = plt.cm.get_cmap('hot')
-norm = mpl.colors.Normalize(vmin=np.log(brazil_test[0].mean()['GSSUN']), vmax=np.log(brazil_ref_ozone[0].mean()['GSSUN']))
+plot_3d(variable='GSSHA')
 
-for ithresh in threshold:
-    z = cmap(norm(np.log(brazil_test[ithresh]['GSSUN'].mean())))
-    ax51.scatter(ithresh, 100, np.log(brazil_test[ithresh]['GSSUN'].mean()),cmap='hot',c=z)
-for ithresh in threshold_2:
-    z = cmap(norm(np.log(brazil_test_20[ithresh]['GSSUN'].mean())))
-    ax51.scatter(ithresh, 20, np.log(brazil_test_20[ithresh]['GSSUN'].mean()), marker='d', cmap='hot',c=z)
-    z = cmap(norm(np.log(brazil_test_40[ithresh]['GSSUN'].mean())))
-    ax51.scatter(ithresh, 40, np.log(brazil_test_40[ithresh]['GSSUN'].mean()), marker='s', cmap='hot',c=z)    
-    z = cmap(norm(np.log(brazil_test_60[ithresh]['GSSUN'].mean())))
-    ax51.scatter(ithresh, 60, np.log(brazil_test_60[ithresh]['GSSUN'].mean()), marker='^', cmap='hot',c=z)
-    z = cmap(norm(np.log(brazil_test_80[ithresh]['GSSUN'].mean())))
-    ax51.scatter(ithresh, 80, np.log(brazil_test_80[ithresh]['GSSUN'].mean()), marker='v', cmap='hot',c=z)
-
-z = cmap(norm(np.log(brazil_ref_ozone[0]['GSSUN'].mean())))
-ax51.scatter(0,0, np.log(brazil_ref_ozone[0]['GSSUN'].mean()), marker='*', c=z)
-
-#ax51.set_zscale('log')
-ax51.set_xlabel("$O_3^{threshold}$ (nmol $m^{-2} s^{-1}$)")
-ax51.set_ylabel("$[O_3]$ (ppb)")
-ax51.set_zlabel("$log(G_{sto})$ ($\mu mol H_20 m^{-2}s^{-1}$)")
 # Show it
 plt.show(block=False)
