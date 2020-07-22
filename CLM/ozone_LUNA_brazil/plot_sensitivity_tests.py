@@ -86,6 +86,17 @@ def plot_3d(**karg):
     y_data = []
    
     if variable == 'C:N':
+        # Define colormap norm
+        vmin = min((np.log(brazil_test[0].mean()['TOTVEGC']/
+                           brazil_test[0].mean()['TOTVEGN']),
+                    np.log(brazil_test_20[5].mean()['TOTVEGC']/
+                           brazil_test_20[5].mean()['TOTVEGN'])))
+        vmax = max((np.log(brazil_test[0].mean()['TOTVEGC']/
+                           brazil_test[0].mean()['TOTVEGN']),
+                    np.log(brazil_test_20[5].mean()['TOTVEGC']/
+                           brazil_test_20[5].mean()['TOTVEGN'])))
+        
+        norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
         for ithresh in threshold:
             x_data.append(ithresh)
             y_data.append(100)
@@ -98,25 +109,19 @@ def plot_3d(**karg):
         
             x_data.append(ithresh)
             y_data.append(40)
-            z_data.append((brazil_test_40[ithresh]['TOTVEGC']/brazil_test_20[ithresh]['TOTVEGN']).mean().values)
+            z_data.append((brazil_test_40[ithresh]['TOTVEGC']/brazil_test_40[ithresh]['TOTVEGN']).mean().values)
         
             x_data.append(ithresh)
             y_data.append(60)
-            z_data.append((brazil_test_60[ithresh]['TOTVEGC']/brazil_test_20[ithresh]['TOTVEGN']).mean().values)   
+            z_data.append((brazil_test_60[ithresh]['TOTVEGC']/brazil_test_60[ithresh]['TOTVEGN']).mean().values)
+   
             x_data.append(ithresh)
             y_data.append(80)
-            z_data.append((brazil_test_80[ithresh]['TOTVEGC']/brazil_test_20[ithresh]['TOTVEGN']).mean().values)
+            z_data.append((brazil_test_80[ithresh]['TOTVEGC']/brazil_test_80[ithresh]['TOTVEGN']).mean().values)
         
         x_data.append(0)
         y_data.append(0)
         z_data.append((brazil_ref_ozone[0]['TOTVEGC']/brazil_ref_ozone[0]['TOTVEGN']).mean().values)
-        # Define colormap norm
-        vmin = min(z_data)
-        vmax = max(z_data)
-        
-        norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
-        z = cmap(norm(z_data[-1]))
-        #ax51.scatter(0,0, z_data[-1], c=z)
 
     else:
         vmin = min((np.log(brazil_test[0].mean()[variable]),np.log(brazil_test_20[5].mean()[variable])))
@@ -126,42 +131,38 @@ def plot_3d(**karg):
         for ithresh in threshold:
             x_data.append(ithresh)
             y_data.append(100)
-            #z_data.append(np.log(brazil_test[ithresh][variable].mean().values))
             z_data.append((brazil_test[ithresh][variable].mean().values))
-            z = cmap(norm(np.log(z_data[-1])))
-            ax51.scatter(ithresh, 100, z_data[-1],cmap='viridis',c=z)
+            #z = cmap(norm(np.log(z_data[-1])))
+            #ax51.scatter(ithresh, 100, z_data[-1],cmap='viridis',c=z)
         for ithresh in threshold_2:
             x_data.append(ithresh)
             y_data.append(20)
-            #z_data.append(np.log(brazil_test_20[ithresh][variable].mean().values))
             z_data.append((brazil_test_20[ithresh][variable].mean().values))
-            z = cmap(norm(np.log(z_data[-1])))
-            ax51.scatter(ithresh, 20, z_data[-1], marker='d', cmap='viridis',c=z)
+            #z = cmap(norm(np.log(z_data[-1])))
+            #ax51.scatter(ithresh, 20, z_data[-1], marker='d', cmap='viridis',c=z)
             x_data.append(ithresh)
             y_data.append(40)
-            #z_data.append(np.log(brazil_test_40[ithresh][variable].mean().values))
             z_data.append((brazil_test_40[ithresh][variable].mean().values))
-            z = cmap(norm(np.log(z_data[-1])))
-            ax51.scatter(ithresh, 40, z_data[-1], marker='s', cmap='viridis',c=z) 
+            #z = cmap(norm(np.log(z_data[-1])))
+            #ax51.scatter(ithresh, 40, z_data[-1], marker='s', cmap='viridis',c=z) 
             x_data.append(ithresh)
             y_data.append(60)
-            #z_data.append(np.log(brazil_test_60[ithresh][variable].mean().values))   
             z_data.append((brazil_test_60[ithresh][variable].mean().values))   
-            z = cmap(norm(np.log(z_data[-1])))
-            ax51.scatter(ithresh, 60, z_data[-1], marker='^', cmap='viridis',c=z)
+            #z = cmap(norm(np.log(z_data[-1])))
+            #ax51.scatter(ithresh, 60, z_data[-1], marker='^', cmap='viridis',c=z)
             x_data.append(ithresh)
             y_data.append(80)
-            #z_data.append(np.log(brazil_test_80[ithresh][variable].mean().values))
             z_data.append((brazil_test_80[ithresh][variable].mean().values))
-            z = cmap(norm(np.log(z_data[-1]))),
-            ax51.scatter(ithresh, 80, z_data[-1], marker='v', cmap='viridis',c=z)
+            #z = cmap(norm(np.log(z_data[-1]))),
+            #ax51.scatter(ithresh, 80, z_data[-1], marker='v', cmap='viridis',c=z)
 
         x_data.append(0)
         y_data.append(0)
         #z_data.append(np.log(brazil_ref_ozone[0][variable].mean().values))
         z_data.append((brazil_ref_ozone[0][variable].mean().values))
-        z = cmap(norm(np.log(z_data[-1])))
-    
+                           
+    z = cmap(norm(np.log(z_data)))
+    ax51.scatter(x_data, y_data, z_data, c=z)
     ax51.scatter(threshold_2, np.array((0,)*len(threshold_2)), np.array((z_data[-1],)*len(threshold_2)), marker='*', c='black')
 
     print("Min %s\n Max %s" %(vmin, vmax))
@@ -188,6 +189,10 @@ def plot_3d(**karg):
         ax51.set_zlabel("$C_{tot}^{veg}$ ($g m^{-2}$)")
     elif variable.find("TOTVEGN")>=0:
         ax51.set_zlabel("$N_{tot}^{veg}$ ($g m^{-2}$)")
+    elif variable.find("NPP")>=0:
+        ax51.set_zlabel("$NPP$ ($g m^{-2}s^{-1}$)")
+    elif variable.find("GPP")>=0:
+        ax51.set_zlabel("$GPP$ ($g m^{-2}s^{-1}$)")
     else:
         ax51.set_zlabel('C:N')
 
@@ -335,7 +340,7 @@ for ax in fig4.axes:
 
 plt.close('all')
 
-plot_3d(variable='GSSHA')
+plot_3d(variable='NPP')
 
 # Show it
 plt.show(block=False)
