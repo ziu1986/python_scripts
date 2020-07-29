@@ -11,8 +11,8 @@ from mytools.station_info import *
 plt.close('all')
 
 # Source
-src_rad_svanvik_clim = os.environ['DATA']+'/astra_data/observations/temp_prec_rad/svanvik_glob_rad_2000_2017.csv'
-src_rad_svanvik = os.environ['DATA']+'/astra_data/observations/temp_prec_rad/svanvik_glob_rad_2018_2019.csv'
+src_rad_svanvik_clim = os.environ['DATA']+'/astra_data/observations/metdata_svanvik/svanvik_glob_rad_2000_2017.csv'
+src_rad_svanvik = os.environ['DATA']+'/astra_data/observations/metdata_svanvik/svanvik_glob_rad_2018_2019.csv'
 # Load data
 try:
     data_svanvik
@@ -97,26 +97,41 @@ ax12.set_ylabel("$\Delta$Global radiation ($W\,m^{-2}$)")
 
 
 fig2 = plt.figure(2)
-fig2.canvas.set_window_title("global_rad_clim_hist")
-ax21 = plt.subplot(211)
+fig2.canvas.set_window_title("global_rad_hours_above_50Wm2")
+ax21 = plt.subplot()
 
-((data_svanvik['2018'].groupby(['month','day','hour']).mean()-data_svanvik_clim.groupby(['month','day','hour']).mean())).iloc[:,0].hist(ax=ax21, bins=400, color='violet', label='2018', density=True)
-((data_svanvik['2019'].groupby(['month','day','hour']).mean()-data_svanvik_clim.groupby(['month','day','hour']).mean())).iloc[:,0].hist(ax=ax21, bins=400, color='purple', histtype='step', label='2019', density=True)
-#(data_svanvik_clim.groupby(['month','day']).max()/data_svanvik_clim.groupby(['month','day']).std()).iloc[:,0].plot(ax=ax21)
-#(data_svanvik['2018'].groupby(['month','day']).max()/data_svanvik_clim.groupby(['month','day']).std()).iloc[:,0].plot(ax=ax21)
-#(data_svanvik['2019'].groupby(['month','day']).max()/data_svanvik_clim.groupby(['month','day']).std()).iloc[:,0].plot(ax=ax21)
+n_years = data_svanvik_clim.index.year.unique().size
+hour_count = ((data_svanvik_clim.where(data_svanvik_clim.iloc[:,0]>=50).dropna()).groupby(['month','day']).count()/float(n_years)).groupby(['month'])
 
-ax22 = plt.subplot(212)
-((data_svanvik['2018'].groupby(['month','day','hour']).mean()-data_svanvik_clim.groupby(['month','day','hour']).mean())/data_svanvik_clim.groupby(['month','day','hour']).std()).iloc[:,0].hist(ax=ax22, bins=np.arange(-4.05,4.1,0.1), color='violet', label='2018', density=True)
-((data_svanvik['2019'].groupby(['month','day','hour']).mean()-data_svanvik_clim.groupby(['month','day','hour']).mean())/data_svanvik_clim.groupby(['month','day','hour']).std()).iloc[:,0].hist(ax=ax22, bins=np.arange(-4.05,4.1,0.1), color='purple', histtype='step', label='2019', density=True)
+df_hours = pd.DataFrame({"min":hour_count.min()['hour'],
+                      "mean":hour_count.mean()['hour'],
+                      "max":hour_count.max()['hour']})
+df_hours.reindex(np.arange(1,13)).fillna(0).plot.bar(ax=ax21, width=0.7, color=('red','black','blue'))
 
-for ax in fig2.axes:
-    ax.legend()
-ax21.set_xlim(-100, 100)
-ax21.set_ylim(0,0.01)
-ax21.set_ylabel("Probability density", y=0)
-ax21.set_xlabel("$\Delta_{iyear-clim} Q_0$ ($W\,m^{-2}$)")
-ax22.set_xlabel("$\Delta_{iyear-clim} Q_0/\sigma_{clim}$")
+ax21.tick_params(labelrotation=0)
+ax21.set_xticklabels([get_month_name(imonth, length=3) for imonth in np.arange(1,13)])
+ax21.set_xlabel("Time (months)")
+ax21.set_ylabel("# Hours $> 50\,Wm^{-2}$")
+#fig2.canvas.set_window_title("global_rad_clim_hist")
+#ax21 = plt.subplot(211)
+
+#((data_svanvik['2018'].groupby(['month','day','hour']).mean()-data_svanvik_clim.groupby(['month','day','hour']).mean())).iloc[:,0].hist(ax=ax21, bins=400, color='violet', label='2018', density=True)
+#((data_svanvik['2019'].groupby(['month','day','hour']).mean()-data_svanvik_clim.groupby(['month','day','hour']).mean())).iloc[:,0].hist(ax=ax21, bins=400, color='purple', histtype='step', label='2019', density=True)
+##(data_svanvik_clim.groupby(['month','day']).max()/data_svanvik_clim.groupby(['month','day']).std()).iloc[:,0].plot(ax=ax21)
+##(data_svanvik['2018'].groupby(['month','day']).max()/data_svanvik_clim.groupby(['month','day']).std()).iloc[:,0].plot(ax=ax21)
+##(data_svanvik['2019'].groupby(['month','day']).max()/data_svanvik_clim.groupby(['month','day']).std()).iloc[:,0].plot(ax=ax21)
+
+#ax22 = plt.subplot(212)
+#((data_svanvik['2018'].groupby(['month','day','hour']).mean()-data_svanvik_clim.groupby(['month','day','hour']).mean())/data_svanvik_clim.groupby(['month','day','hour']).std()).iloc[:,0].hist(ax=ax22, bins=np.arange(-4.05,4.1,0.1), color='violet', label='2018', density=True)
+#((data_svanvik['2019'].groupby(['month','day','hour']).mean()-data_svanvik_clim.groupby(['month','day','hour']).mean())/data_svanvik_clim.groupby(['month','day','hour']).std()).iloc[:,0].hist(ax=ax22, bins=np.arange(-4.05,4.1,0.1), color='purple', histtype='step', label='2019', density=True)
+
+#for ax in fig2.axes:
+#    ax.legend()
+#ax21.set_xlim(-100, 100)
+#ax21.set_ylim(0,0.01)
+#ax21.set_ylabel("Probability density", y=0)
+#ax21.set_xlabel("$\Delta_{iyear-clim} Q_0$ ($W\,m^{-2}$)")
+#ax22.set_xlabel("$\Delta_{iyear-clim} Q_0/\sigma_{clim}$")
 
 
 probe_p = []
