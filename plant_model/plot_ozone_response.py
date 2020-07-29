@@ -315,8 +315,10 @@ ax31.set_xlim(0,1.2)
 ax31.set_ylim(0,1.2)
 
 # Figures for paper
-fig4, (ax41, ax42, ax43) = plt.subplots(1,3, gridspec_kw={'width_ratios': [6, 6, 1]}, figsize=(16,6))
+fig4, (ax41, ax42, ax43) = plt.subplots(1,3, gridspec_kw={'width_ratios': [6, 6, 1]}, figsize=(18,6))
 fig4.canvas.set_window_title("ozone_response_jmax_vcmax_fits")
+ax41.set_title("(a)", x=0.1, y=0.9, size='xx-large')
+ax42.set_title("(b)", x=0.1, y=0.9, size='xx-large')
 ax43.remove()
 
 # Jmax
@@ -416,8 +418,11 @@ ax41.set_ylabel("$J_{max}^{O_3}/J_{max}^{CF}$")
 ax42.set_ylabel("$V_{cmax}^{O_3}/V_{cmax}^{CF}$")
 
 # Figures for paper
-fig5, (ax51, ax52, ax53) = plt.subplots(1,3, gridspec_kw={'width_ratios': [6, 6, 1]}, figsize=(16,6))
+fig5, (ax51, ax52, ax53) = plt.subplots(1,3, gridspec_kw={'width_ratios': [6, 6, 1]}, figsize=(18,6))
 fig5.canvas.set_window_title("ozone_response_gsto_anet_fits")
+ax51.set_title("(a)", x=0.1, y=0.9, size='xx-large')
+ax52.set_title("(b)", x=0.1, y=0.9, size='xx-large')
+
 ax53.remove()
 
 # Gsto
