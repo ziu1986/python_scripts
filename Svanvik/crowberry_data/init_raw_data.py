@@ -23,3 +23,14 @@ except NameError:
 execfile("fits_raw_data.py")
 execfile("plot_raw_data.py")    
 
+# Units are explained in handbook section 16
+# [Pressure] = kPa
+# [Temperature] = degC
+# [Tleaf] = degC
+# [H2O] = mmol/mol
+# [CO2] = mumol/mol
+# [Flux] = mumol/s
+# [PAR] = mumol/m2/s
+# [VPD] = kPa
+# [gsto] = mol H2O/m2/s
+# [An] = mol CO2/m2/s

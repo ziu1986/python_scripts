@@ -139,8 +139,9 @@ ax51.set_zlabel("$g_{sto}^{rel}$")
 ax51.legend()
 
 ##
+b_text = False
 
-fig6 = plt.figure(6)
+fig6 = plt.figure(6, figsize=(8,6))
 fig6.canvas.set_window_title("svanvik_krekling_f_light")
 ax61 = plt.subplot()
 ax61.plot((data_krekling['PARo']),
@@ -158,14 +159,15 @@ from decimal import Decimal
 
 sample_ppfd = np.arange(0,2000)
 ax61.plot(sample_ppfd, f_light(sample_ppfd, fit_params[0]), color='orange', ls='--', lw=5)
-ax61.text(0.5, 0.9, "Fit\n alpha = (%0.2E +/- %0.2E) $m^2 s\,\mu mol^{-1}$" % (Decimal(fit_params[0]), Decimal(cov_mat[0][0])), size='large', color='orange', transform=ax61.transAxes)
+if b_text:
+    ax61.text(0.5, 0.9, "Fit\n alpha = (%0.2E +/- %0.2E) $m^2 s\,\mu mol^{-1}$" % (Decimal(fit_params[0]), Decimal(cov_mat[0][0])), size='large', color='orange', transform=ax61.transAxes)
 
 ax61.set_xlabel("PPFD $(\mu\,mol\,m^{-2}\,s^{-1})$")
 ax61.set_ylabel("$g_{sto}^{rel}$")
 ax61.legend()
 
 
-fig7 = plt.figure(7)
+fig7 = plt.figure(7, figsize=(8,6))
 fig7.canvas.set_window_title("svanvik_krekling_f_temp")
 ax71 = plt.subplot()
 ax71.plot((data_krekling['Tleaf (air)']),
@@ -182,9 +184,10 @@ sample_temp = np.arange(0,50)
 ax71.plot(sample_temp, f_temp((sample_temp, fmin), 12., 0., 25.), color='grey', ls='--', lw=5)
 
 ax71.plot(sample_temp, f_temp((sample_temp, fmin), fit_params_temp[0], fit_params_temp[1], fit_params_temp[2]), color='orange', ls='--', lw=5)
-ax71.text(0.5, 0.88, "Fit\n T_opt = (%0.2E+/-%0.2E) deg C\n T_min = (%0.2E+/-%0.2E) deg C\n T_max = (%0.2E+/-%0.2E) deg C" % (Decimal(fit_params_temp[0]),Decimal(cov_mat_temp[0][0]), Decimal(fit_params_temp[1]),Decimal(cov_mat_temp[1][1]), Decimal(fit_params_temp[2]),Decimal(cov_mat_temp[2][2])), size='large', color='orange', transform=ax71.transAxes)
+if b_text:
+    ax71.text(0.5, 0.88, "Fit\n T_opt = (%0.2E+/-%0.2E) deg C\n T_min = (%0.2E+/-%0.2E) deg C\n T_max = (%0.2E+/-%0.2E) deg C" % (Decimal(fit_params_temp[0]),Decimal(cov_mat_temp[0][0]), Decimal(fit_params_temp[1]),Decimal(cov_mat_temp[1][1]), Decimal(fit_params_temp[2]),Decimal(cov_mat_temp[2][2])), size='large', color='orange', transform=ax71.transAxes)
 
-ax71.text(0.5, 0.76, "Guess\n T_opt = (%d) deg C\n T_min = (%d) deg C\n T_max = (%d) deg C" % (12, 0, 25), size='large', color='grey', transform=ax71.transAxes)
+    ax71.text(0.5, 0.76, "Guess\n T_opt = (%d) deg C\n T_min = (%d) deg C\n T_max = (%d) deg C" % (12, 0, 25), size='large', color='grey', transform=ax71.transAxes)
 
 
 ax71.set_xlabel("T $(^\circ C)$")
@@ -194,7 +197,7 @@ ax71.legend()
 ax71.set_xlim(0, 50)
 
 
-fig8 = plt.figure(8)
+fig8 = plt.figure(8, figsize=(8,6))
 fig8.canvas.set_window_title("svanvik_krekling_f_vpd")
 ax81 = plt.subplot()
 ax81.plot(VPD(data_krekling['RH_R'], data_krekling['Tleaf (air)'], version='buck')/kilo,
@@ -211,9 +214,10 @@ sample_vpd = np.arange(0,6)
 ax81.plot(sample_vpd, f_vpd((sample_vpd, fmin), 0.5, 2.), color='grey', ls='--', lw=5)
 
 ax81.plot(sample_vpd, f_vpd((sample_vpd, fmin), fit_params_vpd[0], fit_params_vpd[1]), color='orange', ls='--', lw=5)
-ax81.text(0.5, 0.88, "Fit\n VPD_max = (%0.2E+/-%0.2E) kPa\n VPD_min = (%0.2E+/-%0.2E) kPa" % (Decimal(fit_params_vpd[0]),Decimal(cov_mat_vpd[0][0]), Decimal(fit_params_vpd[1]),Decimal(cov_mat_vpd[1][1])), size='large', color='orange', transform=ax81.transAxes)
+if b_text:
+    ax81.text(0.5, 0.88, "Fit\n VPD_max = (%0.2E+/-%0.2E) kPa\n VPD_min = (%0.2E+/-%0.2E) kPa" % (Decimal(fit_params_vpd[0]),Decimal(cov_mat_vpd[0][0]), Decimal(fit_params_vpd[1]),Decimal(cov_mat_vpd[1][1])), size='large', color='orange', transform=ax81.transAxes)
 
-ax81.text(0.5, 0.76, "Guess\n VPD_max = (%1.1f) kPa\n VPD_min = (%1.1f) kPa" % (0.5, 2), size='large', color='grey', transform=ax81.transAxes)
+    ax81.text(0.5, 0.76, "Guess\n VPD_max = (%1.1f) kPa\n VPD_min = (%1.1f) kPa" % (0.5, 2), size='large', color='grey', transform=ax81.transAxes)
 
 
 ax81.set_xlabel("VPD $(kPa)$")

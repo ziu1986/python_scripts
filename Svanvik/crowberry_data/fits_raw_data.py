@@ -2,6 +2,7 @@ def stomatal_conductance(M, g0, g1):
     '''
     x = VPD^-0.5
     y = An/[CO2]
+    [[CO2]] = mumol/mol
     '''
     # Unpack the 2d coordinates
     x, y = M
