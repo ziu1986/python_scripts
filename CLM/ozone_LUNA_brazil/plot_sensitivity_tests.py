@@ -238,16 +238,23 @@ def load_date():
     # Merge fine resolution scan ozone deep
     brazil_test_ozone.update(brazil_test_ozone_deep)
 
-def save_data():
+def save_data(**karg):
+    directory = karg.pop('dir', os.environ['DATA'] + "/preprocessed_data/CLM50_ozone_luna_brazil")
     for ithr in threshold:
-        brazil_test[ithr].groupby('time.month').mean().to_netcdf("brazil_100_%s.nc" % ithr)
+        brazil_test[ithr].groupby('time.month').mean().to_netcdf("%s/brazil_100_%s.nc" % (directory, ithr))
+                         brazil_test[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_100_%s.nc" % (directory, ithr))
     for ithr in threshold_2:
-        brazil_test_40[ithr].groupby('time.month').mean().to_netcdf("brazil_40_%s.nc" % ithr)
-        brazil_test_20[ithr].groupby('time.month').mean().to_netcdf("brazil_20_%s.nc" % ithr)
-        brazil_test_60[ithr].groupby('time.month').mean().to_netcdf("brazil_60_%s.nc" % ithr)
-        brazil_test_80[ithr].groupby('time.month').mean().to_netcdf("brazil_80_%s.nc" % ithr)
+        brazil_test_40[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_40_%s.nc" % (directory, ithr))
+        brazil_test_20[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_20_%s.nc" % (directory, ithr))
+        brazil_test_60[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_60_%s.nc" % (directory, ithr))
+        brazil_test_80[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_80_%s.nc" % (directory, ithr))
+        brazil_test_40[ithr].groupby('time.month').mean().to_netcdf("%s/brazil_40_%s.nc" % (directory, ithr))
+        brazil_test_20[ithr].groupby('time.month').mean().to_netcdf("%s/brazil_20_%s.nc" % (directory, ithr))
+        brazil_test_60[ithr].groupby('time.month').mean().to_netcdf("%s/brazil_60_%s.nc" % (directory, ithr))
+        brazil_test_80[ithr].groupby('time.month').mean().to_netcdf("%s/brazil_80_%s.nc" % (directory, ithr))
     for ioz in ozone:
-        brazil_ref_ozone[ioz].groupby('time.month').mean().to_netcdf("brazil_%s_ref.nc" % ioz)
+        brazil_ref_ozone[ioz].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_%s_ref.nc" % (directory,ioz))
+        brazil_ref_ozone[ioz].groupby('time.month').mean().to_netcdf("%s/brazil_%s_ref.nc" % (directory,ioz))
 
 # Clean up
 plt.close("all")
