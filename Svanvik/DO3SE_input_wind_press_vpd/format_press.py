@@ -29,24 +29,33 @@ except NameError:
     
     data_svanvik_clim = pd.concat(data_list)
 
+    data_svanvik_test = pd.concat(pd.read_excel(src_svanvik, sheet_name=None), ignore_index=True)
+    data_svanvik_test.index = data_svanvik_test.iloc[:,0]
+    data_svanvik_test = data_svanvik_test.drop(columns=['Fra-tid', 'Til-tid'])
+        
     data_svanvik = pd.read_excel(src_svanvik, sheet_name=[2,3])
+    
     data_svanvik_2018 = data_svanvik[2].copy()
     data_svanvik_2018.index = data_svanvik_2018.iloc[:,0]
     data_svanvik_2018 = data_svanvik_2018.drop(columns=['Fra-tid', 'Til-tid'])['2018']
+    
     data_svanvik_2019 = data_svanvik[3].copy()
     data_svanvik_2019.index = data_svanvik_2019.iloc[:,0]
     data_svanvik_2019 = data_svanvik_2019.drop(columns=['Fra-tid', 'Til-tid'])['2019']
+    
     data_svanvik_2018_2019 = pd.concat((data_svanvik_2018, data_svanvik_2019))
     #data_svanvik_2018_2019 = data_svanvik_clim['2018':'2019'].copy()
-    #data_svanvik_2018_2019.loc[:,'day'] = data_svanvik_2018_2019.index.day.values
-    #data_svanvik_2018_2019.loc[:,'month'] = data_svanvik_2018_2019.index.month.values
-    #data_svanvik_2018_2019.loc[:,'hour'] = data_svanvik_2018_2019.index.hour.values
+
+    data_svanvik_test.loc[:,'day'] = data_svanvik_test.index.day.values
+    data_svanvik_test.loc[:,'month'] = data_svanvik_test.index.month.values
+    data_svanvik_test.loc[:,'hour'] = data_svanvik_test.index.hour.values
 
     data_svanvik_clim.loc[:,'day'] = data_svanvik_clim.index.day.values
     data_svanvik_clim.loc[:,'month'] = data_svanvik_clim.index.month.values
     data_svanvik_clim.loc[:,'hour'] = data_svanvik_clim.index.hour.values
 
-svanvik_clim = data_svanvik_clim[:'2017'].groupby(['month','day','hour']).mean()
+#svanvik_clim = data_svanvik_clim[:'2017'].groupby(['month','day','hour']).mean()
+svanvik_clim = data_svanvik_test.groupby(['month','day','hour']).mean().iloc[:,0]
 
 
 # Save data to file
@@ -54,7 +63,9 @@ if b_save:
     data_svanvik_2018_2019['2018'].iloc[:,0].to_csv("svanvik_press_2018.csv")
     data_svanvik_2018_2019['2019'].iloc[:,0].to_csv("svanvik_press_2019.csv")
     # Drop Feb 29 from climatology and reindex it
-    save_data = pd.DataFrame({'Pressure (hPa)':svanvik_clim['PO'].drop(svanvik_clim.loc[2,29,:].index).values}, index=data_svanvik_clim['2019']['PO'].index)
+    #save_data = pd.DataFrame({'Pressure (hPa)':svanvik_clim['PO'].drop(svanvik_clim.loc[2,29,:].index).values}, index=data_svanvik_clim['2019']['PO'].index)
+    save_data = pd.DataFrame({'Pressure (hPa)':svanvik_clim.drop(svanvik_clim.loc[2,29,:].index).values}, index=data_svanvik_2018_2019['2019'].index)
+    
     save_data.to_csv("svanvik_press-climatology.csv")
 
 
