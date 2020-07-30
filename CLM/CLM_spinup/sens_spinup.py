@@ -11,7 +11,6 @@ plt.close('all')
 
 case = ("spin-up_brazil_2000",
         "spin-up_brazil_2000_ozone",
-        "spin-up_brazil_2000_ozone_luna_0",
         "spin-up_brazil_2000_ozone_luna_100",
         "spin-up_brazil_2000_ozone_luna_100_pwu",
         "spin-up_brazil_2000_wohydr",
@@ -23,6 +22,10 @@ subdir1 = ('work', 'archive')
 subdir2 = {'work':'run/', 'archive':'lnd/hist/'}
 filename = "*.clm2.h0.*"
 
+vars = ["GPP", "NPP", "TLAI", "TOTVEGC", "TOTVEGN"]
+case_name = ["ref"] + ["OzoneMod", "OzoneLunaMod", "OzoneLunaMod_par2", "ctr. w/o hydr.", "OzoneMod w/o hydr.", "OzoneLunaMod w/o hydr."] #[icase.replace("spin-up_brazil_2000_", "") for icase in case[1:]]
+
+colors = ['#f7fcfd','#e0ecf4','#bfd3e6','#9ebcda','#8c96c6','#8c6bb1','#88419d','#810f7c','#4d004b']
 data_list = []
 
 # Loop through all cases
@@ -36,24 +39,35 @@ for icase in case:
         files = sorted(glob.glob(src))[-1]
 
     # Extract data
-    data_list.append(load_data(files, var=["NPP", "TOTVEGC", "TOTVEGN"]))
+    data_list.append(load_data(files, var=vars))
 
 data = xr.concat(data_list, dim='case')
 data.coords['case'] = np.arange(len(case))
+
+# Generate pandas series for bar plotting
+data_ratio = (data.mean(dim='time')/data.mean(dim='time').isel(case=0))
+data_dict = {}
+for i in np.arange(len(case)):
+    for ii in vars:
+        tmp = data_ratio[ii].values.flatten()[i]
+        if ii==vars[0]:
+            data_dict.update({case_name[i]:[tmp,]})
+        else:
+            data_dict[case_name[i]].append(tmp)
+# data fram
+pd_data = pd.DataFrame(data_dict, index=vars)
+
 # Plot it
 fig1 = plt.figure(1)
+fig1.canvas.set_window_title("sens_spinup")
 ax11 = plt.subplot()
-ax11.bar(data.mean(dim='time')['case'].data, data.mean(dim='time')['NPP'].data.flatten())
+pd_data.iloc[:,1:].plot.bar(ax=ax11, rot=0, width=0.95, color=colors[2:])
+for p in ax11.patches:
+    ax11.annotate("%d" % (np.round(p.get_height(),2)*100), (p.get_x() * 1.005, p.get_height() * 1.005), size='x-large')
 
-fig2 = plt.figure(2)
-ax21 = plt.subplot()
-ax21.bar(data.mean(dim='time')['case'].data, data.mean(dim='time')['TOTVEGC'].data.flatten())
-
-
-fig3 = plt.figure(3)
-ax31 = plt.subplot()
-ax31.bar(data.mean(dim='time')['case'].data, data.mean(dim='time')['TOTVEGN'].data.flatten())
-
+ax11.legend(ncol=3)
+ax11.set_ylim(0, 1.5)
+ax11.set_ylabel("Relative to control run")
 
 # Show it
 plt.show(block=False)
