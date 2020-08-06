@@ -59,7 +59,7 @@ def or_fit(x, y, x_std, y_std, **karg):
     elif deg=='free':
         p0.append(1)
         func = poly_free
-    print('p0', p0)
+    print('first guess', p0)
 
     if type(f_x_std_y) == int:
         
