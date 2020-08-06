@@ -77,15 +77,15 @@ ax11 = fig1.add_subplot(1,1,1, projection=stamen_terrain.crs) #ccrs.PlateCarree(
 #print([center[0]-delta[0], center[0]+delta[0], center[1]-delta[1], center[1]+delta[1]])
 #ax11.set_extent([center[0]-delta[0], center[0]+delta[0], center[1]-delta[1], center[1]+delta[1]], crs=ccrs.PlateCarree())
 #ax11.plot(station_location['Svanvik'].lon, station_location['Svanvik'].lat, marker='o', color='blueviolet', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-ax11.set_extent([300, 310, -2, -12], crs=ccrs.Geodetic())#PlateCarree())
+ax11.set_extent([290, 320, 8, -22], crs=ccrs.Geodetic())#PlateCarree())
 ax11.fill([304.5,304.5,305.5,305.5,304.5], [-7.5,-6.5,-6.5,-7.5,-7.5], color='coral', alpha=0.5, transform=ccrs.PlateCarree())
 ax11.plot([304.5,304.5,305.5,305.5,304.5], [-7.5,-6.5,-6.5,-7.5,-7.5], color='blue', marker='None', transform=ccrs.PlateCarree())
 
 #from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter, LatitudeLocator
 
 gl = ax11.gridlines(crs=ccrs.PlateCarree(), draw_labels=True, linewidth=3)
-gl.xlabel_style = {'size': 18, 'color': 'red', 'weight': 'bold'}
-gl.ylabel_style = {'size': 18, 'weight': 'bold'}
+gl.xlabel_style = {'size': 18}#, 'color': 'red', 'weight': 'bold'}
+gl.ylabel_style = {'size': 18}#, 'weight': 'bold'}
 #gl.ylocator = LatitudeLocator()
 #gl.xformatter = LongitudeFormatter()
 #gl.yformatter = LatitudeFormatter()
@@ -94,7 +94,12 @@ gl.ylabel_style = {'size': 18, 'weight': 'bold'}
 # Middle east 36, 55, 25,42
 # Brazil 305 - -7: 
 ax11.add_image(stamen_terrain, 8)
-
 #plot_stations(ax11)
+
+#fig2 = plt.figure(2)
+#fig2.canvas.set_window_title("map_inset")
+#ax21 = fig2.add_subplot(1,1,1, projection=stamen_terrain.crs)
+#ax21.set_extent([304.5, 305.5, -6.5, -7.5], crs=ccrs.Geodetic())
+#ax21.add_image(stamen_terrain, 8)
 
 plt.show(block=False)
