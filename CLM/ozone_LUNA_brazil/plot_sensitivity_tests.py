@@ -65,7 +65,7 @@ def plot_data(fig, data, iter_data, **karg):
         ax4.set_ylabel("$\Delta_{0.8, 100} V_{cmax}$ (%)")
 
     if mode == 'threshold':
-        ax3.set_xlabel("$O_3^{threshold}$ (nmol $m^{-2} s^{-1}$)", x=1)
+        ax3.set_xlabel("$O_3^{TH}$ (nmol $m^{-2} s^{-1}$)", x=1)
     else:
         ax3.set_xlabel("$[O_3]$ (ppb)", x=1)
 
@@ -175,7 +175,7 @@ def plot_3d(**karg):
     
     #ax51.set_zscale('log')
     ax51.view_init(30, -170)
-    ax51.set_xlabel("$O_3^{threshold}$ (nmol $m^{-2} s^{-1}$)")
+    ax51.set_xlabel("$O_3^{TH}$ (nmol $m^{-2} s^{-1}$)")
     ax51.set_ylabel("$[O_3]$ (ppb)")
     if variable.find('GS')>=0:
         ax51.set_zlabel("$G_{sto}$ ($\mu mol H_2O m^{-2}s^{-1}$)")
