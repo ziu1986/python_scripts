@@ -51,7 +51,7 @@ def plot_data(fig, data, iter_data, **karg):
             ax.axhline(0, color='grey', ls=':')
             #ax.axhspan(-1e-15, 1e-15, edgecolor='black', facecolor='None', hatch="//")
 
-        ax1.set_ylabel("$\Delta_{0.8, 100} G_{sto}$ ($\mu mol H_20 m^{-2}s^{-1}$)")
+        ax1.set_ylabel("$\Delta_{0.8, 100} G_{sto}$ ($\mu mol H_2O m^{-2}s^{-1}$)")
         ax2.set_ylabel("$\Delta_{0.8, 100} A_{n}$ ($\mu molCO_2 m^{-2}s^{-1}$)")
         ax3.set_ylabel("$\Delta_{0.8, 100} J_{max}$ ($\mu mol m^{-2}s^{-1}$)")
         ax4.set_ylabel("$\Delta_{0.8, 100} V_{cmax}$ ($\mu mol m^{-2}s^{-1}$)")
@@ -178,7 +178,7 @@ def plot_3d(**karg):
     ax51.set_xlabel("$O_3^{threshold}$ (nmol $m^{-2} s^{-1}$)")
     ax51.set_ylabel("$[O_3]$ (ppb)")
     if variable.find('GS')>=0:
-        ax51.set_zlabel("$G_{sto}$ ($\mu mol H_20 m^{-2}s^{-1}$)")
+        ax51.set_zlabel("$G_{sto}$ ($\mu mol H_2O m^{-2}s^{-1}$)")
     elif variable.find('PSN')>=0:
         ax51.set_zlabel("$A_{n}$ ($\mu molCO_2 m^{-2}s^{-1}$)")
     elif variable.find("Jmx")>=0:
