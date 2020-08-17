@@ -4,7 +4,7 @@ import xarray as xr
 import pandas as pd
 import matplotlib.pyplot as plt
 from mytools.plot_tools import print_all, plot_error_bands
-from clm_tools import *
+from mytools.clm_tools import *
 
 def plot_data(fig, data, iter_data, **karg):
     # option: ozone, threshold
