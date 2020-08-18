@@ -10,19 +10,19 @@ plt.close('all')
 
 # Source
 case = "svanvik"
-var = 'Lai' #'Psn'
+var = 'Psn' #'Lai' #
 src = os.environ['DATA'] + "/astra_data/observations/MODIS/" + case +"/statistics*" + var + "*landcover*.csv"
 
-try:
-    data_list
-except NameError:
-    # Read data
-    data_list = []
+#try:
+#    data_list
+#except NameError:
+# Read data
+data_list = []
 
-    for ifile in sorted(glob.glob(src)):
-        data = pd.read_csv(ifile)
-        data.index = pd.to_datetime(data['date'])
-        data_list.append(data)
+for ifile in sorted(glob.glob(src)):
+    data = pd.read_csv(ifile)
+    data.index = pd.to_datetime(data['date'])
+    data_list.append(data)
 
 # Plot it
 #fig1 = plt.figure(1)
@@ -37,7 +37,9 @@ except NameError:
 fig2 = plt.figure(2)
 fig2.canvas.set_window_title("modis_%s" % (var))
 ax21 = plt.subplot(211)
+ax21.set_title("2018", x=0.05, y=0.89)
 ax22 = plt.subplot(212)
+ax22.set_title("2019", x=0.05, y=0.89)
 
 from scipy.optimize import curve_fit
 
@@ -46,9 +48,11 @@ def poly2(x, *m):
     
 for iyear, iax in zip((2018, 2019), (ax21, ax22)):
     print("Year: "); print(iyear)
-    for each, imarker, icolor in zip(data_list, ('^', 'v'), ('red', 'blue')):
+    for each, imarker, icolor, ilabel in zip(data_list, ('v', '^'), ('blue', 'red'), ('AQUA', 'TERRA')):
         tmp = each['mean']['%d' % iyear].groupby(each['mean']['%d' % iyear].index.dayofyear).mean()
-        tmp.plot(ax=iax, ls='none', marker=imarker, color=icolor, markersize=10)
+        tmp.plot(ax=iax, ls='none', marker=imarker, color=icolor, markersize=10, label=ilabel)
+        # Fitting the data
+        # First guess for fitting
         p0 = [1,150,0.06]
         popt, pcov = curve_fit(poly2, tmp.dropna().index.values, tmp.dropna().values, p0)
         roots = np.roots((popt[0], 2*popt[0]*popt[1], popt[0]*popt[1]**2+popt[2]))
@@ -65,10 +69,15 @@ for ax in fig2.axes:
     elif var=='Lai':
         ax.set_ylim(0,5)
     ax.set_xlabel("")
-ax22.set_xlabel("Time (doy)")
+    ax.set_xlim(0,366)
+    ax.legend()
+    
+ax22.set_xlabel("Time (day of year)")
 if var=="Psn":
     ax22.set_ylabel("$A_{net}$ ($kgC\,m^{-2}$)", y=1)
 elif var=="Lai":
     ax22.set_ylabel("$LAI$ $(m^{2}\,m^{-2})$", y=1)
+
+    
 # Show it
 plt.show(block=False)
