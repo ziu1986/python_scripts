@@ -4,7 +4,7 @@ import xarray as xr
 import pandas as pd
 import matplotlib.pyplot as plt
 from mytools.plot_tools import print_all, plot_error_bands
-from clm_tools import *
+from mytools.clm_tools import *
 
 def plot_data(fig, data, iter_data, **karg):
     # option: ozone, threshold
@@ -51,7 +51,7 @@ def plot_data(fig, data, iter_data, **karg):
             ax.axhline(0, color='grey', ls=':')
             #ax.axhspan(-1e-15, 1e-15, edgecolor='black', facecolor='None', hatch="//")
 
-        ax1.set_ylabel("$\Delta_{0.8, 100} G_{sto}$ ($\mu mol H_20 m^{-2}s^{-1}$)")
+        ax1.set_ylabel("$\Delta_{0.8, 100} G_{sto}$ ($\mu mol H_2O m^{-2}s^{-1}$)")
         ax2.set_ylabel("$\Delta_{0.8, 100} A_{n}$ ($\mu molCO_2 m^{-2}s^{-1}$)")
         ax3.set_ylabel("$\Delta_{0.8, 100} J_{max}$ ($\mu mol m^{-2}s^{-1}$)")
         ax4.set_ylabel("$\Delta_{0.8, 100} V_{cmax}$ ($\mu mol m^{-2}s^{-1}$)")
@@ -65,7 +65,7 @@ def plot_data(fig, data, iter_data, **karg):
         ax4.set_ylabel("$\Delta_{0.8, 100} V_{cmax}$ (%)")
 
     if mode == 'threshold':
-        ax3.set_xlabel("$O_3^{threshold}$ (nmol $m^{-2} s^{-1}$)", x=1)
+        ax3.set_xlabel("$O_3^{TH}$ (nmol $m^{-2} s^{-1}$)", x=1)
     else:
         ax3.set_xlabel("$[O_3]$ (ppb)", x=1)
 
@@ -78,9 +78,8 @@ def plot_3d(**karg):
     fig5 = plt.figure(5)
     fig5.canvas.set_window_title("ozone_sensitivity_rel_3d_%s" % (variable))
     ax51 = plt.subplot(projection='3d')
-    cmap = plt.cm.get_cmap('viridis')
-    #key_max = max(my_dict.keys(), key=(lambda k: my_dict[k]))
-    #key_min = min(my_dict.keys(), key=(lambda k: my_dict[k]))
+    cmap = plt.cm.get_cmap('BuPu_r')#('viridis')
+    
     z_data = []
     x_data = []
     y_data = []
@@ -104,6 +103,10 @@ def plot_3d(**karg):
             
         for ithresh in threshold_2:
             x_data.append(ithresh)
+            y_data.append(0)
+            z_data.append((brazil_ref_ozone[0]['TOTVEGC']/brazil_ref_ozone[0]['TOTVEGN']).mean().values)
+
+            x_data.append(ithresh)
             y_data.append(20)
             z_data.append((brazil_test_20[ithresh]['TOTVEGC']/brazil_test_20[ithresh]['TOTVEGN']).mean().values)
         
@@ -119,9 +122,7 @@ def plot_3d(**karg):
             y_data.append(80)
             z_data.append((brazil_test_80[ithresh]['TOTVEGC']/brazil_test_80[ithresh]['TOTVEGN']).mean().values)
         
-        x_data.append(0)
-        y_data.append(0)
-        z_data.append((brazil_ref_ozone[0]['TOTVEGC']/brazil_ref_ozone[0]['TOTVEGN']).mean().values)
+        
 
     else:
         vmin = min((np.log(brazil_test[0].mean()[variable]),np.log(brazil_test_20[5].mean()[variable])))
@@ -132,53 +133,48 @@ def plot_3d(**karg):
             x_data.append(ithresh)
             y_data.append(100)
             z_data.append((brazil_test[ithresh][variable].mean().values))
-            #z = cmap(norm(np.log(z_data[-1])))
-            #ax51.scatter(ithresh, 100, z_data[-1],cmap='viridis',c=z)
+            
         for ithresh in threshold_2:
+
+            x_data.append(ithresh)
+            y_data.append(0)
+            z_data.append((brazil_ref_ozone[0][variable].mean().values))
+
             x_data.append(ithresh)
             y_data.append(20)
             z_data.append((brazil_test_20[ithresh][variable].mean().values))
-            #z = cmap(norm(np.log(z_data[-1])))
-            #ax51.scatter(ithresh, 20, z_data[-1], marker='d', cmap='viridis',c=z)
+            
             x_data.append(ithresh)
             y_data.append(40)
             z_data.append((brazil_test_40[ithresh][variable].mean().values))
-            #z = cmap(norm(np.log(z_data[-1])))
-            #ax51.scatter(ithresh, 40, z_data[-1], marker='s', cmap='viridis',c=z) 
+           
             x_data.append(ithresh)
             y_data.append(60)
             z_data.append((brazil_test_60[ithresh][variable].mean().values))   
-            #z = cmap(norm(np.log(z_data[-1])))
-            #ax51.scatter(ithresh, 60, z_data[-1], marker='^', cmap='viridis',c=z)
+            
             x_data.append(ithresh)
             y_data.append(80)
             z_data.append((brazil_test_80[ithresh][variable].mean().values))
-            #z = cmap(norm(np.log(z_data[-1]))),
-            #ax51.scatter(ithresh, 80, z_data[-1], marker='v', cmap='viridis',c=z)
-
-        x_data.append(0)
-        y_data.append(0)
-        #z_data.append(np.log(brazil_ref_ozone[0][variable].mean().values))
-        z_data.append((brazil_ref_ozone[0][variable].mean().values))
-                           
-    z = cmap(norm(np.log(z_data)))
-    ax51.scatter(x_data, y_data, z_data, c=z)
-    ax51.scatter(threshold_2, np.array((0,)*len(threshold_2)), np.array((z_data[-1],)*len(threshold_2)), marker='*', c='black')
-
+               
+    
     print("Min %s\n Max %s" %(vmin, vmax))
-    x_data_plot = np.array(x_data)[16:-1].reshape(len(threshold_2),4)
-    y_data_plot = np.array(y_data)[16:-1].reshape(len(threshold_2),4)
-    z_data_plot = np.array(z_data)[16:-1].reshape(len(threshold_2),4)
+    x_data_plot = np.array(x_data)[16:].reshape(len(threshold_2),5)
+    y_data_plot = np.array(y_data)[16:].reshape(len(threshold_2),5)
+    z_data_plot = np.array(z_data)[16:].reshape(len(threshold_2),5)
     ax51.plot_wireframe(x_data_plot, y_data_plot, z_data_plot, color='grey')
-    #ax51.plot_surface(np.array(x_data)[16:-1].reshape(9,4), np.array(y_data)[16:-1].reshape(9,4), np.array(z_data)[16:-1].reshape(9,4), cmap='viridis', vmin=vmin, vmax=vmax)
-    #ax51.plot_surface(np.array(x_data)[:16], np.array(y_data)[:16], np.array(z_data)[:16], cmap='viridis', vmin=vmin, vmax=vmax)
+    ax51.plot_surface(x_data_plot, y_data_plot, z_data_plot, cmap='BuPu')
+    z = cmap(norm(np.log(z_data)))
+    ax51.scatter(x_data, y_data, z_data, c='black', s=50)
+    ax51.ticklabel_format(axis='z', style='sci')
+   
     
     #ax51.set_zscale('log')
-    ax51.view_init(30, -170)
-    ax51.set_xlabel("$O_3^{threshold}$ (nmol $m^{-2} s^{-1}$)")
+    # Rotation
+    ax51.view_init(30, 157)
+    ax51.set_xlabel("$O_3^{TH}$ (nmol $m^{-2} s^{-1}$)")
     ax51.set_ylabel("$[O_3]$ (ppb)")
     if variable.find('GS')>=0:
-        ax51.set_zlabel("$G_{sto}$ ($\mu mol H_20 m^{-2}s^{-1}$)")
+        ax51.set_zlabel("$G_{sto}$ ($\mu mol H_2O m^{-2}s^{-1}$)")
     elif variable.find('PSN')>=0:
         ax51.set_zlabel("$A_{n}$ ($\mu molCO_2 m^{-2}s^{-1}$)")
     elif variable.find("Jmx")>=0:
@@ -242,7 +238,7 @@ def save_data(**karg):
     directory = karg.pop('dir', os.environ['DATA'] + "/preprocessed_data/CLM50_ozone_luna_brazil")
     for ithr in threshold:
         brazil_test[ithr].groupby('time.month').mean().to_netcdf("%s/brazil_100_%s.nc" % (directory, ithr))
-                         brazil_test[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_100_%s.nc" % (directory, ithr))
+        brazil_test[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_100_%s.nc" % (directory, ithr))
     for ithr in threshold_2:
         brazil_test_40[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_40_%s.nc" % (directory, ithr))
         brazil_test_20[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_20_%s.nc" % (directory, ithr))
@@ -347,7 +343,7 @@ for ax in fig4.axes:
 
 plt.close('all')
 
-plot_3d(variable='NPP')
+plot_3d(variable='GSSUN')
 
 # Show it
 plt.show(block=False)

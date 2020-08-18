@@ -4,7 +4,7 @@ import xarray as xr
 import pandas as pd
 import matplotlib.pyplot as plt
 from mytools.plot_tools import print_all, plot_error_bands, get_month_name, seconds_in_month
-from clm_tools import *
+from mytools.clm_tools import *
 
 # Clean up
 plt.close("all")
@@ -42,7 +42,7 @@ ax12.remove()
 fig2, (ax21, ax22) = plt.subplots(1,2, gridspec_kw={'width_ratios': [8, 1]}, figsize=(16,9))
 fig2.canvas.set_window_title("npp_C_N_ratio_rel")
 ax22.remove()
-fig3, ((ax31, ax33), (ax32, ax34)) = plt.subplots(2,2, gridspec_kw={'width_ratios': [8, 1], 'height_ratios': [1, 1]}, figsize=(16,9))
+fig3, ((ax31, ax33), (ax32, ax34)) = plt.subplots(2,2, gridspec_kw={'width_ratios': [4, 1], 'height_ratios': [1, 1]}, figsize=(12,9))
 fig3.canvas.set_window_title("npp_npp")
 ax33.remove()
 ax34.remove()
@@ -98,15 +98,17 @@ ax32.set_xlabel("Time (month)")
 #ax31.set_ylabel("NPP (TgC)")
 ax31.set_ylabel("NPP ($gC m^{-2}$)")
 ax32.set_ylabel("$\Delta$NPP (%)")
+ax31.set_title("(a)")
+ax32.set_title("(b)")
 
-ax31.text(9,3.5, "Ref: %2.2f $GgC\,yr^{-1}$\nmin: %2.2f $GgC\,yr^{-1}$" % (xr.concat(sums, dim='exp')['NPP'].max()*1e-12, 
+ax31.text(9,3.35, "$\Sigma NPP_{ref} =  %2.2f\,GgC\,yr^{-1}$\n$\Sigma NPP_{min} = %2.2f\,GgC\,yr^{-1}$" % (xr.concat(sums, dim='exp')['NPP'].max()*1e-12, 
                                                         xr.concat(sums, dim='exp')['NPP'].min()*1e-12), size=12)
 
 ax32.axhline(0, ls=':', color='grey', lw=3)
 
-ax11.legend(title="$([O_3],\Phi_{O_3}^{thresh})$", title_fontsize=12, bbox_to_anchor=(1.275, 1),loc='upper right', borderaxespad=0., ncol=2)
-ax21.legend(title="$([O_3],\Phi_{O_3}^{thresh})$", title_fontsize=12, bbox_to_anchor=(1.275, 1),loc='upper right', borderaxespad=0., ncol=2)
-ax31.legend(title="$([O_3],\Phi_{O_3}^{thresh})$", title_fontsize=12, bbox_to_anchor=(1.275, 1),loc='upper right', borderaxespad=0., ncol=2)
+ax11.legend(title="$([O_3],\Phi_{O_3}^{TH})$", title_fontsize=12, bbox_to_anchor=(1.275, 1),loc='upper right', borderaxespad=0., ncol=2)
+ax21.legend(title="$([O_3],\Phi_{O_3}^{TH})$", title_fontsize=12, bbox_to_anchor=(1.275, 1),loc='upper right', borderaxespad=0., ncol=2)
+ax31.legend(title="$([O_3],\Phi_{O_3}^{TH})$", title_fontsize=12, bbox_to_anchor=(1.425, 1),loc='upper right', borderaxespad=0., ncol=2)
 
 
 plt.show(block=False)
