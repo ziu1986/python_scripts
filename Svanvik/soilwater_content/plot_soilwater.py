@@ -40,10 +40,11 @@ for i, j in zip(range(6), range(1,7)):
     ax = plt.subplot(6,1,j)
     ax.set_title("%s cm" % data.iloc[:,i*2][0], x=0.1, y=0.8)
     z_data = selection.where((selection < 30) & (selection >= 0)).iloc[:,i]
-    z_data.plot(ax=ax, marker='.', ls='None')
+    #z_data.plot(ax=ax, marker='.', ls='None')
+    z_data.groupby(z_data.index.dayofyear).apply(np.nanmean).plot(color='red')
 
     ax.set_ylim(0,30)
-    ax.set_xlim([dt.date(2018, 1, 1), dt.date(2018, 12, 31)])
+    #ax.set_xlim([dt.date(2018, 1, 1), dt.date(2018, 12, 31)])
 
 ax.set_ylabel("Volumetric soilwater content (%)", y=3.25)
 ax.set_xlabel("Time (months)")
