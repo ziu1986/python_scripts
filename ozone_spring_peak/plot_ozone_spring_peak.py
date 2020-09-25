@@ -16,45 +16,72 @@ from mytools.station_info import station_location
 
 #---------------------------------------------------------------------------------------------------------------------------------
 # Read data
-src = os.environ['DATA']+'/astra_data/observations/ozone/'
-src_stations = ('Esrange', 'Pallas', 'Prestebakke')
-src_rra = os.environ['DATA']+'/nird_data/reanalysis/Copernicus/ensemble_ozone/SCA_ENSa.2018.O3.yearlyrea.nc'
+#src = os.environ['DATA']+'/astra_data/observations/ozone/'
+#src_stations = ('Esrange', 'Pallas', 'Prestebakke')
+#src_rra = os.environ['DATA']+'/nird_data/reanalysis/Copernicus/ensemble_ozone/SCA_ENSa.2018.O3.yearlyrea.nc'
+src_ref = os.environ['DATA']+'/nird_data/models/results/OsloCTM3/drydepdevel/version2/C3RUN_mOSaic/trop_tracer/*.nc'
+src_ice = os.environ['DATA']+'/nird_data/models/results/OsloCTM3/drydepdevel/version2/C3RUN_mOSaic_ice/trop_tracer/*.nc'
+src_gs = "GROWING_SEASON_2005.nc"
 
-station_colors = {'Esrange':'blue','Pallas':'black','Prestebakke':'red'}
+src_obs = os.environ['DATA']+'/astra_data/observations/ozone/Pallas/*2005*'
+station = station_location['Pallas']
+
 # Clean up
 plt.close('all')
 
 try:
     data
 except NameError:
-    data = {}
-    for station in src_stations:
-        if station=='Barrow':
-            data.update({station:load_data(src+station+'/*', type="Barrow")})
-        else:
-            data.update({station:load_data(src+station+'/*.nas')})
+    data_list = []
+    data_list_ref = []
 
-    # Load regional model reanalysis 2018 and set time axis
-    data_rra = xr.open_dataset(src_rra)
-    data_rra['time'] = pd.date_range("2018-01-01", periods=365*24, freq='H')
+    for each in sorted(glob.glob(src_ref))[100:161]:
+        print(each)
+        data_list_ref.append(xr.open_dataset(each)['O3'].sel(lat=station.lat, lon=station.lon, lev=1000, method='nearest'))
 
+    for each in sorted(glob.glob(src_ice))[100:161]:
+        print(each)
+        data_list.append(xr.open_dataset(each)['O3'].sel(lat=station.lat, lon=station.lon, lev=1000, method='nearest'))
 
+    data_ref = xr.concat(data_list_ref, dim='time')
+    data = xr.concat(data_list, dim='time')
+    # Reading aproximate SGS
+    gs = xr.open_dataset(src_gs).sel(lat=station.lat, lon=station.lon, method='nearest')
+    # Reading ozone obs
+    obs = read_station_data_ebas(glob.glob(src_obs)[0])
+    
+# Scaling factor g/m^3 -> vmr (ppb)
+s_factor = 0.5*1e-3*1e9
 # Plot it
 fig1 = plt.figure(1, figsize=(16,9))
 ax11 = plt.subplot(211)
 ax12 = plt.subplot(212)
 
-for istation in src_stations:
-    selection = data[istation].where(((data[istation].index.month>=2)&(data[istation].index.month<=5))).dropna()
-    ax11.hist(selection, histtype='step', color=station_colors[istation])
-    ax12.plot(selection.groupby(selection.index.hour).mean(), color=station_colors[istation])
+#(data_ref*s_factor).groupby("time.dayofyear").mean().plot(ax=ax11, label='ref')
+#(data*s_factor).groupby("time.dayofyear").mean().plot(ax=ax11, label='ice')
+ra_ref = (data_ref*s_factor).rolling(time=3*24, center=True)
+ra_ice = (data*s_factor).rolling(time=3*24, center=True)
+ra_ref.mean().plot(ax=ax11, label='ref', color='blue')
+ra_ice.mean().plot(ax=ax11, label='ice', color='blue')
+obs.rolling(24, center=True).mean().plot(ax=ax11)
 
-ax11.axvline(30, ls=':', color='grey', linewidth=5)
+#((data-data_ref)*s_factor).groupby("time.dayofyear").mean().plot(ax=ax12)
+ax12.plot(ra_ref.mean().dropna('time').time.values, np.gradient(ra_ref.mean().dropna('time').values), label='ref', color='blue')
+ax12.plot(ra_ice.mean().dropna('time').time.values, np.gradient(ra_ice.mean().dropna('time').values), label='ice', color='blue')
 
-fig2 = plt.figure(2, figsize=(16,9))
-ax21 = plt.subplot()
-for istation in src_stations:
-    selection = data[istation].where(((data[istation].index.month>=2)&(data[istation].index.month<=5)&(data[istation].index.hour>10)&(data[istation].index.hour<18)&(data[istation]<30))).dropna()
-    ax21.plot(selection.groupby(selection.index.hour).mean(), color=station_colors[istation])
+SGS = (gs.where(gs['GDAY']==1, drop=True))['GDAY'].time
+for ax in fig1.axes:
+    ax.axvline(pd.to_datetime(SGS.values), color='red')
+    #ax.axvline(SGS.time.dt.dayofyear.values, color='red')
+    ax.set_ylabel('')
+    ax.set_xlabel('')
+    ax.set_title('')
+ax12.set_ylabel("$O_3$ (ppb)", y=1.1)
+ax12.set_xlabel("Time (day of year)")
+ax12.set_ylim(-0.5,0.5)
+ax11.set_xticklabels("")
+ax11.set_ylim(0,80)
+ax11.legend()
+
 # Show it
 plt.show(block=False)
