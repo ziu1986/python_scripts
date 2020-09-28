@@ -1,5 +1,49 @@
 from scipy.optimize import curve_fit
 
+def f_flunder(x, x_std, y, y_std):
+    '''
+    Bring flundered arrays to same shape and size.
+    
+    Parameters
+    ----------
+    x : array
+    1. dimension of the data
+
+    x_std : array
+    1. dimension uncertainty of the data
+
+    y : array
+    2. dimension of the data
+
+    y_std : array
+    2. dimension uncertainty of the data
+
+    Returns
+    -------
+    flat_x, flat_x_std, flat_y, flat_y_std
+    Flattened arrays of same sizes.
+    
+    '''
+    if (flunder(y)[~np.isnan(flunder(y))].size <= flunder(x)[~np.isnan(flunder(x))].size):
+        flat_y = flunder(y)[~np.isnan(flunder(y))]
+        flat_y_std = flunder(y_std)[~np.isnan(flunder(y))]
+        flat_x = flunder(x)[~np.isnan(flunder(y))]
+        try:
+            flat_x_std = flunder(x_std)[~np.isnan(flunder(y))]
+        except TypeError:
+            flat_x_std = 0
+    else:
+        flat_y = flunder(y)[~np.isnan(flunder(x))]
+        flat_y_std = flunder(y_std)[~np.isnan(flunder(x))]
+        flat_x = flunder(x)[~np.isnan(flunder(x))]
+        try:
+            flat_x_std = flunder(x_std)[~np.isnan(flunder(x))]
+        except TypeError:
+            flat_x_std = 0
+    #print(flat_y, flat_y_std, flat_x_y, flat_x_std_y)
+    return(flat_x, flat_x_std, flat_y, flat_y_std)
+
+
 # Define flipping function arguments
 flip = lambda f: lambda *a: f(*reversed(a))
 
@@ -44,9 +88,9 @@ def or_fit(x, y, x_std, y_std, **karg):
     deg = karg.pop("deg", 1)
     fit_range = karg.pop('range', np.arange(0,100))
 
-    f_y, f_y_std, f_x_y, f_x_std_y = f_flunder(x, y, x_std, y_std)
+    flat_x, flat_x_std, flat_y, flat_y_std = f_flunder(x, x_std, y, y_std)
 
-    p0 = [(f_y.max()-f_y.min())/(f_x_y.min()-f_x_y.max()),]
+    p0 = [(flat_y.max()-flat_y.min())/(flat_x.min()-flat_x.max()),]
         
     if deg==1:
         func = poly1
@@ -61,23 +105,23 @@ def or_fit(x, y, x_std, y_std, **karg):
         func = poly_free
     print('first guess', p0)
 
-    if type(f_x_std_y) == int:
+    if type(flat_x_std) == int:
         
         # Unweighted fit
-        popt, pcov = curve_fit(func, f_x_y, f_y, p0)
+        popt, pcov = curve_fit(func, flat_x, flat_y, p0)
         yfit = func(fit_range, *popt)
 
         print('Unweighted fit parameters:', popt)
         print('Covariance matrix:'); print(pcov)
-        print('rms error in fit:', rms(f_y, func(f_x_y, *popt)))
+        print('rms error in fit:', rms(flat_y, func(flat_x, *popt)))
 
         # Weighted fit
-        popt2, pcov2 = curve_fit(func, f_x_y, f_y, p0, sigma=f_y_std, absolute_sigma=True)
+        popt2, pcov2 = curve_fit(func, flat_x, flat_y, p0, sigma=flat_y_std, absolute_sigma=True)
         yfit2 = func(fit_range, *popt2)
 
         print('Weighted fit parameters:', popt2)
         print('Covariance matrix:'); print(pcov2)
-        print('rms error in fit:', rms(f_y, func(f_x_y, *popt2)))
+        print('rms error in fit:', rms(flat_y, func(flat_x, *popt2)))
 
         return(yfit, yfit2)
     else:
@@ -85,31 +129,12 @@ def or_fit(x, y, x_std, y_std, **karg):
         # Need to flip function arguments, because ODR expects parameters (list!) to come first,
         # while the other fitters expect them to be last
         flip_func = flip(func)
-        x_fit, y_fit = xy_uncertainty_regression(f_x_y, f_y, f_x_std_y, f_y_std, flip_func, p0, range=fit_range)
+        x_fit, y_fit = xy_uncertainty_regression(flat_x, flat_y, flat_x_std, flat_y_std, flip_func, p0, range=fit_range)
         
         
         return(y_fit)
         
 
-def f_flunder(x, y, x_std, y_std):
-    if (flunder(y)[~np.isnan(flunder(y))].size <= flunder(x)[~np.isnan(flunder(x))].size):
-        f_y = flunder(y)[~np.isnan(flunder(y))]
-        f_y_std = flunder(y_std)[~np.isnan(flunder(y))]
-        f_x_y = flunder(x)[~np.isnan(flunder(y))]
-        try:
-            f_x_std_y = flunder(x_std)[~np.isnan(flunder(y))]
-        except TypeError:
-            f_x_std_y = 0
-    else:
-        f_y = flunder(y)[~np.isnan(flunder(x))]
-        f_y_std = flunder(y_std)[~np.isnan(flunder(x))]
-        f_x_y = flunder(x)[~np.isnan(flunder(x))]
-        try:
-            f_x_std_y = flunder(x_std)[~np.isnan(flunder(x))]
-        except TypeError:
-            f_x_std_y = 0
-    #print(f_y, f_y_std, f_x_y, f_x_std_y)
-    return(f_y, f_y_std, f_x_y, f_x_std_y)
     
 def xy_uncertainty_regression(x, y, x_err, y_err, func, par, **karg):
     from scipy.odr import *
@@ -129,14 +154,6 @@ def xy_uncertainty_regression(x, y, x_err, y_err, func, par, **karg):
 
     # Use the in-built pprint method to give us results.
     out.pprint()
-    '''Beta: [ 1.01781493  0.48498006]
-    Beta Std Error: [ 0.00390799  0.03660941]
-    Beta Covariance: [[ 0.00241322 -0.01420883]
-    [-0.01420883  0.21177597]]
-    Residual Variance: 0.00632861634898189
-    Inverse Condition #: 0.4195196193536024
-    Reason(s) for Halting:
-    Sum of squares convergence'''
     print('rms error in fit:', rms(y, func(out.beta, x)))
     x_fit = fit_range
     y_fit = func(out.beta, x_fit)

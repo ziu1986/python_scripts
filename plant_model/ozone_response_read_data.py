@@ -1,3 +1,4 @@
+import os, glob
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -5,14 +6,15 @@ import datetime as dt
 from sun_hours import *
 
 # Read file
-data_xu = pd.read_csv("xu_2019.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
-data_pelle = pd.read_csv("pellegrini_2011.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
-data_watanabe = pd.read_csv("watanabe_2014.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
-data_pelle14 = pd.read_csv("pellegrini_2014.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
-data_kinose = pd.read_csv("kinose_2019.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
-data_watanabe13 = pd.read_csv("watanabe_2013.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
-data_gao = pd.read_csv("gao_2016.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
-data_harmens = pd.read_csv("harmens_2017.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
+src = os.environ['DATA'] + "/astra_data/observations/metadata_OzoneLUNA/"
+data_xu = pd.read_csv( src + "xu_2019.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
+data_pelle = pd.read_csv( src + "pellegrini_2011.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
+data_watanabe = pd.read_csv( src + "watanabe_2014.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
+data_pelle14 = pd.read_csv( src + "pellegrini_2014.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
+data_kinose = pd.read_csv( src + "kinose_2019.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
+data_watanabe13 = pd.read_csv( src + "watanabe_2013.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
+data_gao = pd.read_csv( src + "gao_2016.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
+data_harmens = pd.read_csv( src + "harmens_2017.dat",index_col=0, sep=' ', keep_default_na=False, na_values=['na'])
 
 # Ozone distributions
 xu_o3_mu = data_xu['o3_mean'][1::2]

@@ -228,7 +228,7 @@ ax16.errorbar(-1,-1,
               ls='None', marker='*', label='Harmens2016')
 
 ax15.set_xlabel("CUO (mmol $m^{-2}$)")
-ax11.set_ylabel("$g_s^{O_3}/g_s^{CF}$")
+ax11.set_ylabel("$g_{sto}^{O_3}/g_{sto}^{CF}$")
 ax12.set_ylabel("$A_n^{O_3}/A_n^{CF}$")
 
 ax13.set_ylabel("$R_{d}^{O_3}/R_{d}^{CF}$")
@@ -286,7 +286,7 @@ fig2 = plt.figure(2)
 fig2.canvas.set_window_title("ozone_response_pellegrini2014_cuo")
 ax21 = plt.subplot()
 ax21.errorbar((4.36,9.31,14.41,16.57,33.8), pelle14_pcuo, yerr=pelle14_pcuo_std, color='black', label="interpol linear")
-ax21.errorbar((4.36,9.31,14.41,16.57,33.8), pelle14_pcuo1, yerr=pelle14_pcuo1_std, color='red', label="endpoint gs")
+ax21.errorbar((4.36,9.31,14.41,16.57,33.8), pelle14_pcuo1, yerr=pelle14_pcuo1_stg_std, color='red', label="endpoint gs")
 ax21.errorbar((4.36,9.31,14.41,16.57,33.8), pelle14_pcuo2, yerr=pelle14_pcuo2_std, color='blue', label="startpoint gs")
 ax21.set_xlabel("$CUO_{lom}$ (mmol $m^{-2}$)")
 ax21.set_ylabel("$CUO_{tw}$ (mmol $m^{-2}$)")
@@ -299,7 +299,7 @@ ax21.legend()
 '''
 
 fig3 = plt.figure(3, figsize=(10,10))
-fig3.canvas.set_window_title("ozone_respons_ratios_jmax_vcmax")
+fig3.canvas.set_window_title("ozone_response_ratios_jmax_vcmax")
 ax31 = plt.subplot()
 
 #Robs = Jmax/Vcmax
@@ -431,14 +431,14 @@ ax41.set_ylabel("$J_{max}^{O_3}/J_{max}^{CF}$")
 ax42.set_ylabel("$V_{cmax}^{O_3}/V_{cmax}^{CF}$")
 
 # Figures for paper
-if  not b_con:
+if  b_con:
+    ax51.set_title("(c)", x=0.1, y=0.9, size='xx-large')
+    ax52.set_title("(d)", x=0.1, y=0.9, size='xx-large')
+else:
     fig5, (ax51, ax52, ax53) = plt.subplots(1,3, gridspec_kw={'width_ratios': [6, 6, 1]}, figsize=(18,6))
     fig5.canvas.set_window_title("ozone_response_gsto_anet_fits")
     ax51.set_title("(a)", x=0.1, y=0.9, size='xx-large')
     ax52.set_title("(b)", x=0.1, y=0.9, size='xx-large')
-
-ax51.set_title("(c)", x=0.1, y=0.9, size='xx-large')
-ax52.set_title("(d)", x=0.1, y=0.9, size='xx-large')
 
 ax53.remove()
 
@@ -547,18 +547,18 @@ ax52.plot(np.arange(0,100), yfit_A_free, ls='--', color='orange') #, label="lin.
 #ax52.plot(np.arange(0,100), yfit_A_2_free, ls='-.', color='orange') #, label="lin. fit: 2 dof; x-y")
 
 
-for ax in fig5.axes:
-    ax.set_ylim(0.,2.4)
-    ax.set_xlim(0.,100)
-
 if not b_con:
+    for ax in fig5.axes:
+        ax.set_ylim(0.,2.4)
+        ax.set_xlim(0.,100)
+
     ax51.legend(bbox_to_anchor=(2.15, 0.55), loc='upper left', borderaxespad=0.)
     ax52.legend(bbox_to_anchor=(1, 1), loc='upper left', borderaxespad=0.)
 else:
     ax51.legend(bbox_to_anchor=(2.15, 1), loc='upper left', borderaxespad=0.)
 
 ax51.set_xlabel("CUO (mmol $m^{-2}$)", x=1)
-ax51.set_ylabel("$g_s^{O_3}/g_s^{CF}$")
+ax51.set_ylabel("$g_{sto}^{O_3}/g_{sto}^{CF}$")
 ax52.set_ylabel("$A_n^{O_3}/A_n^{CF}$")
 
 

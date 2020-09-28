@@ -3,30 +3,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sample_from_norm import compute_cuo
 from mytools.met_tools import print_all
+from mytools.ozone_tools import flunder
 
 def ratio(x1, x2, sigma_x1, sigma_x2):
     rg = x1.values/x2.values
     rg_sigma = np.sqrt((1/x2.values*sigma_x1.values)**2 + (x1.values/x2.values**2*sigma_x2.values)**2)
     return(rg, rg_sigma)
 
-def flunder(x, **kwarg):
-    '''
-    Flatten any kind of list of lists, numpy.arrays, and numbers.
-    Returns a flat numpy array.
-    '''
-    verbose = kwarg.pop('verbose', False)
-    result = []
-    for elem in x:
-        try:
-            for num in elem:
-                if verbose:
-                    print(num)
-                result.append(num)
-        except TypeError:
-            if verbose:
-                print(elem)
-            result.append(elem)
-    return(np.array(result))
 try:
     harmens_o3_mu
 except NameError:
