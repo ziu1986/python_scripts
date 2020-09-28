@@ -74,9 +74,14 @@ def plot_3d(**karg):
     from mpl_toolkits.mplot3d import Axes3D # Register 3d projection
     import matplotlib as mpl
     variable = karg.pop("variable", "GSSUN")
+    b_rel = karg.pop("relative", False)
+    rotation = karg.pop('rot', (30, 157))
 
     fig5 = plt.figure(5)
-    fig5.canvas.set_window_title("ozone_sensitivity_rel_3d_%s" % (variable))
+    if b_rel:
+        fig5.canvas.set_window_title("ozone_sensitivity_rel_3d_%s" % (variable))
+    else:
+        fig5.canvas.set_window_title("ozone_sensitivity_3d_%s" % (variable))
     ax51 = plt.subplot(projection='3d')
     cmap = plt.cm.get_cmap('BuPu_r')#('viridis')
     
@@ -95,7 +100,7 @@ def plot_3d(**karg):
                     np.log(brazil_test_20[5].mean()['TOTVEGC']/
                            brazil_test_20[5].mean()['TOTVEGN'])))
         
-        norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+        #norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
         for ithresh in threshold:
             x_data.append(ithresh)
             y_data.append(100)
@@ -121,13 +126,54 @@ def plot_3d(**karg):
             x_data.append(ithresh)
             y_data.append(80)
             z_data.append((brazil_test_80[ithresh]['TOTVEGC']/brazil_test_80[ithresh]['TOTVEGN']).mean().values)
-        
-        
 
+    elif variable.find("g:A")>=0:
+        if variable.find("sun")>=0:
+            light = "SUN"
+        else:
+            light = "SHA"
+        print(['GS%s' % light])
+        # Define colormap norm
+        vmin = min((np.log(brazil_test[0].mean()['GS%s' % light]/
+                           brazil_test[0].mean()['PSN%s' % light]),
+                    np.log(brazil_test_20[5].mean()['GS%s' % light]/
+                           brazil_test_20[5].mean()['PSN%s' % light])))
+        vmax = max((np.log(brazil_test[0].mean()['GS%s' % light]/
+                           brazil_test[0].mean()['PSN%s' % light]),
+                    np.log(brazil_test_20[5].mean()['GS%s' % light]/
+                           brazil_test_20[5].mean()['PSN%s' % light])))
+        
+        #norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+        for ithresh in threshold:
+            x_data.append(ithresh)
+            y_data.append(100)
+            z_data.append((brazil_test[ithresh]['GS%s' % light]/brazil_test[ithresh]['PSN%s' % light]).mean().values)
+            
+        for ithresh in threshold_2:
+            x_data.append(ithresh)
+            y_data.append(0)
+            z_data.append((brazil_ref_ozone[0]['GS%s' % light]/brazil_ref_ozone[0]['PSN%s' % light]).mean().values)
+
+            x_data.append(ithresh)
+            y_data.append(20)
+            z_data.append((brazil_test_20[ithresh]['GS%s' % light]/brazil_test_20[ithresh]['PSN%s' % light]).mean().values)
+        
+            x_data.append(ithresh)
+            y_data.append(40)
+            z_data.append((brazil_test_40[ithresh]['GS%s' % light]/brazil_test_40[ithresh]['PSN%s' % light]).mean().values)
+        
+            x_data.append(ithresh)
+            y_data.append(60)
+            z_data.append((brazil_test_60[ithresh]['GS%s' % light]/brazil_test_60[ithresh]['PSN%s' % light]).mean().values)
+   
+            x_data.append(ithresh)
+            y_data.append(80)
+            z_data.append((brazil_test_80[ithresh]['GS%s' % light]/brazil_test_80[ithresh]['PSN%s' % light]).mean().values)
+    
     else:
         vmin = min((np.log(brazil_test[0].mean()[variable]),np.log(brazil_test_20[5].mean()[variable])))
         vmax = max((np.log(brazil_test[0].mean()[variable]),np.log(brazil_test_20[5].mean()[variable])))
-        norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+        #norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 
         for ithresh in threshold:
             x_data.append(ithresh)
@@ -158,19 +204,20 @@ def plot_3d(**karg):
                
     
     print("Min %s\n Max %s" %(vmin, vmax))
+    # Plot it
     x_data_plot = np.array(x_data)[16:].reshape(len(threshold_2),5)
     y_data_plot = np.array(y_data)[16:].reshape(len(threshold_2),5)
     z_data_plot = np.array(z_data)[16:].reshape(len(threshold_2),5)
     ax51.plot_wireframe(x_data_plot, y_data_plot, z_data_plot, color='grey')
     ax51.plot_surface(x_data_plot, y_data_plot, z_data_plot, cmap='BuPu')
-    z = cmap(norm(np.log(z_data)))
+    #z = cmap(norm(np.log(z_data)))
     ax51.scatter(x_data, y_data, z_data, c='black', s=50)
     ax51.ticklabel_format(axis='z', style='sci')
    
     
     #ax51.set_zscale('log')
     # Rotation
-    ax51.view_init(30, 157)
+    ax51.view_init(*rotation)
     ax51.set_xlabel("$O_3^{TH}$ (nmol $m^{-2} s^{-1}$)")
     ax51.set_ylabel("$[O_3]$ (ppb)")
     if variable.find('GS')>=0:
@@ -189,6 +236,9 @@ def plot_3d(**karg):
         ax51.set_zlabel("$NPP$ ($g m^{-2}s^{-1}$)")
     elif variable.find("GPP")>=0:
         ax51.set_zlabel("$GPP$ ($g m^{-2}s^{-1}$)")
+    elif variable.find("g:A")>=0:
+        ax51.set_zlabel("$G_{sto}/A_{n}$ ($\mu mol H_2O/CO_2 m^{-2}s^{-1}$)")
+        print(z_data)
     else:
         ax51.set_zlabel('C:N')
 
@@ -238,12 +288,12 @@ def save_data(**karg):
     directory = karg.pop('dir', os.environ['DATA'] + "/preprocessed_data/CLM50_ozone_luna_brazil")
     for ithr in threshold:
         brazil_test[ithr].groupby('time.month').mean().to_netcdf("%s/brazil_100_%s.nc" % (directory, ithr))
-        brazil_test[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_100_%s.nc" % (directory, ithr))
+        brazil_test[ithr][['NPP','GPP', 'TLAI']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_100_%s.nc" % (directory, ithr))
     for ithr in threshold_2:
-        brazil_test_40[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_40_%s.nc" % (directory, ithr))
-        brazil_test_20[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_20_%s.nc" % (directory, ithr))
-        brazil_test_60[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_60_%s.nc" % (directory, ithr))
-        brazil_test_80[ithr][['NPP','GPP']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_80_%s.nc" % (directory, ithr))
+        brazil_test_40[ithr][['NPP','GPP', 'TLAI']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_40_%s.nc" % (directory, ithr))
+        brazil_test_20[ithr][['NPP','GPP', 'TLAI']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_20_%s.nc" % (directory, ithr))
+        brazil_test_60[ithr][['NPP','GPP', 'TLAI']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_60_%s.nc" % (directory, ithr))
+        brazil_test_80[ithr][['NPP','GPP', 'TLAI']].apply(lambda x: x.groupby('time.month').sum()/np.unique(x.time.dt.year).size).to_netcdf("%s/brazil_npp_80_%s.nc" % (directory, ithr))
         brazil_test_40[ithr].groupby('time.month').mean().to_netcdf("%s/brazil_40_%s.nc" % (directory, ithr))
         brazil_test_20[ithr].groupby('time.month').mean().to_netcdf("%s/brazil_20_%s.nc" % (directory, ithr))
         brazil_test_60[ithr].groupby('time.month').mean().to_netcdf("%s/brazil_60_%s.nc" % (directory, ithr))
@@ -343,7 +393,7 @@ for ax in fig4.axes:
 
 plt.close('all')
 
-plot_3d(variable='GSSUN')
+plot_3d(variable='C:N')
 
 # Show it
 plt.show(block=False)
