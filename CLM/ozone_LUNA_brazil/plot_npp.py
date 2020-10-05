@@ -103,7 +103,8 @@ sums.append(brazil_0_ref_sum.sum()*60**2*area)
 
 # Reference obs
 if pp == 'GPP':
-    ax31.fill_between(np.arange(1,13), obs.min().values[1:].astype(float), obs.max().values[1:].astype(float), color='grey', alpha=0.5, label='obs')
+    obs_sel = obs.where((obs.Site=='K34') | (obs.Site=='K67') | (obs.Site=='RJA')).dropna()
+    ax31.fill_between(np.arange(1,13), obs_sel.min().values[1:].astype(float), obs_sel.max().values[1:].astype(float), color='grey', alpha=0.5, label='obs')
     
 ax11.set_xticks(np.arange(1,13))
 ax11.set_xticklabels([get_month_name(each, length=3) for each in np.arange(1,13)])
