@@ -83,7 +83,22 @@ def equi_state(data, **karg):
 # Clean up
 plt.close('all')
 basedir = os.environ['CESM_RUN']
-case = ('test_brazil_spin-up', 'test_2000_brazil_spin-up_ozone', 'test_2000_brazil_spin-up_ozone2', 'test_2000_brazil_spin-up_ozone_luna', 'spin-up_brazil_2000', 'spin-up_brazil_2000_ozone','spin-up_brazil_2000_ozone_luna_0','spin-up_brazil_2000_ozone_luna_100','spin-up_brazil_2000_ozone_luna_100_pwu')
+case = ('test_brazil_spin-up', 
+        'test_2000_brazil_spin-up_ozone', 
+        'test_2000_brazil_spin-up_ozone2', 
+        'test_2000_brazil_spin-up_ozone_luna', 
+        'spin-up_brazil_2000', 
+        'spin-up_brazil_2000_ozone',
+        'spin-up_brazil_2000_ozone_luna_0',
+        'spin-up_brazil_2000_ozone_luna_100',
+        'spin-up_brazil_2000_ozone_luna_100_pwu', 
+        'spin-up_brazil_2000_5.0.34', 
+        'spin-up_brazil_2000_5.0.34_ozone', 
+        'spin-up_brazil_2000_5.0.34_ozone_luna_100', 
+        'spin-up_brazil_2000_5.0.34_wohydr', 
+        'spin-up_brazil_2000_5.0.34_wohydr_ozone', 
+        'spin-up_brazil_2000_5.0.34_wohydr_ozone_luna_100',
+        'spin-up_brazil_2000_5.0.34_ozone_luna_100_sha')
 subdir1 = ('work', 'archive')
 subdir2 = {'work':'run/', 'archive':'lnd/hist/'}
 filename = "*.clm2.h0.*"
@@ -92,7 +107,7 @@ nyears = 20 #(20, 11)
 start = '0001' #('0411','0111')
 postAD = False
 
-src = basedir + '/' + subdir1[1] + '/' + case[-2] + '/' + subdir2[subdir1[1]] + filename
+src = basedir + '/' + subdir1[1] + '/' + case[-1] + '/' + subdir2[subdir1[1]] + filename
 
 data_list = []
 data_list_ozone = []
