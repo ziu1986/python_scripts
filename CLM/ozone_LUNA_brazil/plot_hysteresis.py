@@ -27,7 +27,7 @@ exp = ('brazil_2000_5.0.34',
        'brazil_2000_5.0.34_ozone_luna_0')
 
 data = []
-var = 'TOTVEGN'
+var = 'TLAI'
 
 for iexp in exp:
     data.append(load_data(src + iexp + '/lnd/hist/*.nc', var=[var]))
@@ -83,8 +83,8 @@ if b_fit:
 
     vals_list = {}
     covar_list = {}
-    func = funcP1d
-    par0 = ((0,0),(0,0))#[(-4.7, 0, 1/(365.*3)), (-2.7, -7.8, 1/(365.*5))]
+    func = funcExp#funcP1d
+    par0 = [(-4.7, 0, 1/(365.*3)), (-2.7, -7.8, 1/(365.*5))] #((0,0),(0,0))
     # Output
     f = open('fit_results_%s.txt' % var, 'w')
 
