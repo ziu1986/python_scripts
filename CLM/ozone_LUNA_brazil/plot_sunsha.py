@@ -36,7 +36,7 @@ def plot(fig1, var, **karg):
         par0 = (0,0)
 
         # Output
-        f = open('fit_results_%s.txt' % var, 'w')
+        f = open('fit_results_sunsha_%s.txt' % var, 'w')
 
     # Plot it
     
@@ -58,7 +58,7 @@ def plot(fig1, var, **karg):
                 f.write("%s \n%s \n%s" % (exp[i], vals, covar))
         
     for ax in fig1.axes:
-        #ax.set_ylim(0.95,1.01)
+        ax.set_ylim(0.95,1.01)
         ax.set_xlim(0,135)
         ax.legend()
     if var == 'PSN':
@@ -75,4 +75,4 @@ def plot(fig1, var, **karg):
     
 # Call
 fig1 = plt.figure(1,figsize=(10,8))
-plot(fig1, 'GS', fit=True)
+plot(fig1, 'PSN', fit=True)
