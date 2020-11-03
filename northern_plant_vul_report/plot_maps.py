@@ -51,9 +51,18 @@ def plot_stations(fig, extend, data):
     for index, station in data.iterrows():
         # Decode the text into unicode
         name = station.Name #codecs.decode(station.Name)
+        operational_ozone = station.operational_ozone
+        if operational_ozone == 'EBAS':
+            color = 'cornflowerblue'
+        elif operational_ozone == 'camp':
+            color = 'grey'
+        else:
+            color = 'black'
+            
+            
         # Plot station
         ax.plot(station.lon, station.lat, marker='o', ls='None', color='None', markersize=12, alpha=0.7, transform=ccrs.Geodetic(), label="%2.0f %s" % (index+1, name))
-        ax.plot(station.lon, station.lat, marker='o', ls='None', color='black', markersize=12, alpha=0.7, transform=ccrs.Geodetic(), label="_")
+        ax.plot(station.lon, station.lat, marker='o', ls='None', color=color, markersize=12, alpha=0.7, transform=ccrs.Geodetic(), label="_")
         if station.Name=="Vindeln":
             tt = text_transform_2
         elif station.Name=="Rosinedal":
@@ -62,53 +71,16 @@ def plot_stations(fig, extend, data):
             tt = text_transform
             
         ax.text(station.lon, station.lat, index+1, #unicode(station.Name),
-                verticalalignment='center', horizontalalignment='right', size='xx-large', color='white',
+                verticalalignment='center', horizontalalignment='right', size='x-large', color='white',
                 transform=tt,
-                bbox=dict(facecolor='black', alpha=0.5, boxstyle='round'))
+                bbox=dict(facecolor=color, alpha=0.5, boxstyle='round'))
         
     legend = ax.legend(bbox_to_anchor=(0.95, 0.95))
 
-    #ax.plot(station_location['Jergul'].lon, station_location['Jergul'].lat, fillstyle='left', marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-    #ax.plot(station_location['Karasjok'].lon, station_location['Karasjok'].lat, fillstyle='right', marker='o', color='orange', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-    #ax.plot(station_location['Svanvik'].lon, station_location['Svanvik'].lat, marker='o', color='blueviolet', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-    #ax.plot(station_location['Esrange'].lon, station_location['Esrange'].lat, marker='o', color='blue', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-    #ax.plot(station_location['Pallas'].lon, station_location['Pallas'].lat, marker='o', color='black', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-    #ax.plot(station_location['Janiskoski'].lon, station_location['Janiskoski'].lat, marker='o', color='grey', markersize=12, alpha=0.7, transform=ccrs.Geodetic())
-    
-    # Add text.
-    #ax.text(station_location['Jergul'].lon, station_location['Jergul'].lat, u'Jergul',
-    #          verticalalignment='center', horizontalalignment='right', size='xx-large',
-    #          transform=text_transform,
-    #          bbox=dict(facecolor='orange', alpha=0.5, boxstyle='round'))
-    #ax.text(station_location['Karasjok'].lon, station_location['Karasjok'].lat, u'Karasjok',
-    #          verticalalignment='center', horizontalalignment='right', size='xx-large',
-    #          transform=text_transform_2,
-    #          bbox=dict(facecolor='orange', alpha=0.5, boxstyle='round'))
-    #ax.text(station_location['Svanvik'].lon, station_location['Svanvik'].lat, u'Svanvik',
-    #          verticalalignment='center', horizontalalignment='right', size='xx-large',
-    #          transform=text_transform,
-    #          bbox=dict(facecolor='blueviolet', alpha=0.5, boxstyle='round'))
-    #ax.text(station_location['Esrange'].lon, station_location['Esrange'].lat, u'Esrange',
-    #          verticalalignment='center', horizontalalignment='right', size='xx-large', color='white',
-    #          transform=text_transform_2,
-    #          bbox=dict(facecolor='blue', alpha=0.5, boxstyle='round'))
-    #ax.text(station_location['Pallas'].lon, station_location['Pallas'].lat, u'Pallas',
-    #          verticalalignment='center', horizontalalignment='right', size='xx-large', color='white',
-    #          transform=text_transform,
-    #          bbox=dict(facecolor='black', alpha=0.5, boxstyle='round'))
-    #ax.text(station_location['Janiskoski'].lon, station_location['Janiskoski'].lat, u'Janiskoski',
-    #          verticalalignment='center', horizontalalignment='right', size='xx-large',
-    #          transform=text_transform,
-    #          bbox=dict(facecolor='grey', alpha=0.5, boxstyle='round'))
-
-    # Plot the frame
-    #plot_frame(ax, extend)
-    
-
-       
+          
 plt.close("all")
 
-data = read_data("stations_report.csv")
+data = read_data("stations_report_v2.csv")
 fig1 = plt.figure(1)
 fig1.canvas.set_window_title("map")
 
