@@ -80,8 +80,10 @@ def expo(x, m):
     '''
     return(np.exp(x*m))
 
-def rms(y, yfit):
-    return np.sqrt(np.sum((y-yfit)**2)/np.size(y))
+def rms(y, yfit, **karg):
+    weights = karg.pop('weight', np.ones_like(yfit))
+    #return np.sqrt(np.sum((y-yfit)**2)/np.size(y))
+    return np.sqrt(np.nansum(weights*(y-yfit)**2)/np.nansum(weights))
 
 def or_fit(x, y, x_std, y_std, **karg):
 
