@@ -317,7 +317,7 @@ ax31.set_ylim(0,1.2)
 b_con = True
 # Figures for paper
 if b_con:
-    fig4, ((ax41, ax42, ax43), (ax51, ax52, ax53)) = plt.subplots(2,3, gridspec_kw={'width_ratios': [6, 6, 1]}, figsize=(18,9))
+    fig4, ((ax41, ax42, ax43), (ax51, ax52, ax53)) = plt.subplots(2,3, gridspec_kw={'width_ratios': [6, 6, 1]}, figsize=(17,9))
     fig4.canvas.set_window_title("ozone_response_fits")
 else:
     fig4, (ax41, ax42, ax43) = plt.subplots(1,3, gridspec_kw={'width_ratios': [6, 6, 1]}, figsize=(18,6))
