@@ -17,6 +17,43 @@ def read_data(src):
     data = pd.ExcelFile(src)
     return(data)
 
+def plot_pody_gsto_o3(ax, date, **karg):
+    o3_color = karg.pop('o3color', 'blueviolet')
+    # Define additional axis
+    ax2 = ax.twinx()
+    ax3 = ax.twinx()
+
+    date['Gsto_l (mmol/m^2/s)'].plot(ax=ax, ls='None', marker='o', label='$G_{sto}^{leaf}$')
+    date['O3_zR (ppb)'].plot(ax=ax2, ls='None', marker='x', color=o3_color, alpha=0.5, label='$[O_3]$')
+    date['PODY (mmol/m^2 PLA)'].plot(ax=ax3, ls='None', marker='s', color='darkgreen', label='$POD_y$')
+    
+    # Adjust axis
+    ax.set_ylim(0,250)
+    ax.set_ylabel('$G_{sto}^{leaf}$ ($mmol\,m^{-2}s^{-1})$')
+    
+    ax2.set_ylim(0,250)
+    ax2.set_yticklabels("")
+    ax2.set_yticks(())
+    
+    ax3.set_ylim(0,16)
+    ax3.set_ylabel('$POD_y$ ($mmol\,m^{-2}$ PLA)')
+    ax3.grid(b='off')
+
+    ax.set_xlabel("Time (doy)")
+    ax.set_xlim(start_day*24,stop_day*24)
+    ax.set_xticks(np.arange(start_day*24,stop_day*24,30*24))
+    ax.set_xticklabels(np.arange(start_day*24,stop_day*24,30*24)/24)
+
+    # Legend
+    lines, labels = ax.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    lines3, labels3 = ax3.get_legend_handles_labels()
+    ax.legend(lines + lines2 + lines3, labels + labels2 + labels3, loc="upper left")
+
+def uncumsum(date, var):
+    test = date[var].values
+    # Undo cum sum and return new pandas series
+    return(pd.Series(np.append(test[0], (test[2:]-test[1:-1])), index=date.index[:-1]))
 
 # Read the data only once
 try:
@@ -57,53 +94,67 @@ for ax in fig1.axes:
     ax.legend()
     ax.set_ylim(0,15)
 
-fig2 = plt.figure(2)
+fig2 = plt.figure(2, figsize=(12,12))
 fig2.canvas.set_window_title("DO3SE_results_rel")
 
-ax21 = plt.subplot(211)
-ax22 = plt.subplot(212)
+ax21 = plt.subplot(311)
+ax22 = plt.subplot(312)
+ax23 = plt.subplot(313)
+ax21.set_title("(a)", x=0.025, y=0.85)
+ax22.set_title("(b)", x=0.025, y=0.85)
+ax23.set_title("(c)", x=0.025, y=0.85)
 
-for spec in species:
+
+for ax, spec in zip((ax21, ax22, ax23), species):
     data = data_list[spec]
-    for ax, sheet, color in zip((ax21, ax22), data.sheet_names[1::2][:3], ('violet', 'purple')):
-        date_clim = pd.read_excel(data, data.sheet_names[2::2][2], header=2)
+    date_clim = pd.read_excel(data, data.sheet_names[1::2][2], header=2)
+    print(spec)
+    for sheet, color, year in zip(data.sheet_names[1::2][:2], ('violet', 'purple'), ("2018", "2019")):
         date = pd.read_excel(data, sheet, header=2)
         date.index = date.index+(date['Day'].iloc[0]-1)*24
         date = date.reindex(np.arange(1,365*24))
-        (date['PODY (mmol/m^2 PLA)']-date_clim['PODY (mmol/m^2 PLA)']).plot(ax=ax, linewidth=3, label=spec, color=color, use_index=False)
+        uncum_date_clim = uncumsum(date_clim,'PODY (mmol/m^2 PLA)')
+        delta_uncum_date = (uncumsum(date, 'PODY (mmol/m^2 PLA)')-uncum_date_clim)/uncum_date_clim.std()
+        print(">+1sigma: %2.3f" % (delta_uncum_date.where(delta_uncum_date>1).count()/float(delta_uncum_date.count())*100))
+        print("<-1sigma: %2.3f" % (delta_uncum_date.where(delta_uncum_date<-1).count()/float(delta_uncum_date.count())*100))
+        delta_uncum_date.plot(ax=ax, linewidth=3, label=year, color=color, use_index=False)
 
-ax22.set_xlabel("Time (doy)")
-ax22.set_ylabel('$POD_y$ ($mmol\,m^{-2}$ PLA)', y=1)
+ax23.set_xlabel("Time (doy)")
+#ax22.set_ylabel('$POD_y$ ($mmol\,m^{-2}$ PLA)')
+ax22.set_ylabel('$\Delta POD_y$ ($\sigma_{clim}$)')
 for ax in fig2.axes:
     ax.set_xlim(start_day*24,stop_day*24)
     ax.set_xticks(np.arange(start_day*24,stop_day*24,30*24))
     ax.set_xticklabels(np.arange(start_day*24,stop_day*24,30*24)/24)
     ax.legend()
-    ax.set_ylim(-6,6)
+    #ax.set_ylim(-0.02,0.02)
+    ax.set_ylim(-15,15)
 
 
-fig3 = plt.figure(3, figsize=(16,9))
-ax31 = plt.subplot()
-ax32 = ax31.twinx()
-ax33 = ax31.twinx()
+fig3 = plt.figure(3, figsize=(16,6))
+fig4 = plt.figure(4, figsize=(16,6))
+fig5 = plt.figure(5, figsize=(16,6))
 
-date['Gsto_l (mmol/m^2/s)'].plot(ax=ax31, ls='None', marker='o', label='$G_{sto}^{leaf}$')
-date['PODY (mmol/m^2 PLA)'].plot(ax=ax32, ls='None', marker='s', color='darkgreen', label='$POD_y$')
-date['O3_zR (ppb)'].plot(ax=ax33, ls='None', marker='x', color='blueviolet', alpha=0.5, label='$[O_3]$')
+for spec, fig in zip(species, (fig3, fig4, fig5)):
+    fig.canvas.set_window_title("DO3SE_results_pody_gsto_o3_%s" % spec.replace(' ', '_'))
+    ax1, ax2, ax3 = fig.subplots(1,3)
+    ax1.set_title("(a)")
+    ax2.set_title("(b)")
+    ax3.set_title("(c)")
 
-ax31.set_ylim(0,250)
-ax31.set_ylabel('$G_{sto}^{leaf}$ ($mmol\,m^{-2}s^{-1})$')
-ax32.set_ylim(0,16)
-ax32.set_ylabel('$POD_y$ ($mmol\,m^{-2}$ PLA)')
-ax33.set_ylim(0,250)
-ax33.set_yticklabels("")
-#ax33.set_yticks()
+    data = data_list[spec]
+    for ax, sheet, color in zip(fig.axes, data.sheet_names[1::2][:3], ('violet', 'purple', 'blueviolet')):
+        date = pd.read_excel(data, sheet, header=2)
+        date.index = date.index+(date['Day'].iloc[0]-1)*24
+        date = date.reindex(np.arange(1,365*24))
+        # Plot data
+        plot_pody_gsto_o3(ax, date, o3color=color)
 
-ax31.set_xlabel("Time (doy)")
-ax31.set_xlim(start_day*24,stop_day*24)
-ax31.set_xticks(np.arange(start_day*24,stop_day*24,30*24))
-ax31.set_xticklabels(np.arange(start_day*24,stop_day*24,30*24)/24)
+    for ax in fig.axes[1:-2]:
+        ax.set_ylabel("")
+        ax.set_yticklabels("")
 
+    
 """
 ax32 = plt.subplot(312)
 ax33 = plt.subplot(313)
