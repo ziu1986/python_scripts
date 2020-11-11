@@ -37,7 +37,7 @@ def plot_pody_gsto_o3(ax, date, **karg):
     
     ax3.set_ylim(0,16)
     ax3.set_ylabel('$POD_y$ ($mmol\,m^{-2}$ PLA)')
-    ax3.grid(b='off')
+    ax3.grid(b=False)
 
     ax.set_xlabel("Time (doy)")
     ax.set_xlim(start_day*24,stop_day*24)
@@ -54,6 +54,21 @@ def uncumsum(date, var):
     test = date[var].values
     # Undo cum sum and return new pandas series
     return(pd.Series(np.append(test[0], (test[2:]-test[1:-1])), index=date.index[:-1]))
+
+def biomass(uptake, **karg):
+    species = karg.pop('species', 'Norway spruce')
+    b_above_gr = karg.pop('above_ground', False)
+
+    biomass_tot = {'Birch': (100.2, 0.93), 'Norway spruce': (99.8, 0.22), "Perennial grass": (94.7, 0.62)}
+    biomass_above_gr = {'Perennial grass': (93.9, 0.99)}
+
+
+    if (b_above_gr) & (species == 'Perennial grass'):
+        return(np.ones_like(uptake)*biomass_above_gr[species][0]-biomass_above_gr[species][1]*uptake)
+    else:
+        return(np.ones_like(uptake)*biomass[species][0]-biomass[species][1]*uptake)
+
+    
 
 # Read the data only once
 try:
@@ -108,20 +123,39 @@ ax23.set_title("(c)", x=0.025, y=0.85)
 for ax, spec in zip((ax21, ax22, ax23), species):
     data = data_list[spec]
     date_clim = pd.read_excel(data, data.sheet_names[1::2][2], header=2)
+
+    #probe_p = []
+    #probe_n = []
+
     print(spec)
     for sheet, color, year in zip(data.sheet_names[1::2][:2], ('violet', 'purple'), ("2018", "2019")):
+        print(year)
         date = pd.read_excel(data, sheet, header=2)
         date.index = date.index+(date['Day'].iloc[0]-1)*24
         date = date.reindex(np.arange(1,365*24))
         uncum_date_clim = uncumsum(date_clim,'PODY (mmol/m^2 PLA)')
-        delta_uncum_date = (uncumsum(date, 'PODY (mmol/m^2 PLA)')-uncum_date_clim)/uncum_date_clim.std()
-        print(">+1sigma: %2.3f" % (delta_uncum_date.where(delta_uncum_date>1).count()/float(delta_uncum_date.count())*100))
-        print("<-1sigma: %2.3f" % (delta_uncum_date.where(delta_uncum_date<-1).count()/float(delta_uncum_date.count())*100))
-        delta_uncum_date.plot(ax=ax, linewidth=3, label=year, color=color, use_index=False)
+        delta_uncum_date = (uncumsum(date, 'PODY (mmol/m^2 PLA)')-uncum_date_clim)
+        delta_uncum_date = pd.DataFrame({'FstoY':delta_uncum_date, 'Month':date_clim['Month']})
+        uncum_date_clim = pd.DataFrame({'FstoY':uncum_date_clim, 'Month':date_clim['Month']})
+        delta_uncum_date = delta_uncum_date[['FstoY']].div(uncum_date_clim.groupby('Month').transform('std')).join(date_clim['Month']) 
+        #probe_p.append(delta_uncum_date.where(delta_uncum_date['FstoY']>1).groupby('Month').count()/(delta_uncum_date.groupby('Month').count())*100)
+        #probe_n.append(delta_uncum_date.where(delta_uncum_date['FstoY']<-1).groupby('Month').count()/(delta_uncum_date.groupby('Month').count())*100)
+        print(">+1sigma:") 
+        print(delta_uncum_date.where(delta_uncum_date['FstoY']>1).groupby('Month').count()/(delta_uncum_date.groupby('Month').count())*100)
+        print("<-1sigma:")
+        print(delta_uncum_date.where(delta_uncum_date['FstoY']<-1).groupby('Month').count()/(delta_uncum_date.groupby('Month').count())*100)
+
+        delta_uncum_date['FstoY'].plot(ax=ax, linewidth=3, label=year, color=color, use_index=False)
+    #plot_data_p = pd.DataFrame({"2018":probe_p[0], "2019":probe_p[1]})
+    #plot_data_n = pd.DataFrame({"2018":probe_n[0], "2019":probe_n[1]})
+
+    #plot_data_p.plot.bar(ax=ax, width=0.85, color=('violet', 'purple'))
+    #plot_data_n.plot.bar(ax=ax, width=0.85, color=('violet', 'purple'))
+        
+    
 
 ax23.set_xlabel("Time (doy)")
-#ax22.set_ylabel('$POD_y$ ($mmol\,m^{-2}$ PLA)')
-ax22.set_ylabel('$\Delta POD_y$ ($\sigma_{clim}$)')
+#ax22.set_ylabel('$\Delta POD_y$ ($\sigma_{clim}$)')
 for ax in fig2.axes:
     ax.set_xlim(start_day*24,stop_day*24)
     ax.set_xticks(np.arange(start_day*24,stop_day*24,30*24))
