@@ -17,6 +17,7 @@ def buck_vapor_press(temperature):
     return(press*1e3)
 
 def VPD(relhum, temperature):
+    # Satuation water vapor pressure
     Ps = buck_vapor_press(temperature)
     vpd = Ps * (1-relhum/100)
     # Return VPD in Pa
