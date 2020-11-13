@@ -48,7 +48,7 @@ def plot_stations(fig, extend, data):
     text_transform_2 = offset_copy(geodetic_transform, units='dots', x=15, y=20)
     text_transform_3 = offset_copy(geodetic_transform, units='dots', x=-15, y=-20)
 
-    for index, station in data.iterrows():
+    for index, station in data.sort_values(by=['lat']).reset_index(drop=True).iterrows():
         # Decode the text into unicode
         name = station.Name #codecs.decode(station.Name)
         operational_ozone = station.operational_ozone
