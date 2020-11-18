@@ -68,7 +68,26 @@ def biomass(uptake, **karg):
     else:
         return(np.ones_like(uptake)*biomass[species][0]-biomass[species][1]*uptake)
 
+def correlations(date, var, **karg):
+    '''
+    Compute correlation for each veriable in DO3SE model.
     
+    '''
+    b_uncum = karg.pop('uncum', False)
+    keys = karg.pop('keys', date.keys())
+    output = {}
+    if b_uncum:
+        date_var = uncumsum(date, var)
+    else:
+        date_var = date[var]
+    for each in keys:
+        tmp = date_var.corr(date[each])
+        if ~np.isnan(tmp):
+            #print(each, date_var.corr(date[each]))
+            output.update({each: tmp})
+
+    return(output)
+
 
 # Read the data only once
 try:
@@ -110,8 +129,11 @@ for ax in fig1.axes:
     ax.set_ylim(0,15)
 
 fig2 = plt.figure(2, figsize=(12,12))
-fig2.canvas.set_window_title("DO3SE_results_rel")
-
+b_delta = False
+if b_delta:
+    fig2.canvas.set_window_title("DO3SE_results_rel_clim")
+else:
+    fig2.canvas.set_window_title("DO3SE_results_rel")
 ax21 = plt.subplot(311)
 ax22 = plt.subplot(312)
 ax23 = plt.subplot(313)
@@ -120,50 +142,61 @@ ax22.set_title("(b)", x=0.025, y=0.85)
 ax23.set_title("(c)", x=0.025, y=0.85)
 
 
+#key_list = ('Gsto (mmol/m^2/s)', 'Vd (m/s)', 'f_temp', 'VPD (kPa)', 'Ts_C (C)', 'PAR (umol/m^2/s)', 'f_light', 'LAI', 'f_phen', 'O3_zR (ppb)', 'precip (mm)', 'AOT40 (ppm)', 'f_VPD', 'LWP (MPa)', 'Rsur (s/m)')
+key_list = ('Gsto (mmol/m^2/s)', 'f_temp', 'VPD (kPa)', 'Ts_C (C)', 'PAR (umol/m^2/s)', 'f_light', 'f_phen', 'O3_zR (ppb)', 'precip (mm)', 'AOT40 (ppm)', 'f_VPD', 'Vd (m/s)')
+
+correlation_pody_list = []
+correlation_gsto_list = []
+
 for ax, spec in zip((ax21, ax22, ax23), species):
     data = data_list[spec]
     date_clim = pd.read_excel(data, data.sheet_names[1::2][2], header=2)
 
-    #probe_p = []
-    #probe_n = []
-
+    # Compute correlation coefficience for all variables
+    # ASort dictionary: sorted(correlations(date_clim, "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list).items(), key=lambda x: x[1], reverse=True)
+    correlation_pody_list.append((correlations(date_clim.where((date_clim['Day']>100)&(date_clim['Day']<270)), "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list)))
+    correlation_gsto_list.append((correlations(date_clim.where((date_clim['Day']>100)&(date_clim['Day']<270)), "Gsto_l (mmol/m^2/s)", keys=key_list)))
     print(spec)
     for sheet, color, year in zip(data.sheet_names[1::2][:2], ('violet', 'purple'), ("2018", "2019")):
         print(year)
         date = pd.read_excel(data, sheet, header=2)
         date.index = date.index+(date['Day'].iloc[0]-1)*24
         date = date.reindex(np.arange(1,365*24))
+
+        # Compute correlation coefficience for all variables
+        correlation_pody_list.append((correlations(date.where((date['Day']>100)&(date['Day']<270)), "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list)))
+        correlation_gsto_list.append((correlations(date.where((date['Day']>100)&(date['Day']<270)), "Gsto_l (mmol/m^2/s)", keys=key_list)))
+        
+        uncum_date = pd.DataFrame({'FstoY':uncumsum(date, 'PODY (mmol/m^2 PLA)'), 'Month':date['Month']})
+
         uncum_date_clim = uncumsum(date_clim,'PODY (mmol/m^2 PLA)')
+                
         delta_uncum_date = (uncumsum(date, 'PODY (mmol/m^2 PLA)')-uncum_date_clim)
         delta_uncum_date = pd.DataFrame({'FstoY':delta_uncum_date, 'Month':date_clim['Month']})
+
         uncum_date_clim = pd.DataFrame({'FstoY':uncum_date_clim, 'Month':date_clim['Month']})
-        delta_uncum_date = delta_uncum_date[['FstoY']].div(uncum_date_clim.groupby('Month').transform('std')).join(date_clim['Month']) 
-        #probe_p.append(delta_uncum_date.where(delta_uncum_date['FstoY']>1).groupby('Month').count()/(delta_uncum_date.groupby('Month').count())*100)
-        #probe_n.append(delta_uncum_date.where(delta_uncum_date['FstoY']<-1).groupby('Month').count()/(delta_uncum_date.groupby('Month').count())*100)
-        print(">+1sigma:") 
-        print(delta_uncum_date.where(delta_uncum_date['FstoY']>1).groupby('Month').count()/(delta_uncum_date.groupby('Month').count())*100)
-        print("<-1sigma:")
-        print(delta_uncum_date.where(delta_uncum_date['FstoY']<-1).groupby('Month').count()/(delta_uncum_date.groupby('Month').count())*100)
-
-        delta_uncum_date['FstoY'].plot(ax=ax, linewidth=3, label=year, color=color, use_index=False)
-    #plot_data_p = pd.DataFrame({"2018":probe_p[0], "2019":probe_p[1]})
-    #plot_data_n = pd.DataFrame({"2018":probe_n[0], "2019":probe_n[1]})
-
-    #plot_data_p.plot.bar(ax=ax, width=0.85, color=('violet', 'purple'))
-    #plot_data_n.plot.bar(ax=ax, width=0.85, color=('violet', 'purple'))
         
-    
+        delta_siguncum_date = delta_uncum_date[['FstoY']].div(uncum_date_clim.groupby('Month').transform('std')).join(date_clim['Month']) 
+        print(">+1sigma:") 
+        print(delta_siguncum_date.where(delta_siguncum_date['FstoY']>1).groupby('Month').count()/(delta_siguncum_date.groupby('Month').count())*100)
+        print("<-1sigma:")
+        print(delta_siguncum_date.where(delta_siguncum_date['FstoY']<-1).groupby('Month').count()/(delta_siguncum_date.groupby('Month').count())*100)
+
+        if b_delta:
+            delta_uncum_date['FstoY'].plot(ax=ax, linewidth=3, label=year, color=color, use_index=False)
+        else:
+            uncum_date['FstoY'].plot(ax=ax, linewidth=3, label=year, color=color,ls='None', marker='o', fillstyle='none', use_index=False)
 
 ax23.set_xlabel("Time (doy)")
-#ax22.set_ylabel('$\Delta POD_y$ ($\sigma_{clim}$)')
+ax22.set_ylabel('$\Delta POD_y$ ($mmol\,m^{-2}\,s^{-1}$)')
 for ax in fig2.axes:
     ax.set_xlim(start_day*24,stop_day*24)
     ax.set_xticks(np.arange(start_day*24,stop_day*24,30*24))
     ax.set_xticklabels(np.arange(start_day*24,stop_day*24,30*24)/24)
     ax.legend()
-    #ax.set_ylim(-0.02,0.02)
-    ax.set_ylim(-15,15)
-
+    if b_delta:
+        ax.set_ylim(-0.02,0.02)
+    
 
 fig3 = plt.figure(3, figsize=(16,6))
 fig4 = plt.figure(4, figsize=(16,6))
@@ -188,7 +221,36 @@ for spec, fig in zip(species, (fig3, fig4, fig5)):
         ax.set_ylabel("")
         ax.set_yticklabels("")
 
+# Plot correlation coefficients
+corr_birch = pd.DataFrame(correlation_pody_list[:3], index=('clim', '2018', '2019'))
+corr_spruce = pd.DataFrame(correlation_pody_list[3:6], index=('clim', '2018', '2019'))
+corr_grass = pd.DataFrame(correlation_pody_list[6:], index=('clim', '2018', '2019'))
+
+fig6 = plt.figure(6, figsize=(12,12))
+fig6.canvas.set_window_title("DO3SE_results_pody_corr")
+ax61 = plt.subplot(311)
+ax62 = plt.subplot(312)
+ax63 = plt.subplot(313)
+
+corr_birch.transpose().plot.bar(ax=ax61, color=('blueviolet','violet','purple'))
+corr_spruce.transpose().plot.bar(ax=ax62, color=('blueviolet','violet','purple'))
+corr_grass.transpose().plot.bar(ax=ax63, color=('blueviolet','violet','purple'))
+
+for ax, num in zip(fig6.axes, ('(a)', '(b)', '(c)')):
+    ax.set_ylim(-0.7,1)
+    ax.set_title(num, x=0.025, y=0.875)
+    ax.legend(loc='lower right', ncol=3)
+    ax.axhline(0.8, color='grey', ls='--')
     
+ax61.set_xticklabels(())
+ax62.set_xticklabels(())
+
+ax63.set_xticklabels([label.get_text()[:label.get_text().find(' ')] for label in ax63.get_xticklabels()])
+    
+ax62.set_ylabel("$R^2$")
+
+
+
 """
 ax32 = plt.subplot(312)
 ax33 = plt.subplot(313)
