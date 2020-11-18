@@ -47,27 +47,37 @@ data = xr.concat(data_list, dim='case')
 data.coords['case'] = np.arange(len(case))
 
 # Generate pandas series for bar plotting
-pd_data = (data.mean(dim='time')/data.mean(dim='time').sel(case=0)-1).to_dataframe()
+pd_data = (data.mean(dim='time')/data.mean(dim='time').sel(case=0)).to_dataframe()
 pd_data.index = case_name
+pd_data_woh = (data.mean(dim='time')/data.mean(dim='time').sel(case=4)).to_dataframe()
+pd_data_woh.index = case_name
 
 
 # Plot it
-fig1 = plt.figure(1, figsize=(10,8))
+fig1 = plt.figure(1, figsize=(10,10))
 fig1.canvas.set_window_title("sens_spinup")
-ax11 = plt.subplot()
-(pd_data.transpose().iloc[:,1:]*100).plot.bar(ax=ax11, rot=0, width=0.95, color=colors[2:])
-for p in ax11.patches:
-    if p.get_height() < 0:
-        color='white'
-    else:
-        color='black'
+ax11 = plt.subplot(211)
+ax11.set_title('(a)')
+ax12 = plt.subplot(212)
+ax12.set_title('(b)')
+
+(pd_data[:-2].transpose().iloc[:,1:]*100).plot.bar(ax=ax11, rot=0, width=0.95, color=colors[2:])
+(pd_data_woh[-3:].transpose().iloc[:,1:]*100).plot.bar(ax=ax12, rot=0, width=0.55, color=colors[2:4])
+
+for ax in fig1.axes:
+    for p in ax.patches:
+        if p.get_height() < 0:
+            color='white'
+        else:
+            color='black'
     
-    ax11.annotate("%d" % (np.abs(np.round(p.get_height(),2))), (p.get_x(), p.get_height()), size='x-large', color=color)
+        ax.annotate("%d" % (np.abs(np.round(p.get_height(),2))), (p.get_x(), p.get_height()*1.01), size='x-large', color=color)
 
-
-ax11.legend(ncol=3)
-ax11.set_ylim(-35, 35)
-ax11.set_ylabel("$(X_{case}/X_{ctrl})_i -1 $ (%)")
+for ax in fig1.axes:
+    ax.legend(ncol=4)
+    ax.set_ylim(0, 150)
+ax11.set_ylabel("$(X_{case}/X_{ctrl})_i $ (%)")
+ax12.set_ylabel("$(X_{case}/X_{ctrl}^{w/o\,hydr.})_i $ (%)")
 
 
 # Show it
