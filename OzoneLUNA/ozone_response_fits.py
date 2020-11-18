@@ -216,3 +216,19 @@ yfit_Rd_2, yfit_Rd2_2 = or_fit(pcuo, Rd, 0, Rd_std, deg='exp')
 print("\n+++ JmaxO3/Jmax0/VcmaxO3/Vcmax0 +++")
 yfit_VcmaxVSJmax, yfit_VcmaxVSJmax2 = or_fit(Jmax, Vcmax, 0, Vcmax_std, deg='origin', range=np.arange(0, 2.1, 0.1))
 yfit_VcmaxVSJmax_2 = or_fit(Jmax, Vcmax, Jmax_std, Vcmax_std, deg='origin', range=np.arange(0, 2.1, 0.1))
+
+# Actual model test for Danica's values
+broadleafPhotoInt    = 0.8752  # units = unitless
+broadleafPhotoSlope  = 0.      # units = per mmol m^-2'
+broadleafCondInt     = 0.9125  # units = unitless
+broadleafCondSlope   = 0.      # units = per mmol m^-2
+
+# Print rms for stomatal conductance and photsynthesis
+print('---OzoneMod---')
+print("+++ gs +++")
+print("RSME: %2.2f" % (rms(flunder(gs), poly_free(flunder(pcuo), broadleafCondSlope, broadleafCondInt))))
+print("weighted RSME: %2.2f" % (rms(flunder(gs), poly_free(flunder(pcuo), broadleafCondSlope, broadleafCondInt), weight=1/flunder(gs_std**2))))
+print("+++ An +++")
+print("RSME: %2.2f" % (rms(flunder(A),poly_free(flunder(pcuo), broadleafPhotoSlope, broadleafPhotoInt))))
+print("weighted RSME: %2.2f" % (rms(flunder(A), poly_free(flunder(pcuo), broadleafCondSlope, broadleafCondInt), weight=1/flunder(A_std**2))))
+
