@@ -27,7 +27,7 @@ exp = ('brazil_2000_5.0.34',
        'brazil_2000_5.0.34_ozone_luna_0')
 
 data = []
-var = 'TLAI'
+var = 'TWS'
 
 for iexp in exp:
     data.append(load_data(src + iexp + '/lnd/hist/*.nc', var=[var]))
@@ -83,8 +83,8 @@ if b_fit:
 
     vals_list = {}
     covar_list = {}
-    func = funcExp#funcP1d
-    par0 = [(-4.7, 0, 1/(365.*3)), (-2.7, -7.8, 1/(365.*5))] #((0,0),(0,0))
+    func = funcP1d #funcExp
+    par0 = ((0,0),(0,0)) #[(-4.7, 0, 1/(365.*3)), (-2.7, -7.8, 1/(365.*5))] #
     # Output
     f = open('fit_results_%s.txt' % var, 'w')
 
@@ -117,7 +117,8 @@ ax31 = plt.subplot()
 if b_fit:
     ax31.plot(data[0].time, func(x,*vals_list[exp[1]]), ls='--', color='black', label='fit spin-up no O3')
     ax31.plot(data[0].time, func(x,*vals_list[exp[-1]]), ls=':', color='black', label='fit spin-up 100 ppb')
-ax31.set_ylim(-20,2)
+#ax31.set_ylim(-20,2)
+ax31.set_ylim(-2,5)
 ax31.set_xlabel("Time (years)")
 ax31.set_ylabel("$\Delta %s_{exp-ref}$ (%%)" % var)
 ax31.legend()
