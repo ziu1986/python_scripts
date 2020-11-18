@@ -36,7 +36,7 @@ def plot_climadiagram(temp, precip, **kwarg):
         ax11.text(9, precip_max*0.5-5, "$_{max}: %2.1f\,mm$\n$_{min}: %2.1f\,mm$" % (precip.max(), precip.min()), color='blue', size=14)
     else:
         precip_max = np.ceil(precip.values.max()+precip_err.max())
-        ax11.text(8.5, precip_max*0.5-5, "$_{max}: (%2.1f\pm %2.1f)\,mm$\n$_{min}: (%2.1f\pm %2.1f)\,mm$" % (precip.max(), precip_err[np.where(precip==precip.max())[0]], precip.min(), precip_err[np.where(precip==precip.min())[0]]), color='blue', size=14)
+        ax11.text(8.5, precip_max*0.5-7.5, "$_{max}: (%2.1f\pm %2.1f)\,mm$\n$_{min}: (%2.1f\pm %2.1f)\,mm$\n$\Sigma: (%2.1f\pm %2.1f)\,mm$" % (precip.max(), precip_err[np.where(precip==precip.max())[0]], precip.min(), precip_err[np.where(precip==precip.min())[0]], precip.sum(), np.sqrt((precip_err**2).sum())), color='blue', size=14)
 
 
     temp_max = np.ceil(temp.max())
@@ -45,7 +45,7 @@ def plot_climadiagram(temp, precip, **kwarg):
     if temp_err is not None:
         temp_max = np.ceil(temp_max+temp_err.max())
         temp_min = np.floor(temp_min-temp_err.max())
-        ax11.text(0, precip_max*0.5-5, "$_{max}: (%2.1f\pm %2.1f)^\circ C$\n$_{min}: (%2.1f\pm %2.1f)^\circ C$" % (temp.max(), temp_err[np.where(temp==temp.max())[0]], temp.min(), temp_err[np.where(temp==temp.min())[0]]), color='red', size=14)
+        ax11.text(0, precip_max*0.5-6., "$_{max}: (%2.1f\pm %2.1f)^\circ C$\n$_{min}: (%2.1f\pm %2.1f)^\circ C$" % (temp.max(), temp_err[np.where(temp==temp.max())[0]], temp.min(), temp_err[np.where(temp==temp.min())[0]]), color='red', size=14)
     else:
         ax11.text(0, precip_max*0.5-5, "$_{max}: %2.1f^\circ C$\n$_{min}: %2.1f^\circ C$" % (temp_max, temp_min), color='red', size=14)
     
@@ -76,8 +76,8 @@ def plot_climadiagram(temp, precip, **kwarg):
 # Clean up
 plt.close('all')
 
-src_svanvik_clim = os.environ['DATA']+'/astra_data/observations/temp_prec_rad/temp_svanvik*'
-src_svanvik_prec_clim = os.environ['DATA']+'/astra_data/observations/temp_prec_rad/precip_svanvik_1992_2020.csv'
+src_svanvik_clim = os.environ['DATA']+'/astra_data/observations/metdata_svanvik/temp_svanvik*'
+src_svanvik_prec_clim = os.environ['DATA']+'/astra_data/observations/metdata_svanvik/precip_svanvik_1992_2020.csv'
 
 data_list = []
 try:

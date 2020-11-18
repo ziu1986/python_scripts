@@ -80,8 +80,35 @@ def expo(x, m):
     '''
     return(np.exp(x*m))
 
-def rms(y, yfit):
-    return np.sqrt(np.sum((y-yfit)**2)/np.size(y))
+def rms(observation, prediction, **karg):
+    '''
+    Compute RMSE. Takes care of NANs in weights.
+    Parameters:
+    -----------
+    prediction : float
+    Array of model predictions.
+    observation: flaot
+    Array of observed values
+    Key args:
+    ---------
+    weight : float
+    Array of normalized weights.
+    Returns:
+    --------
+    RMSE : float
+    If weights are given, a weighted RMSE is calculated.
+    A choice of weights could be 1/std**2.
+    '''
+    weights = karg.pop('weight', np.ones_like(observation))
+    # Exclude observations without defined uncertainty.
+    notnan_mask = np.where(~np.isnan(weights))
+    notnan_weights = weights[notnan_mask]
+    notnan_prediction = prediction[notnan_mask]
+    notnan_observation = observation[notnan_mask]
+    # Normalization, if weights are normalized this will return the size of the data set
+    weights_sum = np.nansum(weights)
+    
+    return np.sqrt(np.nansum(weights*(prediction-observation)**2)/weights_sum)
 
 def or_fit(x, y, x_std, y_std, **karg):
 
@@ -114,6 +141,7 @@ def or_fit(x, y, x_std, y_std, **karg):
         print('Unweighted fit parameters:', popt)
         print('Covariance matrix:'); print(pcov)
         print('rms error in fit:', rms(flat_y, func(flat_x, *popt)))
+        print('weighted rms error in fit:', rms(flat_y, func(flat_x, *popt), weight=1/flat_y_std**2))
 
         # Weighted fit
         popt2, pcov2 = curve_fit(func, flat_x, flat_y, p0, sigma=flat_y_std, absolute_sigma=True)
@@ -122,6 +150,7 @@ def or_fit(x, y, x_std, y_std, **karg):
         print('Weighted fit parameters:', popt2)
         print('Covariance matrix:'); print(pcov2)
         print('rms error in fit:', rms(flat_y, func(flat_x, *popt2)))
+        print('weighted rms error in fit:', rms(flat_y, func(flat_x, *popt2), weight=1/flat_y_std**2))
 
         return(yfit, yfit2)
     else:
@@ -155,6 +184,7 @@ def xy_uncertainty_regression(x, y, x_err, y_err, func, par, **karg):
     # Use the in-built pprint method to give us results.
     out.pprint()
     print('rms error in fit:', rms(y, func(out.beta, x)))
+    print('weighted rms error in fit:', rms(y, func(out.beta, x), weight=1/y_err**2))
     x_fit = fit_range
     y_fit = func(out.beta, x_fit)
 
@@ -165,24 +195,40 @@ yfit_gs, yfit_gs2 = or_fit(pcuo, gs, 0, gs_std)
 yfit_gs_2 = or_fit(pcuo, gs, pcuo_std, gs_std)
 yfit_gs_free, yfit_gs2_free = or_fit(pcuo, gs, 0, gs_std, deg='free')
 yfit_gs_2_free = or_fit(pcuo, gs, pcuo_std, gs_std, deg='free')
-print("+++ An +++")
+print("\n+++ An +++")
 yfit_A, yfit_A2 = or_fit(pcuo, A, 0, A_std)
 yfit_A_2 = or_fit(pcuo, A, pcuo_std, A_std)
 yfit_A_free, yfit_A2_free = or_fit(pcuo, A, 0, A_std, deg='free')
 yfit_A_2_free = or_fit(pcuo, A, pcuo_std, A_std, deg='free')
-print("+++ Jmax +++")
+print("\n+++ Jmax +++")
 yfit_Jmax, yfit_Jmax2 = or_fit(pcuo, Jmax, 0, Jmax_std)
 yfit_Jmax_2 = or_fit(pcuo, Jmax, pcuo_std, Jmax_std)
-print("+++ Vcmax +++")
+print("\n+++ Vcmax +++")
 yfit_Vcmax, yfit_Vcmax2 = or_fit(pcuo, Vcmax, 0, Vcmax_std)
 yfit_Vcmax_2 = or_fit(pcuo, Vcmax, pcuo_std, Vcmax_std)
-print("+++ Rd +++")
+print("\n+++ Rd +++")
 yfit_Rd, yfit_Rd2 = or_fit(pcuo, Rd, 0, Rd_std)
 yfit_Rd_2, yfit_Rd2_2 = or_fit(pcuo, Rd, 0, Rd_std, deg='exp')
 
 #yfit_Chl, yfit_Chl2 = or_fit(pcuo, Chl, 0, Chl_std)
 
 # Fit Jmax-Vcmax ratios
-print("+++ JmaxO3/Jmax0/VcmaxO3/Vcmax0 +++")
+print("\n+++ JmaxO3/Jmax0/VcmaxO3/Vcmax0 +++")
 yfit_VcmaxVSJmax, yfit_VcmaxVSJmax2 = or_fit(Jmax, Vcmax, 0, Vcmax_std, deg='origin', range=np.arange(0, 2.1, 0.1))
 yfit_VcmaxVSJmax_2 = or_fit(Jmax, Vcmax, Jmax_std, Vcmax_std, deg='origin', range=np.arange(0, 2.1, 0.1))
+
+# Actual model test for Danica's values
+broadleafPhotoInt    = 0.8752  # units = unitless
+broadleafPhotoSlope  = 0.      # units = per mmol m^-2'
+broadleafCondInt     = 0.9125  # units = unitless
+broadleafCondSlope   = 0.      # units = per mmol m^-2
+
+# Print rms for stomatal conductance and photsynthesis
+print('---OzoneMod---')
+print("+++ gs +++")
+print("RSME: %2.2f" % (rms(flunder(gs), poly_free(flunder(pcuo), broadleafCondSlope, broadleafCondInt))))
+print("weighted RSME: %2.2f" % (rms(flunder(gs), poly_free(flunder(pcuo), broadleafCondSlope, broadleafCondInt), weight=1/flunder(gs_std**2))))
+print("+++ An +++")
+print("RSME: %2.2f" % (rms(flunder(A),poly_free(flunder(pcuo), broadleafPhotoSlope, broadleafPhotoInt))))
+print("weighted RSME: %2.2f" % (rms(flunder(A), poly_free(flunder(pcuo), broadleafCondSlope, broadleafCondInt), weight=1/flunder(A_std**2))))
+

@@ -11,8 +11,8 @@ from mytools.station_info import *
 plt.close('all')
 
 # Source
-src_temp_svanvik = os.environ['DATA']+'/astra_data/observations/temp_prec_rad/svanvik_temp_deg_2013-2019.xls'
-src_temp_svanvik_clim = os.environ['DATA']+'/astra_data/observations/temp_prec_rad/temp_svanvik*'
+src_temp_svanvik = os.environ['DATA']+'/astra_data/observations/metdata_svanvik/svanvik_temp_deg_2013-2019.xls'
+src_temp_svanvik_clim = os.environ['DATA']+'/astra_data/observations/metdata_svanvik/temp_svanvik*'
 #src_temp_cru_clim =  os.environ['DATA']+'/nird_data/reanalysis/Copernicus/CRU/SCA_Tair_WFDE5_CRU_climatology.nc'
 #src_temp_cru_clim_std =  os.environ['DATA']+'/nird_data/reanalysis/Copernicus/CRU/SCA_Tair_WFDE5_CRU_climatology_std.nc'
 #src_temp_cru =  os.environ['DATA']+'/nird_data/reanalysis/Copernicus/CRU/2017-2018/SCA_Tair_WFDE5_CRU_*.nc'
@@ -42,6 +42,7 @@ except NameError:
     data_temp_svanvik_clim.loc[:,'day'] = data_temp_svanvik_clim.index.day.values
     data_temp_svanvik_clim.loc[:,'month'] = data_temp_svanvik_clim.index.month.values
     data_temp_svanvik_clim.loc[:,'hour'] = data_temp_svanvik_clim.index.hour.values
+    data_temp_svanvik_clim.loc[:,'doy'] = data_temp_svanvik_clim.index.dayofyear.values
 
     svanvik_temp = (273.15+data_svanvik[u"Svanvik | Ambient Temperature | degC"].where((data_svanvik[u"Svanvik | Ambient Temperature | degC"]>-50) & (data_svanvik[u"Svanvik | Ambient Temperature | degC"]<50)).dropna())
     #svanvik_temp_cru = data_cru_clim.sel(lat=station_location['Svanvik'].lat, lon=station_location['Svanvik'].lon, method='nearest')['Tair']
@@ -73,7 +74,7 @@ except NameError:
     svanvik_temp_clim = data_temp_svanvik_clim.groupby(['month','day','hour']).mean().iloc[:,0]+273.15
     svanvik_temp_clim_std = data_temp_svanvik_clim.groupby(['month','day','hour']).std().iloc[:,0]
 
-svanvik_temp_clim_deg = data_temp_svanvik_clim.groupby(['month','day','hour']).mean().iloc[:,0]
+    svanvik_temp_clim_deg = data_temp_svanvik_clim.groupby(['month','day','hour']).mean().iloc[:,0]
 
 # Save data to file
 #data_svanvik['2018']['Svanvik | Ambient Temperature | degC'].to_csv(os.environ['DATA']+'/DO3SE_input/'+"svanvik_temperature_2018.csv")
@@ -191,6 +192,24 @@ ax41.set_xticklabels([get_month_name(imonth, length=3) for imonth in np.arange(1
     
 ax41.set_xlabel("Time (months)")
 ax41.set_ylabel("#Days above $\pm 1\sigma_{clim}$ (%)")
+
+#fig5 = plt.figure(5)
+#ax51 = plt.subplot()
+
+gs_temp = data_temp_svanvik_clim.where((data_temp_svanvik_clim.doy>=150)&(data_temp_svanvik_clim.doy<=280)).iloc[:,0].dropna()
+#gs_temp.hist(ax=ax51, bins=np.arange(-10,40,2), color='blueviolet', normed=True)
+for i in range(1997,2013,5):
+    #gs_temp['%d' % (i-5):'%d' % i].hist(ax=ax51, bins=np.arange(-10,40,2), histtype='step', normed=True)
+    print("%d - %d median: %2.2f" % (i-5, i, gs_temp['%d' % (i-5):'%d' % i].median()))
+    print("%d - %d mean: %2.2f +- %2.2f" % (i-5, i, gs_temp['%d' % (i-5):'%d' % i].mean(), gs_temp['%d' % (i-5):'%d' % i].std()))
+for i in range(1996,2013,4):
+    #gs_temp['%d' % (i-5):'%d' % i].hist(ax=ax51, bins=np.arange(-10,40,2), histtype='step', normed=True)
+    print("%d - %d median: %2.2f" % (i-4, i, gs_temp['%d' % (i-4):'%d' % i].median()))
+    print("%d - %d mean: %2.2f +- %2.2f" % (i-4, i, gs_temp['%d' % (i-4):'%d' % i].mean(), gs_temp['%d' % (i-4):'%d' % i].std()))
+
+    
+print("Climatology median: %2.2f" % gs_temp.median())
+print("Climatology mean: %2.2f +- %2.2f" % (gs_temp.mean(), gs_temp.std()))
 
 # Show it
 plt.show(block=False)

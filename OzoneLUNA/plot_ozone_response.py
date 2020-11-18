@@ -225,7 +225,7 @@ ax16.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rChl,
               ls='None', marker='v', label='Gao2016')
 ax16.errorbar(-1,-1,
               xerr=0.1, yerr=0.1,
-              ls='None', marker='*', label='Harmens2016')
+              ls='None', marker='*', label='Harmens2017')
 
 ax15.set_xlabel("CUO (mmol $m^{-2}$)")
 ax11.set_ylabel("$g_{sto}^{O_3}/g_{sto}^{CF}$")
@@ -317,7 +317,7 @@ ax31.set_ylim(0,1.2)
 b_con = True
 # Figures for paper
 if b_con:
-    fig4, ((ax41, ax42, ax43), (ax51, ax52, ax53)) = plt.subplots(2,3, gridspec_kw={'width_ratios': [6, 6, 1]}, figsize=(18,9))
+    fig4, ((ax41, ax42, ax43), (ax51, ax52, ax53)) = plt.subplots(2,3, gridspec_kw={'width_ratios': [6, 6, 1]}, figsize=(17,9))
     fig4.canvas.set_window_title("ozone_response_fits")
 else:
     fig4, (ax41, ax42, ax43) = plt.subplots(1,3, gridspec_kw={'width_ratios': [6, 6, 1]}, figsize=(18,6))
@@ -388,7 +388,7 @@ ax42.errorbar(harmens_pcuo[0::2][1::2]-harmens_pcuo[0::2][0::2], harmens_rVcmax_
               ls='None', marker='*', color='black')
 ax42.errorbar(harmens_pcuo[1::2][1::2]-harmens_pcuo[1::2][0::2], harmens_rVcmax_2,
               xerr=np.sqrt(harmens_pcuo_std[1::2][1::2]**2+harmens_pcuo_std[1::2][0::2]**2), yerr=harmens_rVcmax_2_sigma,
-              ls='None', marker='*', color=ax42.lines[-1].get_color(), label='Harmens et al. (2016)')
+              ls='None', marker='*', color=ax42.lines[-1].get_color(), label='Harmens et al. (2017)')
 ax42.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rVcmax,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rVcmax_sigma,
               ls='None', marker='v', color='black', label='Gao et al. (2016)')
@@ -514,7 +514,7 @@ ax52.errorbar(harmens_pcuo[0::2][1::2]-harmens_pcuo[0::2][0::2], harmens_rA_1,
               ls='None', marker='*', color='black')
 ax52.errorbar(harmens_pcuo[1::2][1::2]-harmens_pcuo[1::2][0::2], harmens_rA_2,
               xerr=np.sqrt(harmens_pcuo_std[1::2][1::2]**2+harmens_pcuo_std[1::2][0::2]**2), yerr=harmens_rA_2_sigma,
-              ls='None', marker='*', color=ax52.lines[-1].get_color(), label='Harmens et al. (2016)')
+              ls='None', marker='*', color=ax52.lines[-1].get_color(), label='Harmens et al. (2017)')
 ax52.errorbar(gao_pcuo[1::2]-gao_pcuo[0::2], gao_rA,
               xerr=np.sqrt(gao_pcuo_std[0::2]**2+gao_pcuo_std[1::2]**2), yerr=gao_rA_sigma,
               ls='None', marker='v', color='black', label='Gao et al. (2016)')
