@@ -240,14 +240,14 @@ for ax, num in zip(fig6.axes, ('(a)', '(b)', '(c)')):
     ax.set_ylim(-0.7,1)
     ax.set_title(num, x=0.025, y=0.875)
     ax.legend(loc='lower right', ncol=3)
-    ax.axhline(0.8, color='grey', ls='--')
+    #ax.axhline(0.8, color='grey', ls='--')
     
 ax61.set_xticklabels(())
 ax62.set_xticklabels(())
 
 ax63.set_xticklabels([label.get_text()[:label.get_text().find(' ')] for label in ax63.get_xticklabels()])
     
-ax62.set_ylabel("$R^2$")
+ax62.set_ylabel("$\\rho$")
 
 
 
