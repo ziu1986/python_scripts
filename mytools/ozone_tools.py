@@ -429,6 +429,8 @@ def rms(observation, prediction, **karg):
     If weights are given, a weighted RMSE is calculated.
     A choice of weights could be 1/std**2.
     '''
+    import numpy as np
+    
     weights = karg.pop('weight', np.ones_like(observation))
     # Exclude observations without defined uncertainty.
     notnan_mask = np.where(~np.isnan(weights))
