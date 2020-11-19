@@ -409,3 +409,33 @@ def dew_point(relhum, temperature, **karg):
     Tdp = coeff_c*gamma_m/(coeff_b - gamma_m)
     # Return return the dew point temperature in degC.
     return(Tdp)
+
+def rms(observation, prediction, **karg):
+    '''
+    Compute RMSE. Takes care of NANs in weights.
+    Parameters:
+    -----------
+    prediction : float
+    Array of model predictions.
+    observation: flaot
+    Array of observed values
+    Key args:
+    ---------
+    weight : float
+    Array of normalized weights.
+    Returns:
+    --------
+    RMSE : float
+    If weights are given, a weighted RMSE is calculated.
+    A choice of weights could be 1/std**2.
+    '''
+    weights = karg.pop('weight', np.ones_like(observation))
+    # Exclude observations without defined uncertainty.
+    notnan_mask = np.where(~np.isnan(weights))
+    notnan_weights = weights[notnan_mask]
+    notnan_prediction = prediction[notnan_mask]
+    notnan_observation = observation[notnan_mask]
+    # Normalization, if weights are normalized this will return the size of the data set
+    weights_sum = np.nansum(weights)
+    
+    return np.sqrt(np.nansum(weights*(prediction-observation)**2)/weights_sum)
