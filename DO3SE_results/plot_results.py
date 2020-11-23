@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from mytools.plot_tools import print_all
+from mytools.plot_tools import print_all, plot_error_bands
 
 # Clean up
 plt.close('all')
@@ -151,13 +151,18 @@ correlation_gsto_list = []
 for ax, spec in zip((ax21, ax22, ax23), species):
     data = data_list[spec]
     date_clim = pd.read_excel(data, data.sheet_names[1::2][2], header=2)
-
+    uncum_date_clim = uncumsum(date_clim,'PODY (mmol/m^2 PLA)')
+    uncum_date_clim = pd.DataFrame({'PODY':uncum_date_clim, 'Month':date_clim['Month'], 'Doy':date_clim['Day']})
+    if ~b_delta:
+        #uncum_date_clim.groupby(['Doy']).agg([np.mean, np.std])['PODY'].plot(ax=ax, y = "mean", linewidth=3, label='_', color='black',ls='-')
+        plot_error_bands(ax, uncum_date_clim.groupby(['Doy']).mean().index, uncum_date_clim.groupby(['Doy']).mean()['PODY'], uncum_date_clim.groupby(['Doy']).std()['PODY'], alpha=0.25, color='black')
+            
     # Compute correlation coefficience for all variables
     # ASort dictionary: sorted(correlations(date_clim, "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list).items(), key=lambda x: x[1], reverse=True)
     correlation_pody_list.append((correlations(date_clim.where((date_clim['Day']>100)&(date_clim['Day']<270)), "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list)))
     correlation_gsto_list.append((correlations(date_clim.where((date_clim['Day']>100)&(date_clim['Day']<270)), "Gsto_l (mmol/m^2/s)", keys=key_list)))
     print(spec)
-    for sheet, color, year in zip(data.sheet_names[1::2][:2], ('violet', 'purple'), ("2018", "2019")):
+    for sheet, color, year, marker in zip(data.sheet_names[1::2][:2], ('violet', 'purple'), ("2018", "2019"), ('^','v')):
         print(year)
         date = pd.read_excel(data, sheet, header=2)
         date.index = date.index+(date['Day'].iloc[0]-1)*24
@@ -167,36 +172,45 @@ for ax, spec in zip((ax21, ax22, ax23), species):
         correlation_pody_list.append((correlations(date.where((date['Day']>100)&(date['Day']<270)), "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list)))
         correlation_gsto_list.append((correlations(date.where((date['Day']>100)&(date['Day']<270)), "Gsto_l (mmol/m^2/s)", keys=key_list)))
         
-        uncum_date = pd.DataFrame({'FstoY':uncumsum(date, 'PODY (mmol/m^2 PLA)'), 'Month':date['Month']})
+        uncum_date = pd.DataFrame({'PODY':uncumsum(date, 'PODY (mmol/m^2 PLA)'), 'Month':date['Month'], 'Doy':date['Day']})
 
-        uncum_date_clim = uncumsum(date_clim,'PODY (mmol/m^2 PLA)')
+        #uncum_date_clim = uncumsum(date_clim,'PODY (mmol/m^2 PLA)')
                 
         delta_uncum_date = (uncumsum(date, 'PODY (mmol/m^2 PLA)')-uncum_date_clim)
-        delta_uncum_date = pd.DataFrame({'FstoY':delta_uncum_date, 'Month':date_clim['Month']})
+        #delta_uncum_date = pd.DataFrame({'PODY':delta_uncum_date, 'Month':date_clim['Month']})
 
-        uncum_date_clim = pd.DataFrame({'FstoY':uncum_date_clim, 'Month':date_clim['Month']})
+        #uncum_date_clim = pd.DataFrame({'PODY':uncum_date_clim, 'Month':date_clim['Month'], 'Doy':date_clim['Day']})
         
-        delta_siguncum_date = delta_uncum_date[['FstoY']].div(uncum_date_clim.groupby('Month').transform('std')).join(date_clim['Month']) 
+        delta_siguncum_date = delta_uncum_date[['PODY']].div(uncum_date_clim.groupby('Month').transform('std')).join(date_clim['Month']) 
         print(">+1sigma:") 
-        print(delta_siguncum_date.where(delta_siguncum_date['FstoY']>1).groupby('Month').count()/(delta_siguncum_date.groupby('Month').count())*100)
+        print(delta_siguncum_date.where(delta_siguncum_date['PODY']>1).groupby('Month').count()/(delta_siguncum_date.groupby('Month').count())*100)
         print("<-1sigma:")
-        print(delta_siguncum_date.where(delta_siguncum_date['FstoY']<-1).groupby('Month').count()/(delta_siguncum_date.groupby('Month').count())*100)
+        print(delta_siguncum_date.where(delta_siguncum_date['PODY']<-1).groupby('Month').count()/(delta_siguncum_date.groupby('Month').count())*100)
 
         if b_delta:
-            delta_uncum_date['FstoY'].plot(ax=ax, linewidth=3, label=year, color=color, use_index=False)
+            delta_uncum_date['PODY'].plot(ax=ax, linewidth=3, label=year, color=color, use_index=False)
         else:
-            uncum_date['FstoY'].plot(ax=ax, linewidth=3, label=year, color=color,ls='None', marker='o', fillstyle='none', use_index=False)
+            #uncum_date_clim.groupby(['Doy']).agg([np.mean, np.std])['PODY'].plot(ax=ax, y = "mean", yerr = "std", linewidth=3, label='_', color='black',ls='-')
+            # Plot with errorbars
+            uncum_date.groupby(['Doy']).agg([np.mean, np.std])['PODY'].plot(ax=ax, y = "mean", yerr = "std", label=year, color=color,ls='None', marker=marker, fillstyle='none')
 
 ax23.set_xlabel("Time (doy)")
-ax22.set_ylabel('$\Delta POD_y$ ($mmol\,m^{-2}\,s^{-1}$)')
-for ax in fig2.axes:
-    ax.set_xlim(start_day*24,stop_day*24)
-    ax.set_xticks(np.arange(start_day*24,stop_day*24,30*24))
-    ax.set_xticklabels(np.arange(start_day*24,stop_day*24,30*24)/24)
-    ax.legend()
-    if b_delta:
-        ax.set_ylim(-0.02,0.02)
+ax22.set_ylabel('$\Delta POD_y / \Delta t$ ($mmol\,m^{-2}\,s^{-1}$)')
+for ax in fig2.axes[:-1]:
+    ax.set_xlabel('')
+    ax.set_xticklabels(())
     
+for ax in fig2.axes:
+    if b_delta:
+        ax.set_xlim(start_day*24,stop_day*24)
+        ax.set_xticks(np.arange(start_day*24,stop_day*24,30*24))
+        ax.set_xticklabels(np.arange(start_day*24,stop_day*24,30*24)/24)
+        ax.set_ylim(-0.02,0.02)
+    else:
+        ax.set_xlim(start_day, stop_day)
+        ax.set_xticks(np.arange(start_day, stop_day, 30))
+        ax.set_ylim(0,0.02)
+    ax.legend()
 
 fig3 = plt.figure(3, figsize=(16,6))
 fig4 = plt.figure(4, figsize=(16,6))
