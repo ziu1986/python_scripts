@@ -82,7 +82,8 @@ for ax, spec in zip((ax21, ax22, ax23), species):
         plot_error_bands(ax, uncum_date_clim.groupby(['Doy']).mean().index, uncum_date_clim.groupby(['Doy']).mean()['PODY'], uncum_date_clim.groupby(['Doy']).std()['PODY'], alpha=0.25, color='black')
             
     # Compute correlation coefficience for all variables
-    # ASort dictionary: sorted(correlations(date_clim, "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list).items(), key=lambda x: x[1], reverse=True)
+    # Sort dictionary: sorted(correlations(date_clim, "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list).items(), key=lambda x: x[1], reverse=True)
+              
     correlation_pody_list.append((correlations(date_clim.where((date_clim['Day']>100)&(date_clim['Day']<270)), "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list, daily=True)))
     correlation_gsto_list.append((correlations(date_clim.where((date_clim['Day']>100)&(date_clim['Day']<270)), "Gsto_l (mmol/m^2/s)", keys=key_list, daily=True)))
     print(spec)
@@ -97,20 +98,9 @@ for ax, spec in zip((ax21, ax22, ax23), species):
         correlation_gsto_list.append((correlations(date.where((date['Day']>100)&(date['Day']<270)), "Gsto_l (mmol/m^2/s)", keys=key_list, daily=True)))
         
         uncum_date = pd.DataFrame({'PODY':uncumsum(date, 'PODY (mmol/m^2 PLA)'), 'Month':date['Month'], 'Doy':date['Day']})
-
-        #uncum_date_clim = uncumsum(date_clim,'PODY (mmol/m^2 PLA)')
-                
         delta_uncum_date = (uncumsum(date, 'PODY (mmol/m^2 PLA)')-uncum_date_clim)
-        #delta_uncum_date = pd.DataFrame({'PODY':delta_uncum_date, 'Month':date_clim['Month']})
-
-        #uncum_date_clim = pd.DataFrame({'PODY':uncum_date_clim, 'Month':date_clim['Month'], 'Doy':date_clim['Day']})
-        
         delta_siguncum_date = delta_uncum_date[['PODY']].div(uncum_date_clim.groupby('Month').transform('std')).join(date_clim['Month']) 
-        #print(">+1sigma:") 
-        #print(delta_siguncum_date.where(delta_siguncum_date['PODY']>1).groupby('Month').count()/(delta_siguncum_date.groupby('Month').count())*100)
-        #print("<-1sigma:")
-        #print(delta_siguncum_date.where(delta_siguncum_date['PODY']<-1).groupby('Month').count()/(delta_siguncum_date.groupby('Month').count())*100)
-
+        
         if b_delta:
             delta_uncum_date['PODY'].plot(ax=ax, linewidth=3, label=year, color=color, use_index=False)
         else:
@@ -183,22 +173,6 @@ ax63.set_xticklabels([label.get_text()[:label.get_text().find(' ')] for label in
     
 ax62.set_ylabel("$\\rho$")
 
-
-
-"""
-ax32 = plt.subplot(312)
-ax33 = plt.subplot(313)
-
-for spec,ax in zip(species, (ax31,ax32,ax33)):
-   data = data_list[spec]
-   gmax = pd.read_excel(data, data.sheet_names[0],header=2).iloc[14,1]
-   for sheet, color in zip(data.sheet_names[1::2][:3], ('violet', 'purple', 'grey')):
-       date = pd.read_excel(data, sheet, header=2)
-       date.index = date.index+(date['Day'].iloc[0]-1)*24
-       date = date.reindex(np.arange(1,365*24))
-       date = date.where((date['Day']>=110)&(date['Day']<=270)).dropna()
-       (1-date[u'Gsto (mmol/m^2/s)']/gmax).plot.hist(ax=ax, bins=np.arange(0,1.1,0.1), linewidth=3, label=spec, color=color, histtype='step', use_index=False)
-"""
 # Show it
 plt.show(block=False)
 
