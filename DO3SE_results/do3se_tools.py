@@ -33,26 +33,24 @@ def correlations(date, var, **karg):
     '''
     b_uncum = karg.pop('uncum', False)
     b_daily = karg.pop('daily', False)
+    b_verbose = karg.pop('verbose', False)
     keys = karg.pop('keys', date.keys())
     output = {}
     if b_uncum:
         date_var = uncumsum(date, var)
-
     else:
         date_var = date[var]
 
-    if b_daily:
-        data_var = date_var.groupby(date['Day']).mean()
-    
     for each in keys:
         if b_daily:
-            tmp = date_var.corr(date[each].groupby(date['Day']).mean())
+            tmp = date_var.groupby(date['Day']).mean().corr(date.groupby('Day').mean()[each])
         else:
             tmp = date_var.corr(date[each])
+            
         if ~np.isnan(tmp):
-            #print(each, date_var.corr(date[each]))
             output.update({each: tmp})
-
+        if b_verbose:
+            print(each, tmp)
     return(output)
 
 def char_range(c1, c2):
