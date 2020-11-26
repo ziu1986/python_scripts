@@ -73,39 +73,63 @@ correlation_pody_list = []
 correlation_gsto_list = []
 
 for ax, spec in zip((ax21, ax22, ax23), species):
+    # Check species
+    print(spec)
+    # Load excel file for the species
     data = data_list[spec]
+    # Extract climatology (disregard fSWP simulations)
     date_clim = pd.read_excel(data, data.sheet_names[1::2][2], header=2)
+    # Max PODY value
+    pody_max = date_clim['PODY (mmol/m^2 PLA)'].max()
+    # Max PODY value for fSWP simulation
+    pody_fswp_max = pd.read_excel(data, data.sheet_names[2::2][2], header=2)['PODY (mmol/m^2 PLA)'].max()
+    # Check on systematic uncertainty
+    print("Relative syst. uncertainty from fSWP: %1.3f" % ((pody_max-pody_fswp_max)/pody_max))
+    # De-accumulate PODY and generate a DateFrame
     uncum_date_clim = uncumsum(date_clim,'PODY (mmol/m^2 PLA)')
     uncum_date_clim = pd.DataFrame({'PODY':uncum_date_clim, 'Month':date_clim['Month'], 'Doy':date_clim['Day']})
     if ~b_delta:
         #uncum_date_clim.groupby(['Doy']).agg([np.mean, np.std])['PODY'].plot(ax=ax, y = "mean", linewidth=3, label='_', color='black',ls='-')
         plot_error_bands(ax, uncum_date_clim.groupby(['Doy']).mean().index, uncum_date_clim.groupby(['Doy']).mean()['PODY'], uncum_date_clim.groupby(['Doy']).std()['PODY'], alpha=0.25, color='black')
             
-    # Compute correlation coefficience for all variables
+    # Compute correlation coefficient for all variables (for daily means) for climatology
     # Sort dictionary: sorted(correlations(date_clim, "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list).items(), key=lambda x: x[1], reverse=True)
-              
     correlation_pody_list.append((correlations(date_clim.where((date_clim['Day']>100)&(date_clim['Day']<270)), "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list, daily=True)))
     correlation_gsto_list.append((correlations(date_clim.where((date_clim['Day']>100)&(date_clim['Day']<270)), "Gsto_l (mmol/m^2/s)", keys=key_list, daily=True)))
-    print(spec)
+    
     for sheet, color, year, marker in zip(data.sheet_names[1::2][:2], ('violet', 'purple'), ("2018", "2019"), ('^','v')):
+        # Check year
         print(year)
+        # Load excel sheet for each year
         date = pd.read_excel(data, sheet, header=2)
+        # Max PODY value
+        pody_max = date['PODY (mmol/m^2 PLA)'].max()
+        # Max PODY value for fSWP simulation
+        pody_fswp_max = pd.read_excel(data, sheet+'_SWP', header=2)['PODY (mmol/m^2 PLA)'].max()
+        # Check on systematic uncertainty
+        print("Relative syst. uncertainty from fSWP: %1.3f" % ((pody_max-pody_fswp_max)/pody_max))
+        
+        # Reindex to match climatology
         date.index = date.index+(date['Day'].iloc[0]-1)*24
         date = date.reindex(np.arange(1,365*24))
 
-        # Compute correlation coefficience for all variables
+        # Compute correlation coefficience for all variables (2018->2019)
         correlation_pody_list.append((correlations(date.where((date['Day']>100)&(date['Day']<270)), "PODY (mmol/m^2 PLA)", uncum=True, keys=key_list, daily=True)))
         correlation_gsto_list.append((correlations(date.where((date['Day']>100)&(date['Day']<270)), "Gsto_l (mmol/m^2/s)", keys=key_list, daily=True)))
         
+        # De-accumulate and create DataFrame
         uncum_date = pd.DataFrame({'PODY':uncumsum(date, 'PODY (mmol/m^2 PLA)'), 'Month':date['Month'], 'Doy':date['Day']})
-        delta_uncum_date = (uncumsum(date, 'PODY (mmol/m^2 PLA)')-uncum_date_clim)
-        delta_siguncum_date = delta_uncum_date[['PODY']].div(uncum_date_clim.groupby('Month').transform('std')).join(date_clim['Month']) 
+
+        # Compute difference with climatology
+        delta_uncum_date = (uncum_date-uncum_date_clim)
+        #
+        # Compute deviation from monthly standart deviation for each hour 
+        #delta_siguncum_date = delta_uncum_date[['PODY']].div(uncum_date_clim.groupby('Month').transform('std')).join(date_clim['Month']) 
         
         if b_delta:
             delta_uncum_date['PODY'].plot(ax=ax, linewidth=3, label=year, color=color, use_index=False)
         else:
-            #uncum_date_clim.groupby(['Doy']).agg([np.mean, np.std])['PODY'].plot(ax=ax, y = "mean", yerr = "std", linewidth=3, label='_', color='black',ls='-')
-            # Plot with errorbars
+            # Add mean and std to table using aggiate function and plot with errorbars
             uncum_date.groupby(['Doy']).agg([np.mean, np.std])['PODY'].plot(ax=ax, y = "mean", yerr = "std", label=year, color=color,ls='None', marker=marker, fillstyle='none')
 
 ax23.set_xlabel("Time (doy)")
