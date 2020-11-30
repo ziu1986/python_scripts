@@ -5,24 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mytools.plot_tools import *
 from mytools.station_info import *
-
-def buck_vapor_press(temperature):
-    coeff_a = 0.61121
-    coeff_b = 18.678
-    coeff_c = 234.5
-    coeff_d = 257.14
-
-    press = coeff_a * np.exp((coeff_b-temperature/coeff_c)*(temperature/(coeff_d+temperature)))
-    # Return saturation water vapor pressure in Pa
-    return(press*1e3)
-
-def VPD(relhum, temperature):
-    # Satuation water vapor pressure
-    Ps = buck_vapor_press(temperature)
-    vpd = Ps * (1-relhum/100)
-    # Return VPD in Pa
-    return(vpd)
-
+from mytools.ozone_tools import VPD
 # Clean up
 plt.close('all')
 
