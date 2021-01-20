@@ -27,10 +27,18 @@ def f_temp(temperature, **karg):
     f_temp = (temperature-TMIN)/(TOPT-TMIN)*((TMAX-temperature)/(TMAX-TOPT))**beta
 
     # Catch negative values
-    f_temp[np.where(f_temp<0)] = 0
+    try:
+        f_temp[np.where(f_temp<0)] = 0
+    except TypeError:
+        if f_temp < 0:
+            f_temp = 0
     # Catch values larger 1
-    f_temp[np.where(f_temp>1)] = 1
-    
+    try:
+        f_temp[np.where(f_temp>1)] = 1
+    except TypeError:
+        if f_temp > 1:
+            f_temp = 1
+        
     return(f_temp)
 
 def f_vpd(VPD, **karg):
@@ -39,15 +47,15 @@ def f_vpd(VPD, **karg):
     Parameters
     ----------
     VPD : float
-        Water vapor pressure deficit
+        Water vapor pressure deficit in kPa
     Keyword arguments
     -----------------
     fmin : float
         Minimum value for stomatal opening
     Dmin : float
-        Maximum for stomatal opening
+        Maximum VPD for stomatal opening in KPa
     Dmax : float
-        Maximum for stomatal opening
+        Maximum VPD for stomatal opening in kPa
     Returns
     -------
     f_vpd : float, range 0,1
@@ -59,13 +67,21 @@ def f_vpd(VPD, **karg):
     DMIN = karg.pop("Dmin")
     DMAX = karg.pop("Dmax")
 
-    f_vpd = FMIN + (1-FMIN) *(DMIN-VPD)/(DMIN-DMAX)
+    f_vpd = FMIN + (1-FMIN) * (DMIN-VPD)/(DMIN-DMAX)
 
     # Catch negative values
-    f_vpd[np.where(f_vpd<0)] = 0
+    try:
+        f_vpd[np.where(f_vpd<0)] = 0
+    except TypeError:
+        if f_vpd < 0:
+            f_vpd = 0
     # Catch values larger 1
-    f_vpd[np.where(f_vpd>1)] = 1
-    
+    try:
+        f_vpd[np.where(f_vpd>1)] = 1
+    except TypeError:
+        if f_vpd > 1: 
+            f_vpd = 1
+         
     return(f_vpd)
 
 
@@ -93,9 +109,17 @@ def f_light(ppfd, **karg):
     f_light = 1 - np.exp(-ALPHA*ppfd)
 
     # Catch negative values
-    f_light[np.where(f_light<0)] = 0
+    try:
+        f_light[np.where(f_light<0)] = 0
+    except TypeError:
+        if f_light < 0:
+            f_light = 0
     # Catch values larger 1
-    f_light[np.where(f_light>1)] = 1
+    try:
+        f_light[np.where(f_light>1)] = 1
+    except TypeError:
+        if f_light >1:
+            f_light = 1
         
     return(f_light)
 
@@ -127,7 +151,8 @@ def stomatal_conductance(f_phen, f_light, f_min, f_temp, f_vpd, f_sw, gmax):
         Stomatal conductance
 
     '''
-    gsto = gmax * f_phen * f_light * np.max((f_min, f_temp, f_vpd, f_sw))
+    import numpy as np
+    gsto = gmax * f_phen * f_light * np.maximum(f_min, f_temp, f_vpd, f_sw)
 
     return(gsto)
     
