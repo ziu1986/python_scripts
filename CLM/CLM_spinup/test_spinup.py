@@ -4,6 +4,7 @@ import xarray as xr
 import pandas as pd
 import matplotlib.pyplot as plt
 from mytools.plot_tools import print_all
+from mytools.clm_tools import *
 
 def max_years_spinup(data, **karg):
     '''
@@ -98,7 +99,9 @@ case = ('test_brazil_spin-up',
         'spin-up_brazil_2000_5.0.34_wohydr', 
         'spin-up_brazil_2000_5.0.34_wohydr_ozone', 
         'spin-up_brazil_2000_5.0.34_wohydr_ozone_luna_100',
-        'spin-up_brazil_2000_5.0.34_ozone_luna_100_sha')
+        'spin-up_brazil_2000_5.0.34_ozone_luna_100_sha',
+        'test_merge_master_issue1224',
+        'test_merge_master_issue1224_ozone_luna')
 subdir1 = ('work', 'archive')
 subdir2 = {'work':'run/', 'archive':'lnd/hist/'}
 filename = "*.clm2.h0.*"
@@ -106,85 +109,75 @@ nyears = 20 #(20, 11)
 
 start = '0001' #('0411','0111')
 postAD = False
+icase = -1
+src = basedir + '/' + subdir1[1] + '/' + case[-2] + '/' + subdir2[subdir1[1]] + filename
+src2 = basedir + '/' + subdir1[1] + '/' + case[-1] + '/' + subdir2[subdir1[1]] + filename
 
-src = basedir + '/' + subdir1[1] + '/' + case[-1] + '/' + subdir2[subdir1[1]] + filename
+ozone_luna = False
 
-data_list = []
-data_list_ozone = []
-ozone_luna = True
-try:
-    data
-except NameError:
-    for file in sorted(glob.glob(src)):#[:-1]:
-        print(file)
-        data = xr.open_dataset(file)
-        data_list.append(data[['NPP','GPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"]])
-        try:
-            data_list_ozone.append(data[['O3COEFJMAXSHA', 'O3COEFJMAXSUN', 'O3COEFVCMAXSHA', 'O3COEFVCMAXSUN']])
-        except KeyError:
-            print('Old run')
-            ozone_luna = False
-            
-    data = xr.concat(data_list, dim='time')
-    if ozone_luna:
-        data_ozone = xr.concat(data_list_ozone, dim='time')
-
+data = load_data(src, var=['NPP','GPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"])
+data2 = load_data(src2, var=['NPP','GPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"])
+    
 # Plot it
 fig1 = plt.figure(1, figsize=(16,9))
-fig1.canvas.set_window_title("test_spinup_%s" % (file[file.rfind('/')+1:file.find('h0')+2]))
+fig1.canvas.set_window_title("test_spinup_%s" % (case[icase]))
 
 ax11 = plt.subplot(231)
 ax12 = plt.subplot(232)
-#ax13 = plt.subplot(233)
+ax13 = plt.subplot(233)
 ax14 = plt.subplot(234)
 ax15 = plt.subplot(235)
 ax16 = plt.subplot(236)
 
-data['GPP'].plot(ax=ax11, label='GPP')
-data['NPP'].plot(ax=ax11, label='NPP')
-data['TLAI'].plot(ax=ax12)
-data['TOTECOSYSC'].plot(ax=ax14, label='TOTECOSYSC')
-data['TOTSOMC'].plot(ax=ax14, label='TOTSOMC')
-data['TOTVEGC'].plot(ax=ax14, label='TOTVEGC')
-data['TOTECOSYSN'].plot(ax=ax15, label='TOTECOSYSN')
-data['TOTSOMN'].plot(ax=ax15, label='TOTSOMN')
-data['TOTVEGN'].plot(ax=ax15, label='TOTVEGN')
+for date, label in zip((data, data2),('ref', 'ozone_luna')):
+    date['GPP'].plot(ax=ax11, label='GPP_%s' % label)
+    date['NPP'].plot(ax=ax11, label='NPP_%s' % label)
+    date['TLAI'].plot(ax=ax12)
+    date['TOTECOSYSC'].plot(ax=ax14, label='TOTECOSYSC_%s' % label)
+    date['TOTSOMC'].plot(ax=ax14, label='TOTSOMC_%s' % label)
+    date['TOTVEGC'].plot(ax=ax14, label='TOTVEGC_%s' % label)
+    date['TOTECOSYSN'].plot(ax=ax15, label='TOTECOSYSN_%s' % label)
+    date['TOTSOMN'].plot(ax=ax15, label='TOTSOMN_%s' % label)
+    date['TOTVEGN'].plot(ax=ax15, label='TOTVEGN_%s' % label)
 
 ax11.legend()
 ax14.legend()
 ax15.legend()
 #ax11.set_ylim()
-ax16.set_xticklabels("")
-ax16.set_yticklabels("")
-ax16.set_xticks([])
-ax16.set_yticks([])
-ax16.set_frame_on(False)
+for ax in (ax13, ax16):
+    ax.set_xticklabels("")
+    ax.set_yticklabels("")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_frame_on(False)
 
 
-ypos = 1
-outfile = open(file[file.rfind('/')+1:file.find('h0')+2]+".dat", 'w')
-
-for each in ('GPP','NPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"):
+for date, ax_stats, icase in zip((data, data2), (ax13,ax16), (-2,-1)):
+    ypos = 1
+    ax_stats.text(0.,ypos,"%s" % (case[icase]))
+    outfile = open(case[icase]+".dat", 'w')
+    for each in ('GPP','NPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"):
     
-    ypos = ypos-0.1
-    max_date, equi_value = equi_state(data[each],ncycle=nyears, final=postAD, start=start)
-    if max_date:
-        print("%s \t %s \t %s " % (each, str(max_date)[:4], equi_value), file=outfile)
+        ypos = ypos-0.1
+        max_date, equi_value = equi_state(date[each],ncycle=nyears, final=postAD, start=start)
+        if max_date:
+            print("%s \t %s \t %s " % (each, str(max_date)[:4], equi_value), file=outfile)
 
-        ax16.text(0.,ypos,"%s - %s - %s" % (each, str(max_date)[:4], equi_value))
+            ax_stats.text(0.,ypos,"%s - %s - %s" % (each, str(max_date)[:4], equi_value))
         
-        if ((each == 'GPP') or (each == 'NPP')):
-            ax11.axhline(equi_value, ls=':', color='grey')
-        elif each == 'TLAI':
-            ax12.axhline(equi_value, ls=':', color='grey')
-        elif ((each == 'TOTECOSYSC') or (each == 'TOTSOMC') or (each == 'TOTVEGC')):
-            ax14.axhline(equi_value, ls=':', color='grey')
-        elif ((each == 'TOTECOSYSN') or (each == 'TOTSOMN') or (each == 'TOTVEGN')):
-            ax15.axhline(equi_value, ls=':', color='grey')
-    else:
-        print("%s \t Not in euqilibrium yet!" % (each))
-        ax16.text(0.2,ypos,"%s - Not in euqilibrium yet!" % (each))
-  
+            if ((each == 'GPP') or (each == 'NPP')):
+                ax11.axhline(equi_value, ls=':', color='grey')
+            elif each == 'TLAI':
+                ax12.axhline(equi_value, ls=':', color='grey')
+            elif ((each == 'TOTECOSYSC') or (each == 'TOTSOMC') or (each == 'TOTVEGC')):
+                ax14.axhline(equi_value, ls=':', color='grey')
+            elif ((each == 'TOTECOSYSN') or (each == 'TOTSOMN') or (each == 'TOTVEGN')):
+                ax15.axhline(equi_value, ls=':', color='grey')
+        else:
+            print("%s \t Not in euqilibrium yet!" % (each))
+            ax_stats.text(0.2,ypos,"%s - Not in euqilibrium yet!" % (each))
+ 
+""" 
 if ozone_luna:
     fig2 = plt.figure(2, figsize=(16,9))
     fig2.canvas.set_window_title("luna_test_spinup_%s" % (file[file.rfind('/')+1:file.find('h0')+2]))
@@ -208,7 +201,7 @@ if ozone_luna:
     ax24.set_yticks([])
     ax24.set_frame_on(False)
 
-    
+"""    
 outfile.close()
         
 # Show it
