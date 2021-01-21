@@ -31,44 +31,51 @@ def import_data(src):
 #data_svanvik_temp = (data_svanvik['Temp_degC'].where((data_svanvik['Temp_degC']>-50) & (data_svanvik['Temp_degC']<50)).dropna()
 # main
 
+# Set up the different species
 # Evergreen
-#Tmin=0, Tmax=200, Topt=20, fmin=0.1, Dmax=0.8, Dmin=2.8, alpha=0.006
+evergreen = JavisModel('evergreen', Tmin=0, Tmax=200, Topt=20, fmin=0.1, Dmax=0.8, Dmin=2.8, alpha=0.006, gmax=125)
 # Birch
-#Tmin=5, Tmax=200, Topt=20, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042
+birch = JavisModel('birch', Tmin=5, Tmax=200, Topt=20, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
 # Grassland
-#Tmin=10, Tmax=36, Topt=24, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011
+grassland = JavisModel('grassland', Tmin=10, Tmax=36, Topt=24, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
 
+
+# Load data
 data_temp = import_data(src_svanvik)
 data_rad = import_data(src_svanvik_rad)
 
-f_temp = data_temp.iloc[:,0].apply(lambda x: f_temp(x, Tmin=0, Tmax=200, Topt=20))
-
-vpd = VPD(data_temp.iloc[:,1], data_temp.iloc[:,0])/kilo
-f_vpd = vpd.apply(lambda x: f_vpd(x, fmin=0.1, Dmin=2.8,Dmax=0.8))
-
-f_light = data_rad.iloc[:,0].apply(lambda x: f_light(x, alpha=0.006))
-
-# Plot it
 # Clean up
 plt.close('all')
 
-fig1 = plt.figure(1, figsize=(10,12))
-fig1.canvas.set_window_title("javis_funcs_evergreen")
-ax11 = plt.subplot(311)
-ax12 = plt.subplot(312)
-ax13 = plt.subplot(313)
 
-f_temp['2019-05':'2019-08'].plot(ax=ax11)
-f_vpd['2019-05':'2019-08'].plot(ax=ax12)
-f_light['2019-05':'2019-08'].plot(ax=ax13)
+# Loop through species
+for species, i in zip((evergreen, birch, grassland), np.arange(1,4)):
+                      
+    f_temp = data_temp.iloc[:,0].apply(lambda x: species.f_temp(x))
 
-ax11.set_ylabel("f_temp")
-ax12.set_ylabel("f_vpd")
-ax13.set_ylabel("f_light")
-ax13.set_xlabel("Time (months)")
+    vpd = VPD(data_temp.iloc[:,1], data_temp.iloc[:,0])/kilo
+    f_vpd = vpd.apply(lambda x: species.f_vpd(x))
 
-for ax in fig1.axes:
-    ax.set_ylim(0,1)
+    f_light = data_rad.iloc[:,0].apply(lambda x: species.f_light(x))
+
+    # Plot it
+    fig = plt.figure(i, figsize=(10,12))
+    fig.canvas.set_window_title("javis_funcs_%s" % species.name)
+    ax1 = plt.subplot(311)
+    ax2 = plt.subplot(312)
+    ax3 = plt.subplot(313)
+
+    f_temp['2019-05':'2019-08'].plot(ax=ax1)
+    f_vpd['2019-05':'2019-08'].plot(ax=ax2)
+    f_light['2019-05':'2019-08'].plot(ax=ax3)
+
+    ax1.set_ylabel("f_temp")
+    ax2.set_ylabel("f_vpd")
+    ax3.set_ylabel("f_light")
+    ax3.set_xlabel("Time (months)")
+
+    for ax in fig.axes:
+        ax.set_ylim(0,1)
 
 # Show it
 plt.show(block=False)
