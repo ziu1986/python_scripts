@@ -138,7 +138,8 @@ class JavisModel:
     
     def f_sw(self):
         '''
-        Compute the soilwater stress by plant available water (PAW) method
+        Compute the soilwater stress by plant available water (PAW) method.
+        This will need a soil model.
         Parameters
         ----------
         FC : float
@@ -180,8 +181,13 @@ class JavisModel:
 
         '''
         import numpy as np
-            
-        gsto = self.gmax * self.f_phen * self.f_light(ppfd) * np.maximum(self.f_min, self.f_temp(temperature), self.f_vpd(vpd), self.f_sw())
+        # Compute f-functions
+        v_temp = f_temp(temperature)
+        v_light = f_light(ppfd)
+        v_vpd = f_vpd(vpd)
+        v_min = self.f_min
+        
+        gsto = self.gmax * f_phen * v_light * np.maximum(v_min, v_temp * v_vpd * v_sw)
 
         return(gsto)
 
