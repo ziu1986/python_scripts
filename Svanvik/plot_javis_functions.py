@@ -29,13 +29,13 @@ def import_data(src):
 
     return(data_svanvik)
 
-def gs_noon_variance(par):
+def gs_noon(par):
      return(par.where((par.index.month>=5)&(par.index.month<9)&
-               (par.index.hour>=11)&(par.index.hour<=13)).dropna().var())
+               (par.index.hour>=11)&(par.index.hour<=13)).dropna())
 
-def gs_morning_variance(par):
+def gs_morning(par):
      return(par.where((par.index.month>=5)&(par.index.month<9)&
-               (par.index.hour>=6)&(par.index.hour<=8)).dropna().var())
+               (par.index.hour>=6)&(par.index.hour<=8)).dropna())
 
 def get_f_function(javis_model):
     f_temp = data_temp.iloc[:,0].apply(lambda x: javis_model.f_temp(x))
@@ -51,11 +51,13 @@ def get_variance(prod_f, **karg):
     var_type = karg.pop('type','noon')
     
     if var_type == 'noon':
-        print('noon var', gs_noon_variance(prod_f))
-        return(gs_noon_variance(prod_f))
+        noon = gs_noon(prod_f)
+        print('noon var', noon.var())
+        return(noon.var())
     else:
-        print('morning var', gs_morning_variance(prod_f))
-        return(gs_morning_variance(prod_f))
+        morning = gs_morning(prod_f)
+        print('morning var', morning.var())
+        return(morning.var())
 
 
 def plot_f_functions(javis_model, fig_i, **karg):
@@ -66,7 +68,7 @@ def plot_f_functions(javis_model, fig_i, **karg):
     f_temp, f_vpd, f_light, max_f, prod_f = get_f_function(javis_model)
     
     # Plot it
-    fig = plt.figure(i, figsize=(10,12))
+    fig = plt.figure(fig_i, figsize=(10,12))
     fig.canvas.set_window_title("javis_funcs_%s" % javis_model.name)
     ax1 = plt.subplot(411)
     ax2 = plt.subplot(412)
@@ -78,15 +80,15 @@ def plot_f_functions(javis_model, fig_i, **karg):
     f_light[start_date:end_date].plot(ax=ax3)
 
     max_f[start_date:end_date].plot(ax=ax3, color='red')
-    prod_f[start_date:end_date].plot(ax=ax4, color='blue')
+    (prod_f[start_date:end_date]*javis_model.gmax).plot(ax=ax4, color='blue')
 
     ax1.set_ylabel("f_temp")
     ax2.set_ylabel("f_vpd")
     ax3.set_ylabel("f_light")
-    ax4.set_ylabel("$\Pi_i f_i$")
+    ax4.set_ylabel("$g_{sto}$ $(mmol m^{-2} s^{-1})$")
     ax4.set_xlabel("Time (months)")
 
-    for ax in fig.axes:
+    for ax in fig.axes[:-1]:
         ax.set_ylim(0,1)
 
 def plot_optimal(results):
@@ -100,15 +102,32 @@ def plot_optimal(results):
     for ax in fig.axes:
         ax.set_ylim(0,0.11)
         ax.set_ylabel('Variance')
-        ax.set_xticklabels(('', 'mm', 'a+20', 'a-20', 'boreal', 'a+20', 'a-20', 'cold', 'a+20', 'a-20'))
+        ax.set_xticklabels(('', 'mm', '$\alpha_{+20}$', '\alpha_{-20}', 'boreal', '\alpha_{+20}', '\alpha_{-20}', 'cold', '\alpha_{+20}', '\alpha_{-20}'))
         ax.legend()
 
     ax.set_xlabel('Categories')
     
 
+def plot_temperature_histogram(temperature, **karg):
+    fig = plt.figure()
+    ax1 = plt.subplot()
+    fig.canvas.set_window_title("javis_funcs_temp_hist")
+    temperature.hist(ax=ax1, bins=np.arange(-40, 40), label='all years')
+    temp_summer_all = temperature.where((temperature.index.month>=5)&(temperature.index.month<9))
+    temp_summer_90 = temperature.where((temperature.index.month>=5)&(temperature.index.month<9))[:'2000']
+    temp_summer_00 = temperature.where((temperature.index.month>=5)&(temperature.index.month<9))['2001':'2010']
+
+    print("Mean all years summer: %2.3f\\n Mean 90s summer: %2.3f\\n Mean 00s summer: %2.3f" % (temp_summer_all.mean(), temp_summer_90.mean(), temp_summer_00.mean()))
+    temp_summer_all.dropna().hist(ax=ax1, bins=np.arange(-40, 40), histtype='stepfilled', hatch='//', color='red', label='May-Sep')
+    temp_summer_90.dropna().hist(ax=ax1, bins=np.arange(-40, 40), histtype='stepfilled', hatch='\\', color='blue', label='May-Sep (1992-2000)')
+    temp_summer_00.dropna().hist(ax=ax1, bins=np.arange(-40, 40), histtype='step', hatch='\\', color='black', label='May-Sep (2001-2010)')
+
+    ax1.set_xlabel("$T$ $(^\circ C)$")
+    ax1.set_ylabel("Counts")
+    ax1.legend(fontsize='large')
 
 # main
-alpha_var_decr_20 = {'evergreen':0.0075, 'birch':0.00525, 'grassland':0.001375}
+alpha_var_decr_20 = {'evergreen':0.0075, 'birch':0.00525, 'grassland':0.01375}
 alpha_var_incr_20 = {'evergreen':0.005, 'birch':0.0035, 'grassland':0.0092}
 
 # Set up the different species
@@ -139,31 +158,32 @@ plt.close('all')
 #for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
 #    plot_f_functions(species, i)
 
-results = []
+varaiance = []
 # Loop through species and print variance
 for species in (evergreen, evergreen_boreal, evergreen_cold, birch_cold, birch_boreal, birch, grassland, grassland_boreal, grassland_cold):
     for kind in ('evergreen', 'birch', 'grassland'):
         if kind in species.name:
             print(species.name)
             result = get_f_function(species)
-            results.append(get_variance(result[-1], type='noon'))
-            results.append(get_variance(result[-1], type='morning'))
+            varaiance.append(get_variance(result[-1], type='noon'))
+            varaiance.append(get_variance(result[-1], type='morning'))
             
             temp = copy.deepcopy(species)
             temp.name = temp.name + "+20"
             temp.alpha_light = alpha_var_incr_20[kind]
             result = get_f_function(temp)
             print(temp.name)
-            results.append(get_variance(result[-1], type='noon'))
-            results.append(get_variance(result[-1], type='morning'))
+            varaiance.append(get_variance(result[-1], type='noon'))
+            varaiance.append(get_variance(result[-1], type='morning'))
             
             temp.name = temp.name[:-3] + "-20"
             temp.alpha_light = alpha_var_decr_20[kind]
             result = get_f_function(temp)
             print(temp.name)
-            results.append(get_variance(result[-1], type='noon'))
-            results.append(get_variance(result[-1], type='morning'))
+            varaiance.append(get_variance(result[-1], type='noon'))
+            varaiance.append(get_variance(result[-1], type='morning'))
     
-    
+plot_optimal(varaiance)   
+
 # Show it
 plt.show(block=False)
