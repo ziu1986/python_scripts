@@ -182,9 +182,9 @@ class JavisModel:
         '''
         import numpy as np
         # Compute f-functions
-        v_temp = f_temp(temperature)
-        v_light = f_light(ppfd)
-        v_vpd = f_vpd(vpd)
+        v_temp = self.f_temp(temperature)
+        v_light = self.f_light(ppfd)
+        v_vpd = self.f_vpd(vpd)
         v_min = self.f_min
         
         gsto = self.gmax * f_phen * v_light * np.maximum(v_min, v_temp * v_vpd * v_sw)
