@@ -9,6 +9,8 @@ class JavisModel:
         self.vpd_max = karg.pop("Dmax")
         self.alpha_light = karg.pop("alpha")
         self.gmax = karg.pop("gmax")
+        self.sgs = karg.pop('start_gs', 0)
+        self.egs = karg.pop('end_gs', 366)
 
 
     def f_temp(self, temperature):
@@ -136,7 +138,7 @@ class JavisModel:
 
         return(f_light)
     
-    def f_sw(self):
+    def f_sw(self, soil_inst):
         '''
         Compute the soilwater stress by plant available water (PAW) method.
         This will need a soil model.
@@ -152,8 +154,32 @@ class JavisModel:
 
         '''
         return(0)
+
+    def f_phen(self, date):
+        '''
+        Compute the phenology of the species.
+        Parameters
+        ----------
+        Date : datetime64
+        Arguments
+        -----------------
+        start_gs : int
+            Start of the growing season in day of thew year.
+        end_gs : int
+            End of the growing season in day of the year.
+        Returns
+        -------
+        f_phen : float
+            Stage of the phenology.
+        '''
+        import numpy as np
+        f_phen = np.zeros(date.size)
+        f_phen[np.where((date.dayofyear>=start_gs) & (data.dayofyear<=end_gs))] = 1
+
+        return(f_phen)
         
-    def stomatal_conductance(self, temperature, vpd, ppfd):
+        
+    def stomatal_conductance(self, temperature, vpd, ppfd, date):
         '''
         Compute Javis stomatal conductance.
         Parameters
@@ -180,14 +206,14 @@ class JavisModel:
             Stomatal conductance
 
         '''
-        import numpy as np
         # Compute f-functions
         v_temp = self.f_temp(temperature)
         v_light = self.f_light(ppfd)
         v_vpd = self.f_vpd(vpd)
         v_min = self.f_min
+        v_phen = self.f_phen(date)
         
-        gsto = self.gmax * f_phen * v_light * np.maximum(v_min, v_temp * v_vpd * v_sw)
+        gsto = self.gmax * v_phen * v_light * np.maximum(v_min, v_temp * v_vpd * v_sw)
 
         return(gsto)
 
