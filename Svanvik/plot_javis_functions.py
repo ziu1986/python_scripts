@@ -102,7 +102,9 @@ def plot_optimal(results):
     for ax in fig.axes:
         ax.set_ylim(0,0.11)
         ax.set_ylabel('Variance')
-        ax.set_xticklabels(('', 'mm', '$\alpha_{+20}$', '\alpha_{-20}', 'boreal', '\alpha_{+20}', '\alpha_{-20}', 'cold', '\alpha_{+20}', '\alpha_{-20}'))
+        ax.set_xticklabels((r'', r'mm', r'$\alpha_{+20}$', r'$\alpha_{-20}$',
+                            r'boreal', r'$\alpha_{+20}$', r'$\alpha_{-20}$',
+                            r'cold', r'$\alpha_{+20}$', r'$\alpha_{-20}$'))
         ax.legend()
 
     ax.set_xlabel('Categories')
