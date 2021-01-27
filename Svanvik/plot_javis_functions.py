@@ -47,17 +47,23 @@ def get_f_function(javis_model):
     
     return(f_temp, f_vpd, f_light, max_f, prod_f)
 
-def get_variance(prod_f, **karg):
+def get_stats(prod_f, **karg):
     var_type = karg.pop('type','noon')
+    stats = karg.pop('stats', 'var')
     
     if var_type == 'noon':
-        noon = gs_noon(prod_f)
-        print('noon var', noon.var())
-        return(noon.var())
+        selection = gs_noon(prod_f)
     else:
-        morning = gs_morning(prod_f)
-        print('morning var', morning.var())
-        return(morning.var())
+        selection = gs_morning(prod_f)
+
+    if stats == 'var':
+        print(var_type, stats, selection.var())
+        return(selection.var())
+    elif stats == 'mean':
+        print(var_type, stats, selection.mean())
+        return(selection.mean())
+   
+        
 
 
 def plot_f_functions(javis_model, fig_i, **karg):
@@ -91,17 +97,22 @@ def plot_f_functions(javis_model, fig_i, **karg):
     for ax in fig.axes[:-1]:
         ax.set_ylim(0,1)
 
-def plot_optimal(results):
+def plot_optimal(results, **karg):
+    stats = karg.pop('stats', 'var')
     fig = plt.figure(1, figsize=(10,12))
-    fig.canvas.set_window_title("javis_func_opt")
+    fig.canvas.set_window_title("javis_func_opt_%s" % stats)
     for i, icolor, iname in zip((0,1,2), ('darkgreen', 'lightgreen', 'green'), ('evergreen', 'birch', 'grassland')):
         ax = plt.subplot(3,1,i+1)
         ax.set_title(iname)
         ax.plot(results[::2][9*i:9*(i+1)], ls='None', marker='o', color=icolor, label='noon')
         ax.plot(results[1::2][9*i:9*(i+1)], ls='None', marker='s', color=icolor, label='morning')
     for ax in fig.axes:
-        ax.set_ylim(0,0.11)
-        ax.set_ylabel('Variance')
+        if stats == 'var':
+            ax.set_ylim(0,0.11)
+            ax.set_ylabel('Variance')
+        else:
+            ax.set_ylim(0.2,0.8)
+            ax.set_ylabel('Mean')
         ax.set_xticklabels((r'', r'mm', r'$\alpha_{+20}$', r'$\alpha_{-20}$',
                             r'boreal', r'$\alpha_{+20}$', r'$\alpha_{-20}$',
                             r'cold', r'$\alpha_{+20}$', r'$\alpha_{-20}$'))
@@ -127,6 +138,23 @@ def plot_temperature_histogram(temperature, **karg):
     ax1.set_xlabel("$T$ $(^\circ C)$")
     ax1.set_ylabel("Counts")
     ax1.legend(fontsize='large')
+
+def plot_f_light(javis_model, alpha_variation):
+    fig = plt.figure(figsize=(12,10))
+    fig.canvas.set_window_title("javis_funcs_f_light_%s" % javis_model.name)
+    ax1 = plt.subplot()
+
+    plt.plot(javis_model.f_light(np.arange(1000)), label="$\alpha=%1.4f$" % javis_model.alpha_light)
+    for each in alpha_variation:
+        tmp_model = copy.deepcopy(javis_model)
+        tmp_model.alpha_light = each
+        plt.plot(tmp_model.f_light(np.arange(1000)), label="$\alpha=%1.4f$" % tmp_model.alpha_light)
+
+    ax1.set_xlabel("PPFD $(W\,m^{-2}\,s^{-1})$")
+    ax1.set_ylabel("$f_{light}$")
+
+    ax1.axhline(0.5, ls=':', color='red')
+            
 
 # main
 alpha_var_decr_20 = {'evergreen':0.0075, 'birch':0.00525, 'grassland':0.01375}
@@ -160,32 +188,33 @@ plt.close('all')
 #for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
 #    plot_f_functions(species, i)
 
-varaiance = []
+
+list = []
 # Loop through species and print variance
 for species in (evergreen, evergreen_boreal, evergreen_cold, birch_cold, birch_boreal, birch, grassland, grassland_boreal, grassland_cold):
     for kind in ('evergreen', 'birch', 'grassland'):
         if kind in species.name:
             print(species.name)
             result = get_f_function(species)
-            varaiance.append(get_variance(result[-1], type='noon'))
-            varaiance.append(get_variance(result[-1], type='morning'))
+            list.append(get_stats(result[-1], type='noon', stats='mean'))
+            list.append(get_stats(result[-1], type='morning', stats='mean'))
             
             temp = copy.deepcopy(species)
             temp.name = temp.name + "+20"
             temp.alpha_light = alpha_var_incr_20[kind]
             result = get_f_function(temp)
             print(temp.name)
-            varaiance.append(get_variance(result[-1], type='noon'))
-            varaiance.append(get_variance(result[-1], type='morning'))
+            list.append(get_stats(result[-1], type='noon', stats='mean'))
+            list.append(get_stats(result[-1], type='morning', stats='mean'))
             
             temp.name = temp.name[:-3] + "-20"
             temp.alpha_light = alpha_var_decr_20[kind]
             result = get_f_function(temp)
             print(temp.name)
-            varaiance.append(get_variance(result[-1], type='noon'))
-            varaiance.append(get_variance(result[-1], type='morning'))
+            list.append(get_stats(result[-1], type='noon', stats='mean'))
+            list.append(get_stats(result[-1], type='morning', stats='mean'))
     
-plot_optimal(varaiance)   
+plot_optimal(list, stats='mean')   
 
 # Show it
 plt.show(block=False)
