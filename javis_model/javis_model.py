@@ -38,7 +38,7 @@ class JavisModel:
         TMAX = self.temp_max
         TOPT = self.temp_opt
 
-        beta = ((TMAX-TOPT)/(TOPT-TMIN))
+        beta = (TMAX-TOPT)/(TOPT-TMIN)
         f_temp = (temperature-TMIN)/(TOPT-TMIN)*((TMAX-temperature)/(TMAX-TOPT))**beta
 
         # Catch negative values
