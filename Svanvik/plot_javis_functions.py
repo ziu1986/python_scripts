@@ -76,6 +76,8 @@ def plot_f_functions(javis_model, fig_i, **karg):
     # Plot it
     fig = plt.figure(fig_i, figsize=(10,12))
     fig.canvas.set_window_title("javis_funcs_%s" % javis_model.name)
+    plt.subplots_adjust(right=0.9)
+
     ax1 = plt.subplot(411)
     ax2 = plt.subplot(412)
     ax3 = plt.subplot(413)
@@ -84,19 +86,30 @@ def plot_f_functions(javis_model, fig_i, **karg):
     f_temp[start_date:end_date].plot(ax=ax1)
     f_vpd[start_date:end_date].plot(ax=ax2)
     f_light[start_date:end_date].plot(ax=ax3)
-
-    max_f[start_date:end_date].plot(ax=ax3, color='red')
-    (prod_f[start_date:end_date]*javis_model.gmax).plot(ax=ax4, color='blue')
+    
+    #max_f[start_date:end_date].plot(ax=ax3, color='red')
+    (prod_f[start_date:end_date]*javis_model.gmax).plot(ax=ax4, color='darkgrey')
 
     ax1.set_ylabel("f_temp")
     ax2.set_ylabel("f_vpd")
     ax3.set_ylabel("f_light")
-    ax4.set_ylabel("$g_{sto}$ $(mmol m^{-2} s^{-1})$")
+    ax4.set_ylabel("$g_{sto}$ $(mmol\,m^{-2}\,s^{-1})$")
     ax4.set_xlabel("Time (months)")
 
     for ax in fig.axes[:-1]:
         ax.set_ylim(0,1)
 
+    # Additional axis
+    ax11 = ax1.twinx()
+    (data_temp.iloc[:,0][start_date:end_date]).plot(ax=ax11, color='red', alpha=0.5)
+    ax11.set_ylabel('$T$ $(^\circ C)$', color='red')
+    ax11.grid(b=False)
+    ax21 = ax2.twinx()
+    vpd[start_date:end_date].plot(ax=ax21, color='blue', alpha=0.5)
+    ax21.set_ylabel('$VPD$ $(Pa)$', color='blue')
+    ax21.grid(b=False)
+
+    
 def plot_optimal(results, **karg):
     stats = karg.pop('stats', 'var')
     fig = plt.figure(1, figsize=(10,12))
@@ -185,10 +198,10 @@ vpd = VPD(data_temp.iloc[:,1], data_temp.iloc[:,0])/kilo
 plt.close('all')
 
 # Loop through species and plot them
-#for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
-#    plot_f_functions(species, i)
+for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
+    plot_f_functions(species, i)
 
-
+"""
 list = []
 # Loop through species and print variance
 for species in (evergreen, evergreen_boreal, evergreen_cold, birch_cold, birch_boreal, birch, grassland, grassland_boreal, grassland_cold):
@@ -215,6 +228,6 @@ for species in (evergreen, evergreen_boreal, evergreen_cold, birch_cold, birch_b
             list.append(get_stats(result[-1], type='morning', stats='mean'))
     
 plot_optimal(list, stats='mean')   
-
+"""
 # Show it
 plt.show(block=False)
