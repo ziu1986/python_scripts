@@ -2,6 +2,7 @@ import os, glob, sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt   # Plotting data
+from cmcrameri import cm
 import datetime as dt
 import copy                       # for deep copy of object
 from scipy.constants import *     # Get physics constants
@@ -57,11 +58,16 @@ def get_stats(prod_f, **karg):
         selection = gs_morning(prod_f)
 
     if stats == 'var':
-        print(var_type, stats, selection.var())
-        return(selection.var())
+        stats_result =  selection.var()
     elif stats == 'mean':
-        print(var_type, stats, selection.mean())
-        return(selection.mean())
+        stats_result =  selection.mean()
+    elif stats == 'std':
+        stats_result =  selection.std()
+    elif stats == 'stderr':
+        stats_result = selection.mean()/np.sqrt(selection.dropna().size)
+        
+    print(var_type, stats, stats_result)
+    return(stats_result)
    
         
 
@@ -112,24 +118,38 @@ def plot_f_functions(javis_model, fig_i, **karg):
     
 def plot_optimal(results, **karg):
     stats = karg.pop('stats', 'var')
+    err = karg.pop('err', None)
+    
     fig = plt.figure(1, figsize=(10,12))
     fig.canvas.set_window_title("javis_func_opt_%s" % stats)
-    for i, icolor, iname in zip((0,1,2), ('darkgreen', 'lightgreen', 'green'), ('evergreen', 'birch', 'grassland')):
+    for i, iname in zip((0,1,2), ('evergreen', 'birch', 'grassland')):
         ax = plt.subplot(3,1,i+1)
         ax.set_title(iname)
-        ax.plot(results[::2][9*i:9*(i+1)], ls='None', marker='o', color=icolor, label='noon')
-        ax.plot(results[1::2][9*i:9*(i+1)], ls='None', marker='s', color=icolor, label='morning')
+        noon_results = results[::2][9*i:9*(i+1)]
+        morning_results = results[1::2][9*i:9*(i+1)]
+
+        if err:
+            noon_err = err[::2][9*i:9*(i+1)]
+            morning_err = err[1::2][9*i:9*(i+1)]
+        else:
+            noon_err = None
+            morning_err = None
+        
+        ax.errorbar(np.arange(len(noon_results))-0.1, noon_results, yerr=noon_err, ls='None', marker='o', label='noon')
+        ax.errorbar(np.arange(len(morning_results))+0.1, morning_results, yerr=morning_err, ls='None', marker='o', fillstyle='none', label='morning')
     for ax in fig.axes:
         if stats == 'var':
             ax.set_ylim(0,0.11)
             ax.set_ylabel('Variance')
         else:
-            ax.set_ylim(0.2,0.8)
+            ax.set_ylim(0,1)
             ax.set_ylabel('Mean')
-        ax.set_xticklabels((r'', r'mm', r'$\alpha_{+20}$', r'$\alpha_{-20}$',
-                            r'boreal', r'$\alpha_{+20}$', r'$\alpha_{-20}$',
-                            r'cold', r'$\alpha_{+20}$', r'$\alpha_{-20}$'))
-        ax.legend()
+            
+        ax.set_xticks(np.arange(9))
+        ax.set_xticklabels((r'mm', r'$\alpha_{+20}$', r'$\alpha_{-20}$',
+                           r'boreal', r'$\alpha_{+20}$', r'$\alpha_{-20}$',
+                           r'cold', r'$\alpha_{+20}$', r'$\alpha_{-20}$'))
+        ax.legend(loc='upper left')
 
     ax.set_xlabel('Categories')
     
@@ -198,11 +218,12 @@ vpd = VPD(data_temp.iloc[:,1], data_temp.iloc[:,0])/kilo
 plt.close('all')
 
 # Loop through species and plot them
-for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
-    plot_f_functions(species, i)
+#for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
+#    plot_f_functions(species, i)
 
-"""
+
 list = []
+err_list = []
 # Loop through species and print variance
 for species in (evergreen, evergreen_boreal, evergreen_cold, birch_cold, birch_boreal, birch, grassland, grassland_boreal, grassland_cold):
     for kind in ('evergreen', 'birch', 'grassland'):
@@ -211,6 +232,9 @@ for species in (evergreen, evergreen_boreal, evergreen_cold, birch_cold, birch_b
             result = get_f_function(species)
             list.append(get_stats(result[-1], type='noon', stats='mean'))
             list.append(get_stats(result[-1], type='morning', stats='mean'))
+            err_list.append(get_stats(result[-1], type='noon', stats='std'))
+            err_list.append(get_stats(result[-1], type='morning', stats='std'))
+            
             
             temp = copy.deepcopy(species)
             temp.name = temp.name + "+20"
@@ -219,6 +243,9 @@ for species in (evergreen, evergreen_boreal, evergreen_cold, birch_cold, birch_b
             print(temp.name)
             list.append(get_stats(result[-1], type='noon', stats='mean'))
             list.append(get_stats(result[-1], type='morning', stats='mean'))
+            err_list.append(get_stats(result[-1], type='noon', stats='std'))
+            err_list.append(get_stats(result[-1], type='morning', stats='std'))
+            
             
             temp.name = temp.name[:-3] + "-20"
             temp.alpha_light = alpha_var_decr_20[kind]
@@ -226,8 +253,11 @@ for species in (evergreen, evergreen_boreal, evergreen_cold, birch_cold, birch_b
             print(temp.name)
             list.append(get_stats(result[-1], type='noon', stats='mean'))
             list.append(get_stats(result[-1], type='morning', stats='mean'))
+            err_list.append(get_stats(result[-1], type='noon', stats='std'))
+            err_list.append(get_stats(result[-1], type='morning', stats='std'))
+            
     
-plot_optimal(list, stats='mean')   
-"""
+plot_optimal(list, err=err_list, stats='mean')   
+
 # Show it
 plt.show(block=False)
