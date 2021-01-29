@@ -155,27 +155,45 @@ def plot_optimal(results, **karg):
     
 
 def plot_temperature_histogram(temperature, **karg):
+    javis_model = karg.pop('javis_model', None)
+    
     fig = plt.figure()
     ax1 = plt.subplot()
     fig.canvas.set_window_title("javis_funcs_temp_hist")
-    temperature.hist(ax=ax1, bins=np.arange(-40, 40), label='all years')
+    
     temp_summer_all = temperature.where((temperature.index.month>=5)&(temperature.index.month<9))
     temp_summer_90 = temperature.where((temperature.index.month>=5)&(temperature.index.month<9))[:'2000']
     temp_summer_00 = temperature.where((temperature.index.month>=5)&(temperature.index.month<9))['2001':'2010']
-
-    print("Mean all years summer: %2.3f\\n Mean 90s summer: %2.3f\\n Mean 00s summer: %2.3f" % (temp_summer_all.mean(), temp_summer_90.mean(), temp_summer_00.mean()))
-    temp_summer_all.dropna().hist(ax=ax1, bins=np.arange(-40, 40), histtype='stepfilled', hatch='//', color='red', label='May-Sep')
-    temp_summer_90.dropna().hist(ax=ax1, bins=np.arange(-40, 40), histtype='stepfilled', hatch='\\', color='blue', label='May-Sep (1992-2000)')
-    temp_summer_00.dropna().hist(ax=ax1, bins=np.arange(-40, 40), histtype='step', hatch='\\', color='black', label='May-Sep (2001-2010)')
-
+    temp_summer_10 = temperature.where((temperature.index.month>=5)&(temperature.index.month<9))['2011':]
+    if not javis_model:
+        temperature.hist(ax=ax1, bins=np.arange(-40, 40), label='all years')
+        print("Mean all years summer: %2.3f\\n Mean 90s summer: %2.3f\\n Mean 00s summer: %2.3f" % (temp_summer_all.mean(), temp_summer_90.mean(), temp_summer_00.mean()))
+        
+        temp_summer_all.dropna().hist(ax=ax1, bins=np.arange(-40, 40), histtype='stepfilled', hatch='//', color='red', label='May-Sep')
+        temp_summer_90.dropna().hist(ax=ax1, bins=np.arange(-40, 40), histtype='stepfilled', hatch='\\', color='blue', label='May-Sep (1992-2000)')
+        temp_summer_00.dropna().hist(ax=ax1, bins=np.arange(-40, 40), histtype='step', hatch='\\', color='black', label='May-Sep (2001-2010)')
+        ax1.set_ylabel("Counts")
+    else:
+        fig.canvas.set_window_title("javis_funcs_temp_hist_%s" % javis_model[0].name)
+        plt.subplots_adjust(right=0.9)
+        temp_summer_90.dropna().hist(ax=ax1, density=True, bins=np.arange(-4, 40), label='May-Sep (1992-2000)')
+        temp_summer_10.dropna().hist(ax=ax1, density=True, bins=np.arange(-4, 40), histtype='step', hatch='\\', color='grey', label='May-Sep (2011-2019)')
+        ax11 = ax1.twinx()
+        for each in javis_model:
+            ax11.plot(np.arange(-4, 40), each.f_temp(np.arange(-4,40)), color='blue', label='%s' % each.name)
+        ax11.set_ylabel('$f_{T}$', color='blue')
+        ax11.grid(b=False)
+        ax11.set_ylim(0,1.2)
+        ax1.set_ylabel("PDF")
     ax1.set_xlabel("$T$ $(^\circ C)$")
-    ax1.set_ylabel("Counts")
-    ax1.legend(fontsize='large')
+    
+    plt.legend(fontsize='x-large')
 
 def plot_f_light(javis_model, alpha_variation):
     fig = plt.figure(figsize=(12,10))
     fig.canvas.set_window_title("javis_funcs_f_light_%s" % javis_model.name)
     ax1 = plt.subplot()
+    
 
     plt.plot(javis_model.f_light(np.arange(1000)), label="$\alpha=%1.4f$" % javis_model.alpha_light)
     for each in alpha_variation:
@@ -221,7 +239,7 @@ plt.close('all')
 #for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
 #    plot_f_functions(species, i)
 
-
+"""
 list = []
 err_list = []
 # Loop through species and print variance
@@ -258,6 +276,6 @@ for species in (evergreen, evergreen_boreal, evergreen_cold, birch_cold, birch_b
             
     
 plot_optimal(list, err=err_list, stats='mean')   
-
+"""
 # Show it
 plt.show(block=False)
