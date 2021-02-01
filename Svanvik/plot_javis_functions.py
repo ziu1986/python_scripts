@@ -230,11 +230,11 @@ evergreen_cold = JavisModel('evergreen_cold', Tmin=0, Tmax=200, Topt=15, fmin=0.
 # Birch
 birch = JavisModel('birch', Tmin=5, Tmax=200, Topt=20, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
 birch_boreal = JavisModel('birch_boreal', Tmin=0, Tmax=200, Topt=10, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
-birch_cold = JavisModel('birch_cold', Tmin=0, Tmax=200, Topt=15, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
+birch_cold = JavisModel('birch_cold', Tmin=5, Tmax=200, Topt=15, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
 # Grassland
 grassland = JavisModel('grassland', Tmin=10, Tmax=36, Topt=24, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
 grassland_boreal = JavisModel('grassland_boreal', Tmin=0, Tmax=24, Topt=10, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
-grassland_cold = JavisModel('grassland_cold', Tmin=0, Tmax=36, Topt=15, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
+grassland_cold = JavisModel('grassland_cold', Tmin=5, Tmax=36, Topt=15, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
 
 
 # Load data
@@ -247,12 +247,17 @@ vpd = VPD(data_temp.iloc[:,1], data_temp.iloc[:,0])/kilo
 plt.close('all')
 
 # Loop through species and plot them
-#for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
-#    plot_f_functions(species, i)
+for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
+    plot_f_functions(species, i)
 
-#for species in ((evergreen, evergreen_boreal, evergreen_cold), (birch, birch_boreal, birch_cold), (grassland, grassland_boreal, grassland_cold)):
-#    plot_temperature_histogram(data_temp.iloc[:,0], javis_model=species)
+print_all()
+plt.close('all')
 
+for species in ((evergreen, evergreen_boreal, evergreen_cold), (birch, birch_boreal, birch_cold), (grassland, grassland_boreal, grassland_cold)):
+    plot_temperature_histogram(data_temp.iloc[:,0], javis_model=species)
+
+print_all()
+plt.close('all')
 
 list = []
 err_list = []
@@ -293,3 +298,6 @@ plot_optimal(list, err=err_list, stats='mean')
 
 # Show it
 plt.show(block=False)
+
+print_all()
+
