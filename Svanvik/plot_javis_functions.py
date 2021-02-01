@@ -157,7 +157,7 @@ def plot_optimal(results, **karg):
 def plot_temperature_histogram(temperature, **karg):
     javis_model = karg.pop('javis_model', None)
     
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10,8))
     ax1 = plt.subplot()
     fig.canvas.set_window_title("javis_funcs_temp_hist")
     
@@ -177,24 +177,35 @@ def plot_temperature_histogram(temperature, **karg):
         fig.canvas.set_window_title("javis_funcs_temp_hist_%s" % javis_model[0].name)
         plt.subplots_adjust(right=0.9)
         temp_summer_90.dropna().hist(ax=ax1, density=True, bins=np.arange(-4, 40), label='May-Sep (1992-2000)')
-        temp_summer_10.dropna().hist(ax=ax1, density=True, bins=np.arange(-4, 40), histtype='step', hatch='\\', color='grey', label='May-Sep (2011-2019)')
+        temp_summer_10.dropna().hist(ax=ax1, density=True, bins=np.arange(-4, 40), histtype='step', hatch='\\', color='grey', linewidth=2, label='May-Sep (2011-2019)')
         ax11 = ax1.twinx()
         for each in javis_model:
-            ax11.plot(np.arange(-4, 40), each.f_temp(np.arange(-4,40)), color='blue', label='%s' % each.name)
-        ax11.set_ylabel('$f_{T}$', color='blue')
+            ax11.plot(np.arange(-4, 40), each.f_temp(np.arange(-4,40)), color='blue', linewidth=2, label='%s' % each.name.replace('_', ' '))
+        
         ax11.grid(b=False)
         ax11.set_ylim(0,1.2)
+        ax11.legend(fontsize='x-large')
+        ax11.tick_params(axis='y', colors='blue')
+        ax11.set_ylabel('$f_{T}$', color='blue')
         ax1.set_ylabel("PDF")
+        ax1.set_ylim(0,0.09)
+        
+        
     ax1.set_xlabel("$T$ $(^\circ C)$")
+    ax1.legend(fontsize='x-large', loc='upper left')
     
-    plt.legend(fontsize='x-large')
 
-def plot_f_light(javis_model, alpha_variation):
-    fig = plt.figure(figsize=(12,10))
+def plot_f_light(javis_model, alpha_variation, **karg):
+    fig = plt.figure(figsize=(10,8))
     fig.canvas.set_window_title("javis_funcs_f_light_%s" % javis_model.name)
     ax1 = plt.subplot()
     
-
+    if 'ppfd' in karg:
+        ppfd = karg.pop('ppfd')
+        ppfd_summer = ppfd.where((ppfd.index.month>=5)&(ppfd.index.month<9))
+        ppfd_summer.hist(ax=ax1, bins=np.arange(1000), density=True, label='May-Sep (2000-2019)')
+        ax11 = ax1.twinx()
+        
     plt.plot(javis_model.f_light(np.arange(1000)), label="$\alpha=%1.4f$" % javis_model.alpha_light)
     for each in alpha_variation:
         tmp_model = copy.deepcopy(javis_model)
@@ -218,11 +229,11 @@ evergreen_boreal = JavisModel('evergreen_boreal', Tmin=0, Tmax=200, Topt=10, fmi
 evergreen_cold = JavisModel('evergreen_cold', Tmin=0, Tmax=200, Topt=15, fmin=0.1, Dmax=0.8, Dmin=2.8, alpha=0.006, gmax=125)
 # Birch
 birch = JavisModel('birch', Tmin=5, Tmax=200, Topt=20, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
-birch_boreal = JavisModel('birch_boreal', Tmin=5, Tmax=200, Topt=12, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
-birch_cold = JavisModel('birch_cold', Tmin=5, Tmax=200, Topt=15, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
+birch_boreal = JavisModel('birch_boreal', Tmin=0, Tmax=200, Topt=10, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
+birch_cold = JavisModel('birch_cold', Tmin=0, Tmax=200, Topt=15, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
 # Grassland
 grassland = JavisModel('grassland', Tmin=10, Tmax=36, Topt=24, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
-grassland_boreal = JavisModel('grassland_boreal', Tmin=0, Tmax=24, Topt=12, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
+grassland_boreal = JavisModel('grassland_boreal', Tmin=0, Tmax=24, Topt=10, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
 grassland_cold = JavisModel('grassland_cold', Tmin=0, Tmax=36, Topt=15, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
 
 
@@ -239,11 +250,14 @@ plt.close('all')
 #for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
 #    plot_f_functions(species, i)
 
-"""
+#for species in ((evergreen, evergreen_boreal, evergreen_cold), (birch, birch_boreal, birch_cold), (grassland, grassland_boreal, grassland_cold)):
+#    plot_temperature_histogram(data_temp.iloc[:,0], javis_model=species)
+
+
 list = []
 err_list = []
 # Loop through species and print variance
-for species in (evergreen, evergreen_boreal, evergreen_cold, birch_cold, birch_boreal, birch, grassland, grassland_boreal, grassland_cold):
+for species in (evergreen, evergreen_boreal, evergreen_cold, birch, birch_boreal, birch_cold, grassland, grassland_boreal, grassland_cold):
     for kind in ('evergreen', 'birch', 'grassland'):
         if kind in species.name:
             print(species.name)
@@ -276,6 +290,6 @@ for species in (evergreen, evergreen_boreal, evergreen_cold, birch_cold, birch_b
             
     
 plot_optimal(list, err=err_list, stats='mean')   
-"""
+
 # Show it
 plt.show(block=False)
