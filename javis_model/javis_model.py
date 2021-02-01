@@ -38,6 +38,14 @@ class JavisModel:
         TMAX = self.temp_max
         TOPT = self.temp_opt
 
+        # Catch tamperature > TMAX
+        try:
+            temperature[np.where(temperature>TMAX)] = TMAX
+        except TypeError:
+            if temperature > TMAX:
+                temperature = TMAX
+                
+        # Compute f_temp function
         beta = (TMAX-TOPT)/(TOPT-TMIN)
         f_temp = (temperature-TMIN)/(TOPT-TMIN)*((TMAX-temperature)/(TMAX-TOPT))**beta
 
