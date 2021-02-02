@@ -199,18 +199,11 @@ def plot_f_light(javis_model, alpha_variation, **karg):
     fig = plt.figure(figsize=(10,8))
     fig.canvas.set_window_title("javis_funcs_f_light_%s" % javis_model.name)
     ax1 = plt.subplot()
-    
-    if 'ppfd' in karg:
-        ppfd = karg.pop('ppfd')
-        ppfd_summer = ppfd.where((ppfd.index.month>=5)&(ppfd.index.month<9))
-        ppfd_summer.hist(ax=ax1, bins=np.arange(1000), density=True, label='May-Sep (2000-2019)')
-        ax11 = ax1.twinx()
-        
     plt.plot(javis_model.f_light(np.arange(1000)), label="$\alpha=%1.4f$" % javis_model.alpha_light)
     for each in alpha_variation:
         tmp_model = copy.deepcopy(javis_model)
         tmp_model.alpha_light = each
-        plt.plot(tmp_model.f_light(np.arange(1000)), label="$\alpha=%1.4f$" % tmp_model.alpha_light)
+    plt.plot(tmp_model.f_light(np.arange(1000)), label="$\alpha=%1.4f$" % tmp_model.alpha_light)
 
     ax1.set_xlabel("PPFD $(W\,m^{-2}\,s^{-1})$")
     ax1.set_ylabel("$f_{light}$")
@@ -247,20 +240,30 @@ vpd = VPD(data_temp.iloc[:,1], data_temp.iloc[:,0])/kilo
 plt.close('all')
 
 # Loop through species and plot them
-for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
-    plot_f_functions(species, i)
+#for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
+#    plot_f_functions(species, i)
 
-print_all()
-plt.close('all')
+#print_all()
+#plt.close('all')
 
-for species in ((evergreen, evergreen_boreal, evergreen_cold), (birch, birch_boreal, birch_cold), (grassland, grassland_boreal, grassland_cold)):
-    plot_temperature_histogram(data_temp.iloc[:,0], javis_model=species)
+#for species in ((evergreen, evergreen_boreal, evergreen_cold), (birch, birch_boreal, birch_cold), (grassland, grassland_boreal, grassland_cold)):
+#    plot_temperature_histogram(data_temp.iloc[:,0], javis_model=species)
 
-print_all()
-plt.close('all')
+#print_all()
+#plt.close('all')
+for species in (evergreen, evergreen_boreal, evergreen_cold, birch, birch_boreal, birch_cold, grassland, grassland_boreal, grassland_cold):
+    print(species.name)
+    result = get_f_function(species)
+    temp = result[-1].where((result[-1].index.month>=5)&(result[-1].index.month<9)).resample('1Y').sum()['2000':]
+    temp_mean = temp.mean()
+    temp_std = temp.std()
+    print(temp.apply(lambda x: (x-temp_mean)/temp_std))
 
+
+"""
 list = []
 err_list = []
+midnight_sun_list = []
 # Loop through species and print variance
 for species in (evergreen, evergreen_boreal, evergreen_cold, birch, birch_boreal, birch_cold, grassland, grassland_boreal, grassland_cold):
     for kind in ('evergreen', 'birch', 'grassland'):
@@ -271,7 +274,8 @@ for species in (evergreen, evergreen_boreal, evergreen_cold, birch, birch_boreal
             list.append(get_stats(result[-1], type='morning', stats='mean'))
             err_list.append(get_stats(result[-1], type='noon', stats='std'))
             err_list.append(get_stats(result[-1], type='morning', stats='std'))
-            
+            test_res =result[2].where(result[2].index.hour==0)
+            midnight_sun_list.append(test_res.groupby([test_res.index.month,test_res.index.day]))
             
             temp = copy.deepcopy(species)
             temp.name = temp.name + "+20"
@@ -282,8 +286,9 @@ for species in (evergreen, evergreen_boreal, evergreen_cold, birch, birch_boreal
             list.append(get_stats(result[-1], type='morning', stats='mean'))
             err_list.append(get_stats(result[-1], type='noon', stats='std'))
             err_list.append(get_stats(result[-1], type='morning', stats='std'))
-            
-            
+            test_res =result[2].where(result[2].index.hour==0)
+            midnight_sun_list.append(test_res.groupby([test_res.index.month,test_res.index.day]))
+                        
             temp.name = temp.name[:-3] + "-20"
             temp.alpha_light = alpha_var_decr_20[kind]
             result = get_f_function(temp)
@@ -292,10 +297,13 @@ for species in (evergreen, evergreen_boreal, evergreen_cold, birch, birch_boreal
             list.append(get_stats(result[-1], type='morning', stats='mean'))
             err_list.append(get_stats(result[-1], type='noon', stats='std'))
             err_list.append(get_stats(result[-1], type='morning', stats='std'))
+            test_res =result[2].where(result[2].index.hour==0)
+            midnight_sun_list.append(test_res.groupby([test_res.index.month,test_res.index.day]))
+           
             
     
 plot_optimal(list, err=err_list, stats='mean')   
-
+"""
 # Show it
 plt.show(block=False)
 
