@@ -37,6 +37,7 @@ class JavisModel:
         TMIN = self.temp_min
         TMAX = self.temp_max
         TOPT = self.temp_opt
+        FMIN = self.f_min
 
         # Catch tamperature > TMAX
         try:
@@ -49,12 +50,12 @@ class JavisModel:
         beta = (TMAX-TOPT)/(TOPT-TMIN)
         f_temp = (temperature-TMIN)/(TOPT-TMIN)*((TMAX-temperature)/(TMAX-TOPT))**beta
 
-        # Catch negative values
+        # Catch invalid values
         try:
-            f_temp[np.where(f_temp<0)] = 0
+            f_temp[np.where(f_temp<FMIN)] = FMIN
         except TypeError:
-            if f_temp < 0:
-                f_temp = 0
+            if f_temp < FMIN:
+                f_temp = FMIN
         # Catch values larger 1
         try:
             f_temp[np.where(f_temp>1)] = 1
@@ -94,10 +95,10 @@ class JavisModel:
 
         # Catch negative values
         try:
-            f_vpd[np.where(f_vpd<0)] = 0
+            f_vpd[np.where(f_vpd<FMIN)] = FMIN
         except TypeError:
-            if f_vpd < 0:
-                f_vpd = 0
+            if f_vpd < FMIN:
+                f_vpd = FMIN
         # Catch values larger 1
         try:
             f_vpd[np.where(f_vpd>1)] = 1
