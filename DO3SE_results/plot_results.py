@@ -170,6 +170,29 @@ for spec, figi  in zip(species, np.arange(3,6)):
         ax.set_ylabel("")
         ax.set_yticklabels("")
 
+fig10 = plt.figure(10, figsize=(10,14))
+fig10.canvas.set_window_title("DO3SE_results_pody_gsto_o3")
+title_letter = [tl for tl in char_range('a', 'f')]
+iax = 1
+for spec in species:
+    data = data_list[spec]
+    for sheet, color in zip(data.sheet_names[1::2][:2], ('violet', 'purple')):
+        ax = plt.subplot(3,2,iax)
+        ax.set_title("(%s)" % title_letter[iax-1])
+        iax += 1
+
+        date = pd.read_excel(data, sheet, header=2)
+        date.index = date.index+(date['Day'].iloc[0]-1)*24
+        date = date.reindex(np.arange(1,365*24))
+        # Plot data
+        plot_pody_gsto_o3(ax, date, o3color=color)
+
+    for i_off in np.arange(1,4):
+        for ax in fig10.axes[i_off::6]:
+            ax.set_ylabel("")
+            ax.set_yticklabels("")
+plt.subplots_adjust(wspace=0.1, right=0.92)
+
 # Plot correlation coefficients
 corr_birch = pd.DataFrame(correlation_pody_list[:3], index=('clim', '2018', '2019'))
 corr_spruce = pd.DataFrame(correlation_pody_list[3:6], index=('clim', '2018', '2019'))
