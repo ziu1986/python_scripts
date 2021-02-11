@@ -3,8 +3,33 @@ from do3se_tools import *
 
 plt.close('all')
 
+def plot_pod(pod1, pod1_keys, species_name):
+    fig1 = plt.figure(figsize=(12,8))
+    fig1.canvas.set_window_title('do3se_results_pod_%s' % species_name)
+    ax1 = plt.subplot()
+    ax1.set_ylabel('$POD_1$ $(mmol\,O_3\,m^{-2})$')
+    ax1.set_ylim(0,35)
+
+    for i in np.arange(6, len(pod1)+1, 6):
+        param_type = pod1_keys[::-1][i-6][0]
+                
+        if pod1_keys[::-1][i-6][1].find('2018') < 0:
+            icolor = 'purple'
+            x_range = np.arange(i, i+6)
+        else:
+            icolor = 'violet'
+            x_range = np.arange(i-12, i-6)
+            ax1.text(i-9, 34, "%s" % param_type, size='x-large')
+        
+        ax1.plot(x_range[1::2], pod1[::-1][i-6:i][::2],
+                           marker='o', fillstyle='none', color=icolor,
+                           label='f_SW var.')
+        ax1.plot(x_range[::2], pod1[::-1][i-6:i][1::2],
+                 marker='o', color=icolor, label='f_SW=1')
+
+    #plt.legend()
 # Read data
-src = "/data/DO3SE_results/v2/Grassland*"
+src = "/data/DO3SE_results/v2/Birch*"
 try:
     test
 except NameError:
@@ -25,19 +50,6 @@ for key in test:
         pod1.append(tmp)
         pod1_keys.append((key[key.find('_')+1:], isheet))
 
-
-fig1 = plt.figure(figsize=(12,8))
-ax1 = plt.subplot()
-ax1.set_ylabel('$POD_1$ $(mmol\,O_3\,m^{-2}\,s^{-1})$')
-ax1.set_ylim(0,35)
-
-for i in np.arange(6, len(pod1)+1, 6):
-    if pod1_keys[::-1][i-6][1].find('2018') < 0:
-        icolor = 'purple'
-    else:
-        icolor = 'violet'
-        
-    ax1.plot(np.arange(i-6, i)[1::2], pod1[::-1][i-6:i][::2], marker='o', fillstyle='none', color=icolor)
-    ax1.plot(np.arange(i-6, i)[::2], pod1[::-1][i-6:i][1::2], marker='o', color=icolor)
-
+plot_pod(pod1, pod1_keys, 'birch')
+# Show it
 plt.show(block=False)
