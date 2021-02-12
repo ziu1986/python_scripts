@@ -341,6 +341,12 @@ def vapor_press(temperature, **karg):
         coeff_b =  17.502   # 1
         coeff_c = 240.97    # deg C
         press = coeff_a * np.exp(coeff_b*temperature / (temperature+coeff_c))
+    elif version == 'rogers':
+        coeff_a =   0.6112  # kPa
+        coeff_b =  17.67    # 1
+        coeff_c = 243.5     # deg C
+        press = coeff_a * np.exp(coeff_b*temperature / (temperature+coeff_c))
+
     # Return saturation water vapor pressure in Pa
     return(press*1e3)
 
@@ -359,6 +365,7 @@ def VPD(relhum, temperature, **karg):
     Optionsn:
         - buck (Buck, 1981)
         - campbell (Campbell & Norman, 2000)
+        - rogers (Rogers & Jau, ????)
     Returns:
     --------
     vpd : float
@@ -384,6 +391,7 @@ def dew_point(relhum, temperature, **karg):
       Options:
         - buck (Buck, 1981)
         - campbell (Campbell & Norman, 2000)
+        - rogers (Rogers & Jau, ????)
     Returns:
     --------
     Tdp : float
@@ -403,6 +411,11 @@ def dew_point(relhum, temperature, **karg):
         coeff_a =   0.611   # kPa
         coeff_b =  17.502   # 1
         coeff_c = 240.97    # deg C
+        press = coeff_a * np.exp(coeff_b*temperature / (temperature+coeff_c))
+    elif version == 'rogers':
+        coeff_a =   0.6112  # kPa
+        coeff_b =  17.67    # 1
+        coeff_c = 243.5     # deg C
         press = coeff_a * np.exp(coeff_b*temperature / (temperature+coeff_c))
 
     gamma_m = np.log(relhum/float(100)*press/coeff_a)
