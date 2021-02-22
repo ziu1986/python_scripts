@@ -16,12 +16,15 @@ def write_pod1(pod1, pod1_keys, species_name):
     outfile.close()
 
 
-def plot_pod(results, species_name):
+def plot_pod(results, species_name, **karg):
+    crit_level = karg.pop('CL', -1)
+    
     fig1 = plt.figure(figsize=(12,8))
     fig1.canvas.set_window_title('do3se_results_pod_%s' % species_name)
     ax1 = plt.subplot()
     ax1.set_ylabel('$POD_1$ $(mmol\,O_3\,m^{-2})$')
     ax1.set_ylim(0,35)
+    ax1.axhline(crit_level, color='grey', ls=':', linewidth=3)
     
     for ispecies in ('Boreal', 'Cold', 'MM'):
             
@@ -68,30 +71,17 @@ def plot_pod(results, species_name):
     ax1.plot(np.arange(-1,-3,-1), color='black', marker='o', fillstyle='none', ls="None", label='SWP=on')
         
     ax1.legend(loc='upper right', ncol=2)
-    #for i in np.arange(6, len(pod1)+1, 6):
-    #    param_type = pod1_keys[::-1][i-6][0]
-    #            
-    #    if pod1_keys[::-1][i-6][1].find('2018') < 0:
-    #        icolor = 'purple'
-    #        x_range = np.arange(i, i+6)
-    #    else:
-    #        icolor = 'violet'
-    #        x_range = np.arange(i-12, i-6)
-    #        ax1.text(i-9, 34, "%s" % param_type, size='x-large')
-    #    
-    #    ax1.plot(x_range[1::2], pod1[::-1][i-6:i][::2],
-    #                       marker='o', fillstyle='none', color=icolor,
-    #                       label='f_SW var.')
-    #    ax1.plot(x_range[::2], pod1[::-1][i-6:i][1::2],
-    #             marker='o', color=icolor, label='f_SW=1')
 
-    
+   
+        
 # Read data
+critical_level = {'Birch': 5.2, 'Spruce': 9.2, 'Grassland': 10.2}
 species = ("Birch", "Spruce", "Grassland")
+version = 'v2'
 for PFT in species:
-    src = "/data/DO3SE_results/v2/%s*" % PFT
+    src = "/data/DO3SE_results/%s/%s*" % (version, PFT)
 
-    if not os.path.isfile('pod1_max_%s.dat' % PFT):
+    if not os.path.isfile('%s_pod1_max_%s.dat' % (version, PFT)):
         pod1 = []
         pod1_keys = []
         for each in sorted(glob.glob(src)):
@@ -107,9 +97,9 @@ for PFT in species:
     else:
         results = pd.read_csv('pod1_max_%s.dat' % PFT)
 
-        plot_pod(results, PFT)
-        # Save it
-        print_all()
-        # Show it
-        plt.show(block=False)
+        plot_pod(results, PFT, CL=critical_level[PFT])
+# Save it
+print_all()
+# Show it
+plt.show(block=False)
 
