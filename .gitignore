@@ -5,6 +5,7 @@
 **/*.so
 **/*.c
 **/*.pyc
+**/*.dat
 # Ignore all "plots" directories
 **/**/*/plots/
 **/Plots/
