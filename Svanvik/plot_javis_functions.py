@@ -122,9 +122,9 @@ def plot_optimal(results, **karg):
     
     fig = plt.figure(1, figsize=(10,12))
     fig.canvas.set_window_title("javis_func_opt_%s" % stats)
-    for i, iname in zip((0,1,2), ('evergreen', 'birch', 'grassland')):
+    for i, iname, ilabel in zip((0,1,2), ('evergreen', 'birch', 'grassland'), ('(a)', '(b)', '(c)')):
         ax = plt.subplot(3,1,i+1)
-        ax.set_title(iname)
+        ax.set_title(ilabel)
         noon_results = results[::2][9*i:9*(i+1)]
         morning_results = results[1::2][9*i:9*(i+1)]
 
@@ -143,16 +143,31 @@ def plot_optimal(results, **karg):
             ax.set_ylabel('Variance')
         else:
             ax.set_ylim(0,1)
-            ax.set_ylabel('Mean')
+            ax.set_ylabel('$<g_{sto}>/g_{max}$')
             
         ax.set_xticks(np.arange(9))
-        ax.set_xticklabels((r'mm', r'$\alpha_{+20}$', r'$\alpha_{-20}$',
-                           r'boreal', r'$\alpha_{+20}$', r'$\alpha_{-20}$',
-                           r'cold', r'$\alpha_{+20}$', r'$\alpha_{-20}$'))
+        ax.set_xticklabels((r'boreal', r'PPFD0.8', r'PPFD1.2',
+                            r'cold', r'PPFD0.8', r'PPFD1.2',
+                            r'MM', r'PPFD0.8', r'PPFD1.2'))
         ax.legend(loc='upper left')
 
     ax.set_xlabel('Categories')
     
+
+def plot_f_light(javis_model, alpha_variation, **karg):
+    fig = plt.figure(figsize=(10,8))
+    fig.canvas.set_window_title("javis_funcs_f_light_%s" % javis_model.name)
+    ax1 = plt.subplot()
+    plt.plot(javis_model.f_light(np.arange(1000)), label="$\alpha=%1.4f$" % javis_model.alpha_light)
+    for each in alpha_variation:
+        tmp_model = copy.deepcopy(javis_model)
+        tmp_model.alpha_light = each
+    plt.plot(tmp_model.f_light(np.arange(1000)), label="$\alpha=%1.4f$" % tmp_model.alpha_light)
+
+    ax1.set_xlabel("PPFD $(W\,m^{-2}\,s^{-1})$")
+    ax1.set_ylabel("$f_{light}$")
+
+    ax1.axhline(0.5, ls=':', color='red')
 
 def plot_temperature_histogram(temperature, **karg):
     javis_model = karg.pop('javis_model', None)
@@ -193,67 +208,72 @@ def plot_temperature_histogram(temperature, **karg):
         
     ax1.set_xlabel("$T$ $(^\circ C)$")
     ax1.legend(fontsize='x-large', loc='upper left')
-    
 
-def plot_f_light(javis_model, alpha_variation, **karg):
-    fig = plt.figure(figsize=(10,8))
-    fig.canvas.set_window_title("javis_funcs_f_light_%s" % javis_model.name)
-    ax1 = plt.subplot()
-    plt.plot(javis_model.f_light(np.arange(1000)), label="$\alpha=%1.4f$" % javis_model.alpha_light)
-    for each in alpha_variation:
-        tmp_model = copy.deepcopy(javis_model)
-        tmp_model.alpha_light = each
-    plt.plot(tmp_model.f_light(np.arange(1000)), label="$\alpha=%1.4f$" % tmp_model.alpha_light)
 
-    ax1.set_xlabel("PPFD $(W\,m^{-2}\,s^{-1})$")
-    ax1.set_ylabel("$f_{light}$")
-
-    ax1.axhline(0.5, ls=':', color='red')
-            
-def plot_light_histogram(radiation, **karg):
+def plot_histogram(variable, **karg):
+    var_mod = karg.pop('var', 'temperature')
     javis_model = karg.pop('javis_model', None)
     
     fig = plt.figure(figsize=(10,6))
     ax1 = plt.subplot()
-    fig.canvas.set_window_title("javis_funcs_light_hist")
-
-    rad_summer_all = radiation.where((radiation.index.month>=5)&(radiation.index.month<9))
-    rad_summer_90 = radiation.where((radiation.index.month>=5)&(radiation.index.month<9))[:'2000']
-    rad_summer_00 = radiation.where((radiation.index.month>=5)&(radiation.index.month<9))['2001':'2010']
-    rad_summer_10 = radiation.where((radiation.index.month>=5)&(radiation.index.month<9))['2011':]
-
-    light_range = np.arange(0, 1000, 10)
-
-    if not javis_model:
-        raderature.hist(ax=ax1, bins=light_range, label='all years')
-        print("Mean all years summer: %2.3f\\n Mean 90s summer: %2.3f\\n Mean 00s summer: %2.3f" % (rad_summer_all.mean(), rad_summer_90.mean(), rad_summer_00.mean()))
-        
-        rad_summer_all.dropna().hist(ax=ax1, bins=light_range, histtype='stepfilled', hatch='//', color='red', label='May-Sep')
-        rad_summer_90.dropna().hist(ax=ax1, bins=light_range, histtype='stepfilled', hatch='\\', color='blue', label='May-Sep (1992-2000)')
-        rad_summer_00.dropna().hist(ax=ax1, bins=light_range, histtype='step', hatch='\\', color='black', label='May-Sep (2001-2010)')
-        ax1.set_ylabel("Counts")
-    else:
-        fig.canvas.set_window_title("javis_funcs_rad_hist_%s" % javis_model[0].name)
-        plt.subplots_adjust(right=0.9)
-        rad_summer_90.dropna().hist(ax=ax1, density=True, bins=light_range, label='May-Sep (1992-2000)')
-        rad_summer_10.dropna().hist(ax=ax1, density=True, bins=light_range, histtype='step', hatch='\\', color='grey', linewidth=2, label='May-Sep (2011-2019)')
-        ax11 = ax1.twinx()
-        for each in javis_model:
-            ax11.plot(light_range, each.f_light(light_range), color='blue', linewidth=2, label='%s' % each.name.replace('_', ' '))
-        
-        ax11.grid(b=False)
-        ax11.set_ylim(0,1.4)
-        ax11.legend(fontsize='x-large')
-        ax11.tick_params(axis='y', colors='blue')
-        ax11.set_ylabel('$f_{light}$', color='blue')
-        ax1.set_ylabel("PDF")
-        ax1.set_ylim(0,0.006)
-        ax1.set_xlim(light_range[0], light_range[-1])
-        
-        
-    ax1.set_xlabel("$Q_0$ $(W\,m^{-2})$")
-    ax1.legend(fontsize='x-large', loc='upper left')
+    fig.canvas.set_window_title("javis_funcs_%s_hist" % (var_mod))
     
+    variable_summer_all = variable.where((variable.index.month>=5)&(variable.index.month<9))
+    variable_summer_90 = variable.where((variable.index.month>=5)&(variable.index.month<9))[:'2000']
+    variable_summer_00 = variable.where((variable.index.month>=5)&(variable.index.month<9))['2001':'2010']
+    variable_summer_10 = variable.where((variable.index.month>=5)&(variable.index.month<9))['2011':]
+
+    if var_mod=='temperature':
+        var_range = np.arange(-4, 40)
+    elif var_mod=='light':
+        var_range = np.arange(0, 1000, 10)
+    elif var_mod=='vpd':
+        var_range = np.arange(0, 5, 0.1)
+        
+    fig.canvas.set_window_title("javis_funcs_%s_hist_%s" % (var_mod, javis_model[0].name))
+    plt.subplots_adjust(right=0.9)
+    variable_summer_90.dropna().hist(ax=ax1, density=True, bins=var_range, label='May-Sep (1992-2000)')
+    variable_summer_10.dropna().hist(ax=ax1, density=True, bins=var_range, histtype='step', hatch='\\', color='grey', linewidth=2, label='May-Sep (2011-2019)')
+    ax11 = ax1.twinx()
+    for each in javis_model:
+        if var_mod=='temperature':
+            ax11.plot(var_range, each.f_temp(var_range), color='blue', linewidth=2, label='%s' % each.name.replace('_', ' '))
+            
+        elif var_mod=='light':
+            ax11.plot(var_range, each.f_light(var_range), color='blue', linewidth=2, label='%s' % each.name.replace('_', ' '))
+        
+        elif var_mod=='vpd':
+            ax11.plot(var_range, each.f_vpd(var_range), color='blue', linewidth=2, label='%s' % each.name.replace('_', ' '))
+
+    if var_mod=='temperature':
+        ax11.set_ylabel('$f_{T}$', color='blue')
+        ax1.set_xlabel("$T$ $(^\circ C)$")
+        ax1.set_ylim(0,0.09)
+                
+    elif var_mod=='light':
+        ax11.set_ylabel('$f_{light}$', color='blue')
+        ax1.set_xlabel("$Q_0$ $(W\,m^{-2})$")
+        ax1.set_ylim(0,0.006)
+        ax1.set_xlim(var_range[0], var_range[-1])
+        
+    elif var_mod=='vpd':
+        ax11.set_ylabel('$f_{VPD}$', color='blue')
+        ax1.set_xlabel("$VPD$ $(kPa)$")
+        ax1.set_xlim(var_range[0], var_range[-1])
+        ax1.set_ylim(0,3)
+       
+    
+    ax11.grid(b=False)
+    ax11.set_ylim(0,1.4)
+    ax11.legend(fontsize='x-large')
+    ax11.tick_params(axis='y', colors='blue')
+    ax1.set_ylabel("PDF")
+        
+    ax1.legend(fontsize='x-large', loc='upper left')
+        
+
+
+  
     
     
 # main
@@ -290,10 +310,10 @@ plt.close('all')
 
 #print_all()
 #plt.close('all')
-
+"""
 for species in ((evergreen, evergreen_boreal, evergreen_cold), (birch, birch_boreal, birch_cold), (grassland, grassland_boreal, grassland_cold)):
     plot_temperature_histogram(data_temp.iloc[:,0], javis_model=species)
-    
+   
 for species in ([evergreen,], [birch,], [grassland,]):
     for kind in ('evergreen', 'birch', 'grassland'):
         if kind in species[0].name:
@@ -302,8 +322,11 @@ for species in ([evergreen,], [birch,], [grassland,]):
                 temp.name = temp.name + "_" + alpha_mode
                 temp.alpha_light = alpha_var
                 species.append(temp)
-    plot_light_histogram(data_rad.iloc[:,0], javis_model=species)
-    
+    plot_histogram(data_rad.iloc[:,0], javis_model=species, var='light')
+
+for species in ([evergreen,], [birch,], [grassland,]):
+    plot_histogram(vpd, javis_model=species, var='vpd')
+"""
 #print_all()
 #plt.close('all')
 #for species in (evergreen, evergreen_boreal, evergreen_cold, birch, birch_boreal, birch_cold, grassland, grassland_boreal, grassland_cold):
@@ -315,13 +338,13 @@ for species in ([evergreen,], [birch,], [grassland,]):
 #    print(temp.apply(lambda x: (x-temp_mean)/temp_std))
 
 
-"""
+
 list = []
 err_list = []
 midnight_sun_list = []
 # Loop through species and print variance
-for species in (evergreen, evergreen_boreal, evergreen_cold, birch, birch_boreal, birch_cold, grassland, grassland_boreal, grassland_cold):
-    for kind in ('evergreen', 'birch', 'grassland'):
+for species in (birch_boreal, birch_cold, birch, evergreen_boreal, evergreen_cold, evergreen, grassland_boreal, grassland_cold, grassland):
+    for kind in ( 'birch', 'evergreen','grassland'):
         if kind in species.name:
             print(species.name)
             result = get_f_function(species)
@@ -331,19 +354,9 @@ for species in (evergreen, evergreen_boreal, evergreen_cold, birch, birch_boreal
             err_list.append(get_stats(result[-1], type='morning', stats='std'))
             test_res =result[2].where(result[2].index.hour==0)
             midnight_sun_list.append(test_res.groupby([test_res.index.month,test_res.index.day]))
-            
+
             temp = copy.deepcopy(species)
-            temp.name = temp.name + "+20"
-            temp.alpha_light = alpha_var_incr_20[kind]
-            result = get_f_function(temp)
-            print(temp.name)
-            list.append(get_stats(result[-1], type='noon', stats='mean'))
-            list.append(get_stats(result[-1], type='morning', stats='mean'))
-            err_list.append(get_stats(result[-1], type='noon', stats='std'))
-            err_list.append(get_stats(result[-1], type='morning', stats='std'))
-            test_res =result[2].where(result[2].index.hour==0)
-            midnight_sun_list.append(test_res.groupby([test_res.index.month,test_res.index.day]))
-                        
+            
             temp.name = temp.name[:-3] + "-20"
             temp.alpha_light = alpha_var_decr_20[kind]
             result = get_f_function(temp)
@@ -355,10 +368,20 @@ for species in (evergreen, evergreen_boreal, evergreen_cold, birch, birch_boreal
             test_res =result[2].where(result[2].index.hour==0)
             midnight_sun_list.append(test_res.groupby([test_res.index.month,test_res.index.day]))
            
+            temp.name = temp.name + "+20"
+            temp.alpha_light = alpha_var_incr_20[kind]
+            result = get_f_function(temp)
+            print(temp.name)
+            list.append(get_stats(result[-1], type='noon', stats='mean'))
+            list.append(get_stats(result[-1], type='morning', stats='mean'))
+            err_list.append(get_stats(result[-1], type='noon', stats='std'))
+            err_list.append(get_stats(result[-1], type='morning', stats='std'))
+            test_res =result[2].where(result[2].index.hour==0)
+            midnight_sun_list.append(test_res.groupby([test_res.index.month,test_res.index.day]))
             
     
 plot_optimal(list, err=err_list, stats='mean')   
-"""
+
 # Show it
 plt.show(block=False)
 

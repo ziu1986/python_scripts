@@ -140,7 +140,7 @@ for iyear, iax, icolor in zip((2018, 2019),(ax31, ax32, ax31), ('violet', 'purpl
     
     
 ax32.set_xlabel("Time (months)")
-ax32.set_ylabel("#Days above $\pm 2\sigma_{clim}$ (%)", y=1)
+ax32.set_ylabel("Days above $\pm 2\sigma_{clim}$ (%)", y=1)
 
 # Get evaluation for corrected 2018
 tmp = data_svanvik_corr.iloc[:,0]['2018'].groupby(data_svanvik_corr.iloc[:,0]['2018'].index.dayofyear).mean()
@@ -161,7 +161,7 @@ plot_data_p.plot.bar(ax=ax41, width=0.85, color=('violet', 'purple'))
 plot_data_n.plot.bar(ax=ax41, width=0.85, color=('violet', 'purple'))
 
 
-ax41.legend(["_","2018","2019","_","_"], loc='upper left')
+ax41.legend(["_","2018","2019","_","_"], loc='upper left', fontsize='xx-large')
 
 ax41.plot(6-0.2, probe_p[2][7], marker='*', markersize=12)
 #ax41.bar(6-0.2, probe_p[2][7], width=0.425, facecolor='None', edgecolor='violet', hatch='--')
@@ -176,7 +176,7 @@ ax41.text(9.75, 55, '$>+1\,\sigma$', size='x-large', color='black')
 ax41.text(9.25, 51, '2018: %2.2f %s' % (text_p[0], "%"), size='x-large', color='violet')
 ax41.text(9.25, 47, '2019: %2.2f %s' % (text_p[1], "%"), size='x-large', color='purple')
 
-ax41.text(9.75, -47, '$>-1\,\sigma$', size='x-large', color='black')
+ax41.text(9.75, -47, '$<-1\,\sigma$', size='x-large', color='black')
 ax41.text(9.25, -51, '2018: %2.2f %s' % (text_n[0], "%"), size='x-large', color='violet')
 ax41.text(9.25, -55, '2019: %2.2f %s' % (text_n[1], "%"), size='x-large', color='purple')
 
@@ -186,7 +186,7 @@ ax41.tick_params(labelrotation=0)
 ax41.set_xticklabels([get_month_name(imonth, length=3) for imonth in np.arange(1,13)])
     
 ax41.set_xlabel("Time (months)")
-ax41.set_ylabel("#Days above $\pm 1\sigma_{clim}$ (%)")
+ax41.set_ylabel("Days above $\pm 1\sigma_{clim}$ (%)")
 
 
 # Show it

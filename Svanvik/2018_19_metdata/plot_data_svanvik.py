@@ -12,8 +12,8 @@ plt.close('all')
 
 # Data sources
 src_svanvik = os.environ['DATA']+'/astra_data/observations/ozone/Svanvik/NO0047R.*ozone*.xls'
-src_svanvik_precip = os.environ['DATA']+'/astra_data/observations/temp_prec_rad/svanvik_accu_precip_2009-2020.xlsx'
-src_svanvik_rad = os.environ['DATA']+'/astra_data/observations/temp_prec_rad/svanvik_glob_rad_2018_2019.csv'
+src_svanvik_precip = os.environ['DATA']+'/astra_data/observations/metdata_svanvik/svanvik_accu_precip_2009-2020.xlsx'
+src_svanvik_rad = os.environ['DATA']+'/astra_data/observations/metdata_svanvik/svanvik_glob_rad_2018_2019.csv'
 
 data_list = []
 # Read data
@@ -67,7 +67,8 @@ ax14.set_ylabel("$Q_0$ ($W\,m^{-2}$)")
 
 for ax in fig1.axes:
     ax.set_xlabel("")
-    ax.set_xlim(dt.date(2018, 1, 1), dt.date(2020, 1, 1))
+    ax.set_xlim(dt.date(2019, 5, 1), dt.date(2019, 9, 1))
+    
     ax.axvspan(dt.date(2018, 1, 1), data_svanvik_ozone.index[0], facecolor='None', edgecolor='black', hatch='//', alpha=0.5)
     ax.axvspan(data_svanvik_ozone['2018'].index[-1], data_svanvik_ozone['2019'].index[0], facecolor='None', edgecolor='black', hatch='//', alpha=0.5)
     ax.axvspan(data_svanvik_ozone.index[-1], dt.date(2020, 1, 1), facecolor='None', edgecolor='black',  hatch='//', alpha=0.5)

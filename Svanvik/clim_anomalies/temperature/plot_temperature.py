@@ -23,15 +23,16 @@ try:
 except NameError:
     for file in sorted(glob.glob(src_temp_svanvik_clim)):
         print(file)
-        data_temp_svanvik_clim = pd.read_csv(file)
+        data_temp_svanvik_clim = pd.read_csv(file, na_values=-9900.0)
         data_temp_svanvik_clim.index = pd.date_range("%s" % data_temp_svanvik_clim['Time measured'][0][:-3], "%s" % data_temp_svanvik_clim['Time measured'].iloc[-1][:-3], freq='H')
         data_temp_svanvik_clim = data_temp_svanvik_clim.drop(columns=['Time measured'])
         data_list.append(data_temp_svanvik_clim)
         
     data_temp_svanvik_clim = pd.concat(data_list)
     
-    data_svanvik = pd.read_excel(src_temp_svanvik)
+    data_svanvik = pd.read_excel(src_temp_svanvik, na_values=-9900.0)
     data_svanvik.index = data_svanvik[u'Fra-tid']
+    data_svanvik.loc[:,'year'] = data_svanvik.index.year.values
     data_svanvik.loc[:,'day'] = data_svanvik.index.day.values
     data_svanvik.loc[:,'month'] = data_svanvik.index.month.values
     data_svanvik.loc[:,'hour'] = data_svanvik.index.hour.values
@@ -40,6 +41,7 @@ except NameError:
     #data_cru_clim_std = xr.open_dataset(src_temp_cru_clim_std)
 
     data_temp_svanvik_clim.loc[:,'day'] = data_temp_svanvik_clim.index.day.values
+    data_temp_svanvik_clim.loc[:,'year'] = data_temp_svanvik_clim.index.year.values
     data_temp_svanvik_clim.loc[:,'month'] = data_temp_svanvik_clim.index.month.values
     data_temp_svanvik_clim.loc[:,'hour'] = data_temp_svanvik_clim.index.hour.values
     data_temp_svanvik_clim.loc[:,'doy'] = data_temp_svanvik_clim.index.dayofyear.values
@@ -155,7 +157,7 @@ for iyear, iax, icolor in zip((2018, 2019),(ax31, ax32), ('violet', 'purple')):
     
     
 ax32.set_xlabel("Time (months)")
-ax32.set_ylabel("#Days above $\pm 1\sigma_{clim}$ (%)", y=1)
+ax32.set_ylabel("Days above $\pm 1\sigma_{clim}$ (%)", y=1)
 
 fig4 = plt.figure(4, figsize=(12,8))
 fig4.canvas.set_window_title("temperature_signific_1")
@@ -168,7 +170,7 @@ plot_data_n = pd.DataFrame({"2018":probe_n[0], "2019":probe_n[1]})
 plot_data_p.plot.bar(ax=ax41, width=0.85, color=('violet', 'purple'))
 plot_data_n.plot.bar(ax=ax41, width=0.85, color=('violet', 'purple'))
 
-ax41.legend(["_","2018","2019","_","_"], loc='upper left')
+ax41.legend(["_","2018","2019","_","_"], loc='upper left', fontsize='xx-large')
 
 ax41.set_ylim(-60, 60)
 
@@ -181,7 +183,7 @@ ax41.text(9.75, 55, '$>+1\,\sigma$', size='x-large', color='black')
 ax41.text(9.25, 51, '2018: %2.2f %s' % (text_p[0], "%"), size='x-large', color='violet')
 ax41.text(9.25, 47, '2019: %2.2f %s' % (text_p[1], "%"), size='x-large', color='purple')
 
-ax41.text(9.75, -47, '$>-1\,\sigma$', size='x-large', color='black')
+ax41.text(9.75, -47, '$<-1\,\sigma$', size='x-large', color='black')
 ax41.text(9.25, -51, '2018: %2.2f %s' % (text_n[0], "%"), size='x-large', color='violet')
 ax41.text(9.25, -55, '2019: %2.2f %s' % (text_n[1], "%"), size='x-large', color='purple')
 
@@ -191,7 +193,7 @@ ax41.tick_params(labelrotation=0)
 ax41.set_xticklabels([get_month_name(imonth, length=3) for imonth in np.arange(1,13)])
     
 ax41.set_xlabel("Time (months)")
-ax41.set_ylabel("#Days above $\pm 1\sigma_{clim}$ (%)")
+ax41.set_ylabel("Days above $\pm 1\sigma_{clim}$ (%)")
 
 #fig5 = plt.figure(5)
 #ax51 = plt.subplot()
