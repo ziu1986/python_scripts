@@ -4,13 +4,13 @@ from do3se_tools import *
 plt.close('all')
 
 species = ("Birch", "Spruce", "Grassland")
-version = 'v3'
+version = 'v2'
 for PFT in species:
     src = "/data/DO3SE_results/%s/*%s*" % (version, PFT)
 
     data = read_data(sorted(glob.glob(src))[0])
     test = {}
-    for isheet, iyear in zip((2,8),(2018, 2019)):
+    for isheet, iyear in zip((3,9),(2018, 2019)):
         test.update({iyear:pd.read_excel(data, data.sheet_names[isheet], header=2)})
         test[iyear].index = test[iyear].index+(test[iyear]['Day'].iloc[0]-1)*24
 
@@ -22,7 +22,8 @@ for PFT in species:
     ax2 = plt.subplot(412)
     ax3 = plt.subplot(413)
     ax4 = plt.subplot(414)
-    (test[2018][u'f_temp']-test[2019][u'f_temp']).plot(ax=ax1, color='blue')
+    #(test[2018][u'f_temp']-test[2019][u'f_temp']).plot(ax=ax1, color='blue')
+    (test[2018][u'f_SW']-test[2019][u'f_SW']).plot(ax=ax1, color='blue')
     #(test[2018][u'f_VPD']-test[2019][u'f_VPD']).plot(ax=ax2, color='red')
     (test[2018][u'f_phen']-test[2019][u'f_phen']).plot(ax=ax2, color='red')
     (test[2018][u'f_light']-test[2019][u'f_light']).plot(ax=ax3, color='black')
@@ -36,7 +37,8 @@ for PFT in species:
         ax1.text(each*24, ax.get_ylim()[-1], "%s" % get_month_name(indi.groupby(indi.dayofyear)[each].month[0], length=3), size='x-large')
     ax4.set_ylim(-4.5, 4.5)
     ax4.set_xlabel("Time (doy)")
-    ax1.set_ylabel('$\Delta f_{T}$')
+    #ax1.set_ylabel('$\Delta f_{T}$')
+    ax1.set_ylabel('$\Delta f_{SWP}$')
     #ax2.set_ylabel('$\Delta f_{VPD}$')
     ax2.set_ylabel('$\Delta f_{phen}$')
     ax3.set_ylabel('$\Delta f_{light}$')

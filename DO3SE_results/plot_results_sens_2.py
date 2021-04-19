@@ -40,13 +40,13 @@ def plot_pod(results, species_name, **karg):
 
     if 'ref' in karg:
         b_ref = True
-        alpha = 0.55
+        alpha = 0.45
     else:
         b_ref = False
         
     reference = karg.pop('ref', None)
     
-    fig1 = plt.figure(figsize=(12,8))
+    fig1 = plt.figure(figsize=(10,6))
     if annotation:
         fig1.canvas.set_window_title('do3se_results_pod_%s_%s' % (annotation, species_name))
     else:
@@ -60,17 +60,17 @@ def plot_pod(results, species_name, **karg):
         if b_ref:
             reference['POD1'].where((reference['Year']==2018) &
                               (reference['SWP']==0) &
-                              (reference['Type']==ispecies)).dropna().plot(color='violet', ls=':', marker='o', markersize=9, label='_', alpha=alpha)
+                              (reference['Type']==ispecies)).dropna().plot(color='violet', ls=':', marker='s', markersize=9, label='_', alpha=alpha)
             reference['POD1'].where((reference['Year']==2019) &
                               (reference['SWP']==0) &
-                              (reference['Type']==ispecies)).dropna().plot(color='purple', ls=':', marker='o', markersize=9, label='_', alpha=alpha)
+                              (reference['Type']==ispecies)).dropna().plot(color='purple', ls=':', marker='s', markersize=9, label='_', alpha=alpha)
 
             reference['POD1'].where((reference['Year']==2018) &
                               (reference['SWP']==1) &
-                              (reference['Type']==ispecies)).dropna().plot(color='violet', ls=':', fillstyle='none', marker='o', markersize=9, label='_', alpha=alpha)
+                              (reference['Type']==ispecies)).dropna().plot(color='violet', ls=':', fillstyle='none', marker='s', markersize=9, label='_', alpha=alpha)
             reference['POD1'].where((reference['Year']==2019) &
                               (reference['SWP']==1) &
-                              (reference['Type']==ispecies)).dropna().plot(color='purple', ls=':', fillstyle='none', marker='o', markersize=9, label='_', alpha=alpha)
+                              (reference['Type']==ispecies)).dropna().plot(color='purple', ls=':', fillstyle='none', marker='s', markersize=9, label='_', alpha=alpha)
 
             
         results['POD1'].where((results['Year']==2018) &
@@ -107,8 +107,8 @@ def plot_pod(results, species_name, **karg):
     ax1.plot(np.arange(-1,-3,-1), color='black', marker='o', ls="None", label='SWP=off')
     ax1.plot(np.arange(-1,-3,-1), color='black', marker='o', fillstyle='none', ls="None", label='SWP=on')
     
-    ax1.plot(np.arange(-1,-3,-1), color='black', ls=':', alpha=alpha, label='GS MM')
-    ax1.plot(np.arange(-1,-3,-1), color='black', ls='-', alpha=alpha, label='GS besp.')
+    ax1.plot(np.arange(-1,-3,-1), color='black', ls=':', marker='s', alpha=alpha, label='GS MM')
+    ax1.plot(np.arange(-1,-3,-1), color='black', ls='-', marker='o', label='GS besp.')
         
     ax1.legend(loc='upper right', ncol=3)
 
