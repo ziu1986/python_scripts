@@ -2,6 +2,12 @@
 ## Clean up
 plt.close('all')
 
+def char_range(c1, c2):
+    """Generates the characters from `c1` to `c2`, inclusive."""
+    for c in xrange(ord(c1), ord(c2)+1):
+        yield chr(c)
+
+
 if plot_timeseries:
     fig1 = plt.figure(1, figsize=(16,9))
     fig1.canvas.set_window_title("ozone_timeseries_ltobs")
@@ -22,7 +28,7 @@ if plot_timeseries:
         ax.legend()
 
     #    
-    fig2 = plt.figure(2, figsize=(16,9))
+    fig2 = plt.figure(2, figsize=(9,10))
     fig2.canvas.set_window_title("ozone_timeseries_fennoscandic_obs")
     ax21 = plt.subplot(511)
     ax22 = plt.subplot(512, sharex=ax21)
@@ -40,10 +46,14 @@ if plot_timeseries:
     ax24.axvspan(date2num(data['Svanvik'].index[0].date()), date2num(dt.datetime.strptime('1996-12','%Y-%m')), zorder=3, facecolor='None', edgecolor='black', hatch='//')
 
     ax25.set_xlabel("Time (year)")
-    ax23.set_ylabel("[$O_3$] (ppb)", y=1)
-    for ax in fig2.axes:
+    ax23.set_ylabel("[$O_3$] (ppb)")
+    
+    for ax, stitle in zip(fig2.axes, char_range('a', 'e')):
+        ax.set_xlim(pd.Timestamp('1986-01-01'), pd.Timestamp('2020-06-15'))
         ax.set_ylim(0,100)
-        ax.legend(ncol=2)
+        #ax.legend(ncol=2)
+        ax.set_title('(%s)' % stitle)
+    plt.tight_layout()
 
 #
 if plot_climatology:

@@ -48,15 +48,15 @@ except NameError:
 
 #---------------------------------------------------------------------------------------------------------------------------------
 #Control
-plot_timeseries = False
-plot_timelag = True
+plot_timeseries = True
+plot_timelag = False
 plot_correlation = False
 plot_splines = False
 plot_climatology = False
 plot_spectrum = False
 plot_map = False
 plot_aot = False
-plot_cuo = True
+plot_cuo = False
 plot_rollingsum = False
 plot_residuals = False
 plot_ttest = False
