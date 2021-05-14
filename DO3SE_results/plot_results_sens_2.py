@@ -40,7 +40,7 @@ def plot_pod(results, species_name, **karg):
 
     if 'ref' in karg:
         b_ref = True
-        alpha = 0.45
+        alpha = 1 #0.45
     else:
         b_ref = False
         
@@ -54,38 +54,42 @@ def plot_pod(results, species_name, **karg):
     ax1 = plt.subplot()
     ax1.set_ylabel('$POD_1$ $(mmol\,O_3\,m^{-2})$')
     ax1.set_ylim(0,35)
+    
     ax1.axhline(crit_level, color='grey', ls='--', linewidth=3, alpha=0.5)
+
+    results['PPFD'] = pd.Categorical(results['PPFD'], ['PPFD0.8','MM', 'PPFD1.2'])
+    reference['PPFD'] = pd.Categorical(reference['PPFD'], ['PPFD0.8','MM', 'PPFD1.2'])
     
     for ispecies in ('MM', 'Cold', 'Boreal'):
         if b_ref:
-            reference['POD1'].where((reference['Year']==2018) &
+            reference.sort_values('PPFD')['POD1'].where((reference['Year']==2018) &
                               (reference['SWP']==0) &
                               (reference['Type']==ispecies)).dropna().plot(color='violet', ls=':', marker='s', markersize=9, label='_', alpha=alpha)
-            reference['POD1'].where((reference['Year']==2019) &
+            reference.sort_values('PPFD')['POD1'].where((reference['Year']==2019) &
                               (reference['SWP']==0) &
                               (reference['Type']==ispecies)).dropna().plot(color='purple', ls=':', marker='s', markersize=9, label='_', alpha=alpha)
 
-            reference['POD1'].where((reference['Year']==2018) &
+            reference.sort_values('PPFD')['POD1'].where((reference['Year']==2018) &
                               (reference['SWP']==1) &
                               (reference['Type']==ispecies)).dropna().plot(color='violet', ls=':', fillstyle='none', marker='s', markersize=9, label='_', alpha=alpha)
-            reference['POD1'].where((reference['Year']==2019) &
+            reference.sort_values('PPFD')['POD1'].where((reference['Year']==2019) &
                               (reference['SWP']==1) &
                               (reference['Type']==ispecies)).dropna().plot(color='purple', ls=':', fillstyle='none', marker='s', markersize=9, label='_', alpha=alpha)
 
             
-        results['POD1'].where((results['Year']==2018) &
+        results.sort_values('PPFD')['POD1'].where((results['Year']==2018) &
                               (results['SWP']==0) &
                               (results['Type']==ispecies)).dropna().plot(color='violet', ls='-', marker='o', markersize=9, label='_')
-        results['POD1'].where((results['Year']==2019) &
+        results.sort_values('PPFD')['POD1'].where((results['Year']==2019) &
                               (results['SWP']==0) &
-                              (results['Type']==ispecies)).dropna().plot(color='purple', ls='--', marker='o', markersize=9, label='_')
+                              (results['Type']==ispecies)).dropna().plot(color='purple', ls='-', marker='o', markersize=9, label='_')
 
-        results['POD1'].where((results['Year']==2018) &
+        results.sort_values('PPFD')['POD1'].where((results['Year']==2018) &
                               (results['SWP']==1) &
                               (results['Type']==ispecies)).dropna().plot(color='violet', ls='-', fillstyle='none', marker='o', markersize=9, label='_')
-        results['POD1'].where((results['Year']==2019) &
+        results.sort_values('PPFD')['POD1'].where((results['Year']==2019) &
                               (results['SWP']==1) &
-                              (results['Type']==ispecies)).dropna().plot(color='purple', ls='--', fillstyle='none', marker='o', markersize=9, label='_')
+                              (results['Type']==ispecies)).dropna().plot(color='purple', ls='-', fillstyle='none', marker='o', markersize=9, label='_')
 
     # Annotate PPFD
     print_annotation(ax1, results)
@@ -98,11 +102,11 @@ def plot_pod(results, species_name, **karg):
     ax1.axvspan(23.5, 35.5, color='linen')
     ax1.set_xlim(-0.5,35.5)
     ax1.set_xticks(np.arange(6,36,12))
-    ax1.set_xticklabels(('Boreal', 'Cold', 'MM'), size='xx-large')
+    ax1.set_xticklabels(('Subarctic', 'Cold', 'MM'), size='xx-large')
 
     # Fake legend
     ax1.plot(np.arange(-1,-3,-1), color='violet', ls='-', label='2018')
-    ax1.plot(np.arange(-1,-3,-1), color='purple', ls='--', label='2019')
+    ax1.plot(np.arange(-1,-3,-1), color='purple', ls='-', label='2019')
     
     ax1.plot(np.arange(-1,-3,-1), color='black', marker='o', ls="None", label='SWP=off')
     ax1.plot(np.arange(-1,-3,-1), color='black', marker='o', fillstyle='none', ls="None", label='SWP=on')
@@ -110,9 +114,8 @@ def plot_pod(results, species_name, **karg):
     ax1.plot(np.arange(-1,-3,-1), color='black', ls=':', marker='s', alpha=alpha, label='GS MM')
     ax1.plot(np.arange(-1,-3,-1), color='black', ls='-', marker='o', label='GS besp.')
         
-    ax1.legend(loc='upper right', ncol=3)
-
-   
+    ax1.legend(loc='upper right', ncol=3, fontsize='x-large')
+    plt.grid(axis="x", b=False)
         
 # Read data
 critical_level = {'Birch': 5.2, 'Spruce': 9.2, 'Grassland': 10.2}
