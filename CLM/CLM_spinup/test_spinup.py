@@ -83,7 +83,8 @@ def equi_state(data, **karg):
     
 # Clean up
 plt.close('all')
-basedir = os.environ['CESM_RUN']
+#basedir = os.environ['CESM_RUN']
+basedir = os.environ['DATA'] + '/saga'
 case = ('test_brazil_spin-up', 
         'test_2000_brazil_spin-up_ozone', 
         'test_2000_brazil_spin-up_ozone2', 
@@ -101,7 +102,10 @@ case = ('test_brazil_spin-up',
         'spin-up_brazil_2000_5.0.34_wohydr_ozone_luna_100',
         'spin-up_brazil_2000_5.0.34_ozone_luna_100_sha',
         'test_merge_master_issue1224',
-        'test_merge_master_issue1224_ozone_luna')
+        'test_merge_master_issue1224_ozone_luna',
+        'acc_spinup_sunnivin_ozone_off_brazil',
+        'acc_spinup_sunnivin_ozone_lombardozzi_brazil',
+        'acc_spinup_sunnivin_ozone_falk_brazil')
 subdir1 = ('work', 'archive')
 subdir2 = {'work':'run/', 'archive':'lnd/hist/'}
 filename = "*.clm2.h0.*"
@@ -109,18 +113,20 @@ nyears = 20 #(20, 11)
 
 start = '0001' #('0411','0111')
 postAD = False
-icase = -1
-src = basedir + '/' + subdir1[1] + '/' + case[-2] + '/' + subdir2[subdir1[1]] + filename
-src2 = basedir + '/' + subdir1[1] + '/' + case[-1] + '/' + subdir2[subdir1[1]] + filename
+sel_case = (-3,-1)
+#src = basedir + '/' + subdir1[1] + '/' + case[-2] + '/' + subdir2[subdir1[1]] + filename
+#src2 = basedir + '/' + subdir1[1] + '/' + case[-1] + '/' + subdir2[subdir1[1]] + filename
+src = basedir + '/' + subdir1[1] + '/' + case[sel_case[0]] + '/' + subdir2[subdir1[1]] + filename
+src2 = basedir + '/' + subdir1[1] + '/' + case[sel_case[1]] + '/' + subdir2[subdir1[1]] + filename
 
 ozone_luna = False
-
-data = load_data(src, var=['NPP','GPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"])
-data2 = load_data(src2, var=['NPP','GPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"])
+variables = ['NPP','GPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"]
+data = load_data(src, var=variables)
+data2 = load_data(src2, var=variables)
     
 # Plot it
 fig1 = plt.figure(1, figsize=(16,9))
-fig1.canvas.set_window_title("test_spinup_%s" % (case[icase]))
+fig1.canvas.set_window_title("test_spinup_%s" % (case[sel_case[1]]))
 
 ax11 = plt.subplot(231)
 ax12 = plt.subplot(232)
@@ -129,17 +135,23 @@ ax14 = plt.subplot(234)
 ax15 = plt.subplot(235)
 ax16 = plt.subplot(236)
 
-for date, label in zip((data, data2),('ref', 'ozone_luna')):
-    date['GPP'].plot(ax=ax11, label='GPP_%s' % label)
-    date['NPP'].plot(ax=ax11, label='NPP_%s' % label)
-    date['TLAI'].plot(ax=ax12)
-    date['TOTECOSYSC'].plot(ax=ax14, label='TOTECOSYSC_%s' % label)
-    date['TOTSOMC'].plot(ax=ax14, label='TOTSOMC_%s' % label)
-    date['TOTVEGC'].plot(ax=ax14, label='TOTVEGC_%s' % label)
-    date['TOTECOSYSN'].plot(ax=ax15, label='TOTECOSYSN_%s' % label)
-    date['TOTSOMN'].plot(ax=ax15, label='TOTSOMN_%s' % label)
-    date['TOTVEGN'].plot(ax=ax15, label='TOTVEGN_%s' % label)
+for date, label in zip((data, data2),('ref', 'lombardozzi')):
+    ax11.plot(date['GPP'].data, label='GPP_%s' % label)
+    ax11.plot(date['NPP'].data, label='NPP_%s' % label)
+    ax12.plot(date['TLAI'].data)
+    ax14.plot(date['TOTECOSYSC'].data, label='TOTECOSYSC_%s' % label)
+    ax14.plot(date['TOTSOMC'].data, label='TOTSOMC_%s' % label)
+    ax14.plot(date['TOTVEGC'].data, label='TOTVEGC_%s' % label)
+    ax15.plot(date['TOTECOSYSN'].data, label='TOTECOSYSN_%s' % label)
+    ax15.plot(date['TOTSOMN'].data, label='TOTSOMN_%s' % label)
+    ax15.plot(date['TOTVEGN'], label='TOTVEGN_%s' % label)
 
+    ax11.set_ylabel("($%s$)" % (date['GPP'].units))
+    ax12.set_ylabel("($%s$)" % (date['TLAI'].units))
+    ax14.set_ylabel("($%s$)" % (date['TOTECOSYSC'].units))
+    ax15.set_ylabel("($%s$)" % (date['TOTVEGC'].units))
+    ax15.set_xlabel("Time since start (years)", x=-0.25)
+    
 ax11.legend()
 ax14.legend()
 ax15.legend()
@@ -152,7 +164,7 @@ for ax in (ax13, ax16):
     ax.set_frame_on(False)
 
 
-for date, ax_stats, icase in zip((data, data2), (ax13,ax16), (-2,-1)):
+for date, ax_stats, icase in zip((data, data2), (ax13,ax16), sel_case):
     ypos = 1
     ax_stats.text(0.,ypos,"%s" % (case[icase]))
     outfile = open(case[icase]+".dat", 'w')
@@ -205,6 +217,7 @@ if ozone_luna:
 outfile.close()
         
 # Show it
+plt.tight_layout()
 plt.show(block=False)
         
 
