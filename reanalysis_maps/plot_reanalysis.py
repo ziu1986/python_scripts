@@ -15,25 +15,42 @@ from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from mytools.ozone_tools import *
 from mytools.plot_tools import print_all
 
-def sample_to_da(clim_sample, lat, lon, time):
+def sample_to_da(clim_sample, lat, lon, time, **karg):
+    b_camsaq = karg.pop('CAMSAQ', False)
+    
     clim_3d = [np.meshgrid(lon, lat, each)[2] for each in clim_sample]
     clim_3d_squeezed = np.array(clim_3d).squeeze()
     time = time.resample(time='D').first().data
-    
-    da_clim_3d = xr.DataArray(
-        data=clim_3d_squeezed,
-        dims=["time", 'latitude', 'longitude'],
-        coords=dict(
-            time=time,
-            latitude=lat,
-            longitude=lon,
-            #reference_time=reference_time,
-        ),
-        attrs=dict(
-            description="Fennoscandic ozone climatology.",
-            units="ppb",
-        ),
-    )
+    if b_camsaq:
+        da_clim_3d = xr.DataArray(
+            data=clim_3d_squeezed,
+            dims=["time", 'lat', 'lon'],
+            coords=dict(
+                time=time,
+                lat=lat,
+                lon=lon,
+                #reference_time=reference_time,
+            ),
+            attrs=dict(
+                description="Fennoscandic ozone climatology.",
+                units="ppb",
+            ),
+        )
+    else:
+        da_clim_3d = xr.DataArray(
+            data=clim_3d_squeezed,
+            dims=["time", 'latitude', 'longitude'],
+            coords=dict(
+                time=time,
+                latitude=lat,
+                longitude=lon,
+                #reference_time=reference_time,
+            ),
+            attrs=dict(
+                description="Fennoscandic ozone climatology.",
+                units="ppb",
+            ),
+        )
 
     return(da_clim_3d)
 
@@ -59,10 +76,10 @@ def plot_map(data, **karg):
     lon_formatter = LongitudeFormatter(zero_direction_label=True)
     lat_formatter = LatitudeFormatter()
 
-    fig2 = data[var[dataset]].plot(levels=levels, transform=ccrs.PlateCarree(), robust=True, col='season', col_wrap=2,figsize=(16,8), cbar_kwargs={'label': clabel, 'shrink':.7, 'anchor':(0.5,0.5), 'drawedges':True}, subplot_kws={'projection': map_proj})
+    fig2 = data.plot(levels=levels, transform=ccrs.PlateCarree(), robust=True, col='season', col_wrap=2,figsize=(16,8), cbar_kwargs={'label': clabel, 'shrink':.7, 'anchor':(0.5,0.5), 'drawedges':True}, subplot_kws={'projection': map_proj})
 
     for ax in fig2.axes.flat:
-        ax.coastlines()
+        ax.coastlines(resolution='10m')
         ax.add_feature(cart.feature.OCEAN, zorder=100, edgecolor='k', color='lightgrey')
         ax.set_extent([13.75, 33.5, 64.75, 71.75])
         ax.set_xticks(np.arange(14,34,2), crs=ccrs.PlateCarree())
@@ -85,7 +102,7 @@ def plot_map(data, **karg):
 
 plt.close('all')
 
-dataset = 'MACC'
+dataset = 'CAMSAQ'
 
 src = {'CAMS': os.environ['DATA']+'/nird_data/reanalysis/ECMWF/CAMS_reanalysis/netcdf/VMR/vmr_cams_r_o3_ml60_climatology.nc',
        'MACC': os.environ['DATA']+'/nird_data/reanalysis/ECMWF/MACC_reanalysis/netcdf/VMR/vmr_macc_r_o3_ml60_3h_climatology.nc',
@@ -93,41 +110,47 @@ src = {'CAMS': os.environ['DATA']+'/nird_data/reanalysis/ECMWF/CAMS_reanalysis/n
 
 var = {'CAMS': 'go3',
        'MACC': 'go3',
-       'CAMSAQ': 'o3'}
+       'CAMSAQ': 'O3'}
+
+
 
 data = xr.open_dataset(src[dataset])
-#selection = data.sel(latitude=slice(71.5,65), longitude=slice(14,33)).isel(time=1460)*1e9
-selection = data.sel(latitude=slice(71.5,65), longitude=slice(14,33))
+
+if dataset == 'CAMSAQ':
+    selection = data.sel(lat=slice(65,71.5), lon=slice(14,33))*0.5
+else:
+    selection = data.sel(latitude=slice(71.5,65), longitude=slice(14,33))*1e9
+    
 date_freq = pd.date_range('2012-01-01 00:00:00', '2013', freq='1H')[:-1].size/selection.time.size
 new_time = pd.date_range('2012-01-01 00:00:00', '2013', freq='%sH' % date_freq)[:-1]
 selection['time'] = new_time
 
-selection_seasonal_means = weighted_seasonal_means(selection)*1e9
-selection_annual_mean = selection.mean(dim='time')*1e9
+selection_seasonal_means = weighted_seasonal_means(selection)
+selection_annual_mean = selection.mean(dim='time')
 
 import pickle
 with open( os.environ['PY_SCRIPTS']+'/ozone_metrics/ozone_anomalies/obs_climatologies.pkl', 'rb') as input:
     climatology_nord = pickle.load(input)
     climatology_svanvik = pickle.load(input)
-    yerr_mean_nord = pickle.load(input)
-    yerr_mean_svanvik = pickle.load(input)
     
 sample_spl_nord = climatology_nord(np.unique(selection.time.dt.dayofyear))
-sample_spl_nord_yerr = yerr_mean_nord(np.unique(selection.time.dt.dayofyear))
 
-da_clim_3d = sample_to_da(sample_spl_nord, selection.latitude, selection.longitude, selection.time)
-da_clim_err_3d = sample_to_da(abs(sample_spl_nord-sample_spl_nord_yerr)/10, selection.latitude, selection.longitude, selection.time)
-
-diff = (selection.resample(time='D').mean()*1e9)-da_clim_3d
+if dataset == 'CAMSAQ':
+    da_clim_3d = sample_to_da(sample_spl_nord, selection.lat.data, selection.lon.data, selection.time, CAMSAQ=True)
+    
+else:
+    da_clim_3d = sample_to_da(sample_spl_nord, selection.latitude, selection.longitude, selection.time)
+    
+diff = (selection.resample(time='D').mean())-da_clim_3d
 diff_sig = diff/1
 
-diff['time'] = selection.time[1:].resample(time='D').first().data
+#diff['time'] = selection.time[1:].resample(time='D').first().data
 
 
 diff_seasonal_mean = weighted_seasonal_means(diff)
 diff_sig_seasonal_mean = weighted_seasonal_means(diff_sig)
     
-plot_map(selection_seasonal_means, title="ozone_seasonal_average_%s" % dataset)
-plot_map(diff_seasonal_mean, title="ozone_seasonal_diff_%s" % dataset, clabel='$\Delta[O_3]$ (ppb)', levels=np.arange(-20, 21, 1))
-plot_map(diff_sig_seasonal_mean, title="ozone_seasonal_diff_sig_%s" % dataset, clabel='$\Delta[O_3]$ $(\sigma_{clim})$', levels=np.arange(-20, 21, 1))
+plot_map(selection_seasonal_means[var[dataset]], title="ozone_seasonal_average_%s" % dataset)
+plot_map(diff_seasonal_mean[var[dataset]], title="ozone_seasonal_diff_%s" % dataset, clabel='$\Delta[O_3]$ (ppb)', levels=np.arange(-20, 21, 1))
+plot_map(diff_sig_seasonal_mean[var[dataset]], title="ozone_seasonal_diff_sig_%s" % dataset, clabel='$\Delta[O_3]$ $(\sigma_{clim})$', levels=np.arange(-20, 21, 1))
 plt.show(block=False)
