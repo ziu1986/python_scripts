@@ -110,7 +110,7 @@ def plot_map(data, **karg):
 
 plt.close('all')
 
-dataset = 'CAMSAQ'
+dataset = 'MACC'
 
 src = {'CAMS': os.environ['DATA']+'/nird_data/reanalysis/ECMWF/CAMS_reanalysis/netcdf/VMR/vmr_cams_r_o3_ml60_climatology.nc',
        'MACC': os.environ['DATA']+'/nird_data/reanalysis/ECMWF/MACC_reanalysis/netcdf/VMR/vmr_macc_r_o3_ml60_3h_climatology.nc',
@@ -171,6 +171,7 @@ if dataset == 'CAMSAQ':
     bias_seasonal_mean = diff_seasonal_mean.where(landmask==0).mean(dim=('lat','lon'))
 else:
     landmask = regionmask.defined_regions.natural_earth.land_110.mask(selection.longitude, selection.latitude)
+    landmask = landmask.rename({'lon': 'longitude','lat': 'latitude'})
     rms_seasonal_mean = weighted_seasonal_means(diff.where(landmask==0).apply(lambda x: x**2).mean(dim=('latitude','longitude')).apply(lambda x: np.sqrt(x)))
     bias_seasonal_mean = diff_seasonal_mean.where(landmask==0).mean(dim=('latitude','longitude'))
 
