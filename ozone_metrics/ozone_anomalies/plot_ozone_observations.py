@@ -36,14 +36,13 @@ if plot_timeseries:
     ax24 = plt.subplot(514, sharex=ax21)
     ax25 = plt.subplot(515, sharex=ax21)
     ax21.plot(data['Esrange'].index, data['Esrange'], ls='None', marker='+', label='Esrange (SWE)', color='blue')
-    ax22.plot(data['Pallas'].index, data['Pallas'], ls='None', marker='+', label='Pallas (FIN)', color='black')
-    data_jergkara.plot(ax=ax23, ls='None', marker='+', label='Jergul/Karasjok (NOR)', color='orange')
-    ax24.plot(data['Svanvik'].index, data['Svanvik'], ls='None', marker='+', label='Svanvik (NOR)', color='blueviolet')
-    ax24.plot(data_svanvik_OzoNorClim.index, data_svanvik_OzoNorClim, ls='None', marker='x', label='Svanvik, 2018/19 (NOR)', color='blueviolet')
-    ax25.plot(data['Janiskoski'].index, data['Janiskoski'], ls='None', marker='+', label='Janiskoski (RUS)', color='grey')
-
+    ax22.plot(data['Janiskoski'].index, data['Janiskoski'], ls='None', marker='+', label='Janiskoski (RUS)', color='grey')
     ax23.axvspan(date2num(data_jergkara.index[0].date()), date2num(dt.datetime.strptime('1996-12','%Y-%m')), zorder=3, facecolor='None', edgecolor='black', hatch='//')
-    ax24.axvspan(date2num(data['Svanvik'].index[0].date()), date2num(dt.datetime.strptime('1996-12','%Y-%m')), zorder=3, facecolor='None', edgecolor='black', hatch='//')
+    ax24.plot(data['Pallas'].index, data['Pallas'], ls='None', marker='+', label='Pallas (FIN)', color='black')
+    data_jergkara.plot(ax=ax23, ls='None', marker='+', label='Jergul/Karasjok (NOR)', color='orange')
+    ax25.plot(data['Svanvik'].index, data['Svanvik'], ls='None', marker='+', label='Svanvik (NOR)', color='blueviolet')
+    ax25.plot(data_svanvik_OzoNorClim.index, data_svanvik_OzoNorClim, ls='None', marker='x', label='Svanvik, 2018/19 (NOR)', color='blueviolet')
+    ax25.axvspan(date2num(data['Svanvik'].index[0].date()), date2num(dt.datetime.strptime('1996-12','%Y-%m')), zorder=3, facecolor='None', edgecolor='black', hatch='//')
 
     ax25.set_xlabel("Time (year)")
     ax23.set_ylabel("[$O_3$] (ppb)")
@@ -57,25 +56,39 @@ if plot_timeseries:
 
 #
 if plot_climatology:
-    fig3 = plt.figure(3, figsize=(16,9))
+    from matplotlib.gridspec import GridSpec
+    fig3 = plt.figure(3, figsize=(10,6))
     fig3.canvas.set_window_title("ozone_climatology_fennoscandic_obs")
-    ax31 = plt.subplot()
+    gs = GridSpec(3, 1, figure=fig3)
+    ax31 = fig3.add_subplot(gs[0:-1,:])
+    ax32 = fig3.add_subplot(gs[2,:])
 
-    data['Prestebakke'].groupby(data['Prestebakke'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Prestebakke (NOR)', color='red')
+    #data['Prestebakke'].groupby(data['Prestebakke'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Prestebakke (NOR)', color='red')
     data['Esrange'].groupby(data['Esrange'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Esrange (SWE)', color='blue', ls='none', marker="v")
     data['Pallas'].groupby(data['Pallas'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Pallas (FIN)', color='black', ls='none', marker="^")
     data_jergkara.groupby(data_jergkara.index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Jergul/Karasjok (NOR)', color='orange', ls='none', marker="x")
     data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Svanvik (NOR)', color='blueviolet', ls='none', marker="+")
-    data['Janiskoski'].groupby(data['Janiskoski'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Janiskoski (RUS)', color='grey', ls='none', marker="d")
+    #data['Janiskoski'].groupby(data['Janiskoski'].index.dayofyear).apply(np.nanmean).plot(ax=ax31, label='Janiskoski (RUS)', color='grey', ls='none', marker="d")
 
-    ax31.set_xlabel("Time (day of year)")
-    ax31.set_ylabel("[$O_3$] (ppb)")
-    for ax in fig3.axes:
-        ax.set_ylim(0,60)
-        ax.legend(loc='lower left')
+    data['Esrange'].groupby(data['Esrange'].index.dayofyear).apply(lambda x: np.std(x)/np.sqrt(np.size(x))).plot(ax=ax32, label='Esrange (SWE)', color='blue', ls='none', marker="v")
+    data['Pallas'].groupby(data['Pallas'].index.dayofyear).apply(lambda x: np.std(x)/np.sqrt(np.size(x))).plot(ax=ax32, label='Pallas (FIN)', color='black', ls='none', marker="^")
+    data_jergkara.groupby(data_jergkara.index.dayofyear).apply(lambda x: np.std(x)/np.sqrt(np.size(x))).plot(ax=ax32, label='Jergul/Karasjok (NOR)', color='orange', ls='none', marker="x")
+    data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(lambda x: np.std(x)/np.sqrt(np.size(x))).plot(ax=ax32, label='Svanvik (NOR)', color='blueviolet', ls='none', marker="+")
+    
+
+    ax31.set_xlabel("")
+    ax31.set_ylabel("$\\left<[O_3]\\right>$ (ppb)")
+    ax31.set_ylim(0,60)
+    ax31.set_xticklabels('')
+    ax31.legend(loc='lower left', ncol=2)
 
     plot_month_span(ax31)
-    plot_month_name(ax31, ypos=58)
+    plot_month_name(ax31, ypos=57)
+    plot_month_span(ax32)
+
+    ax32.set_ylabel("$\sigma_{\\left<[O_3]\\right>}$ (ppb)")
+    ax32.set_ylim(0,1.1)
+    ax32.set_xlabel("Time (day of year)")
 
 if plot_spectrum:
     fig20 = plt.figure(20, figsize=(16,9))
@@ -233,16 +246,16 @@ if plot_timelag:
     ax61.set_ylabel('Correlation Coefficient')
 #
 if plot_climatology:
-    fig7 = plt.figure(7, figsize=(16,9))
+    fig7 = plt.figure(7, figsize=(10,8))
     fig7.canvas.set_window_title("ozone_climatology_fennoscandic_obs_norm")
     ax71 = plt.subplot()
 
-    (data['Prestebakke'].groupby(data['Prestebakke'].index.dayofyear).apply(np.nanmean)-data['Prestebakke'].mean()).plot(ax=ax71, label='Prestebakke (NOR)', color='red')
+    #(data['Prestebakke'].groupby(data['Prestebakke'].index.dayofyear).apply(np.nanmean)-data['Prestebakke'].mean()).plot(ax=ax71, label='Prestebakke (NOR)', color='red')
     (data['Esrange'].groupby(data['Esrange'].index.dayofyear).apply(np.nanmean)-data['Esrange'].mean()).plot(ax=ax71, label='Esrange (SWE)', color='blue', ls='none', marker="v")
     (data['Pallas'].groupby(data['Pallas'].index.dayofyear).apply(np.nanmean)-data['Pallas'].mean()).plot(ax=ax71, label='Pallas (FIN)', color='black', ls='none', marker="^")
     (data_jergkara.groupby(data_jergkara.index.dayofyear).apply(np.nanmean)-data_jergkara.mean()).plot(ax=ax71, label='Jergul/Karasjok (NOR)', color='orange', ls='none', marker="x")
     (data['Svanvik'].groupby(data['Svanvik'].index.dayofyear).apply(np.nanmean)-data['Svanvik'].mean()).plot(ax=ax71, label='Svanvik (NOR)', color='blueviolet', ls='none', marker="+")
-    (data['Janiskoski'].groupby(data['Janiskoski'].index.dayofyear).apply(np.nanmean)-data['Janiskoski'].mean()).plot(ax=ax71, label='Janiskoski (RUS)', color='grey', ls='none', marker="d")
+    #(data['Janiskoski'].groupby(data['Janiskoski'].index.dayofyear).apply(np.nanmean)-data['Janiskoski'].mean()).plot(ax=ax71, label='Janiskoski (RUS)', color='grey', ls='none', marker="d")
 
     ax71.set_xlabel("Time (day of year)")
     ax71.set_ylabel("$\Delta$[$O_3$] (ppb)")
