@@ -61,6 +61,9 @@ ax13.set_ylim(0,75)
 ax13.set_xlabel('Time (days)')
 ax13.legend(ncol=3)
 
+print("RMSE reconstruction: %1.2f" % np.sqrt(((reco_svanvik-data_svanvik_OzoNorClim['2018-07'])**2).sum()/reco_svanvik.size))
+print("RMSE regional reanalysis: %1.2f" % np.sqrt(((reco_svanvik-data_svanvik_rra.to_pandas())**2).sum()/reco_svanvik.size))
+
 plt.show(block=False)
 
 """
