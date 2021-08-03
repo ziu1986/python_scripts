@@ -52,7 +52,7 @@ plot_timeseries = False
 plot_timelag = False
 plot_correlation = False
 plot_splines = False
-plot_climatology = True
+plot_climatology = False
 plot_spectrum = False
 plot_map = False
 plot_aot = False
@@ -60,7 +60,7 @@ plot_cuo = False
 plot_rollingsum = False
 plot_residuals = False
 plot_ttest = False
-plot_svanvik = False
+plot_svanvik = True
 
 #---------------------------------------------------------------------------------------------------------------------------------
 
@@ -85,3 +85,7 @@ if plot_cuo:
     execfile("ozone_observation_cuo.py")
 
 execfile("plot_ozone_observations.py")
+
+if plot_svanvik:
+    execfile("ozone_observation_timelag.py")
+    execfile("ozone_observation_svanvik.py")

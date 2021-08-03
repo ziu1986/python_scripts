@@ -32,15 +32,18 @@ def select(ag_data, lat,lon):
 try:
     data_macc
 except NameError:
-    nc_src = os.environ['DATA']+"/astra_data/ECMWF/MACC_reanalysis/netcdf/VMR/*climatology.nc" 
+    #nc_src = os.environ['DATA']+"/astra_data/ECMWF/MACC_reanalysis/netcdf/VMR/*climatology.nc"
+    nc_src = os.environ['DATA']+"/vmr_macc_r_o3_ml60_3h_climatology.nc" 
     data_macc = read_date(nc_src)
-    nc_src = os.environ['DATA']+"/astra_data/ECMWF/CAMS_reanalysis/netcdf/VMR/*climatology.nc" 
+    #nc_src = os.environ['DATA']+"/astra_data/ECMWF/CAMS_reanalysis/netcdf/VMR/*climatology.nc"
+    nc_src = os.environ['DATA']+"/vmr_cams_r_o3_ml60_climatology.nc" 
     data_cams = read_date(nc_src)
 
 try:
     data_rra
 except NameError:    
     nc_src = os.environ['DATA']+"/nird_data/reanalysis/Copernicus/ensemble_ozone/*climatology.nc"
+    nc_src = os.environ['DATA']+"/SCA_ENSa.yearlyrea.climatology.nc"
     data_rra = read_date(nc_src)
 
     data_rra['time'] = pd.date_range("2016-01-01", periods=366*24, freq='H')
@@ -102,6 +105,7 @@ for ax in fig1.axes:
     plot_month_span(ax)
     plot_month_name(ax, ypos=56)
     ax.set_yticks(np.arange(0,61,10))
+    ax.set_xticks(np.arange(0,367,50))
 
 ax11.set_xticklabels("")
 ax12.set_xticklabels("")
