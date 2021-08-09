@@ -84,28 +84,10 @@ def equi_state(data, **karg):
 # Clean up
 plt.close('all')
 #basedir = os.environ['CESM_RUN']
-basedir = os.environ['DATA'] + '/saga'
-case = ('test_brazil_spin-up', 
-        'test_2000_brazil_spin-up_ozone', 
-        'test_2000_brazil_spin-up_ozone2', 
-        'test_2000_brazil_spin-up_ozone_luna', 
-        'spin-up_brazil_2000', 
-        'spin-up_brazil_2000_ozone',
-        'spin-up_brazil_2000_ozone_luna_0',
-        'spin-up_brazil_2000_ozone_luna_100',
-        'spin-up_brazil_2000_ozone_luna_100_pwu', 
-        'spin-up_brazil_2000_5.0.34', 
-        'spin-up_brazil_2000_5.0.34_ozone', 
-        'spin-up_brazil_2000_5.0.34_ozone_luna_100', 
-        'spin-up_brazil_2000_5.0.34_wohydr', 
-        'spin-up_brazil_2000_5.0.34_wohydr_ozone', 
-        'spin-up_brazil_2000_5.0.34_wohydr_ozone_luna_100',
-        'spin-up_brazil_2000_5.0.34_ozone_luna_100_sha',
-        'test_merge_master_issue1224',
-        'test_merge_master_issue1224_ozone_luna',
-        'acc_spinup_sunnivin_ozone_off_brazil',
-        'acc_spinup_sunnivin_ozone_lombardozzi_brazil',
-        'acc_spinup_sunnivin_ozone_falk_brazil')
+basedir = os.environ['DATA'] + '/saga/'
+case = ('acc_spinup_ozone_luna_off_brazil',
+        'acc_spinup_ozone_luna_lombardozzi_brazil',
+        'acc_spinup_ozone_luna_falk_brazil')
 subdir1 = ('work', 'archive')
 subdir2 = {'work':'run/', 'archive':'lnd/hist/'}
 filename = "*.clm2.h0.*"
@@ -113,16 +95,18 @@ nyears = 20 #(20, 11)
 
 start = '0001' #('0411','0111')
 postAD = False
-sel_case = (-3,-1)
-#src = basedir + '/' + subdir1[1] + '/' + case[-2] + '/' + subdir2[subdir1[1]] + filename
-#src2 = basedir + '/' + subdir1[1] + '/' + case[-1] + '/' + subdir2[subdir1[1]] + filename
-src = basedir + '/' + subdir1[1] + '/' + case[sel_case[0]] + '/' + subdir2[subdir1[1]] + filename
-src2 = basedir + '/' + subdir1[1] + '/' + case[sel_case[1]] + '/' + subdir2[subdir1[1]] + filename
+sel_case = (0,-1)
+name_case = ('ref', 'lombardozzi', 'falk')
+
+src = []
+for icase in sel_case:
+    src.append(os.path.join(basedir, subdir1[1], case[sel_case[icase]], subdir2[subdir1[1]], filename))
 
 ozone_luna = False
 variables = ['NPP','GPP','TLAI','TOTECOSYSC','TOTECOSYSN',"TOTSOMC", "TOTSOMN", "TOTVEGC", "TOTVEGN"]
-data = load_data(src, var=variables)
-data2 = load_data(src2, var=variables)
+data = []
+for each in src:
+    data.append(load_data(each, var=variables))
     
 # Plot it
 fig1 = plt.figure(1, figsize=(16,9))
@@ -135,7 +119,7 @@ ax14 = plt.subplot(234)
 ax15 = plt.subplot(235)
 ax16 = plt.subplot(236)
 
-for date, label in zip((data, data2),('ref', 'lombardozzi')):
+for date, label in zip(data, [name_case[i] for i in sel_case]):
     ax11.plot(date['GPP'].data, label='GPP_%s' % label)
     ax11.plot(date['NPP'].data, label='NPP_%s' % label)
     ax12.plot(date['TLAI'].data)
@@ -164,7 +148,7 @@ for ax in (ax13, ax16):
     ax.set_frame_on(False)
 
 
-for date, ax_stats, icase in zip((data, data2), (ax13,ax16), sel_case):
+for date, ax_stats, icase in zip(data, (ax13,ax16), sel_case):
     ypos = 1
     ax_stats.text(0.,ypos,"%s" % (case[icase]))
     outfile = open(case[icase]+".dat", 'w')
