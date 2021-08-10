@@ -48,7 +48,7 @@ def equi_state(data, **karg):
     ncycle : int
        The number of forcing data years chosen for spin-up
     bound : float
-       The threashold for the similarity to zero. 
+       The threshold for the similarity to zero. 
        Standard value: 1e-3
     final : bool
        Is this the final spin-up (post AD)?
@@ -94,7 +94,7 @@ filename = "*.clm2.h0.*"
 nyears = 20 #(20, 11)
 
 start = '0001' #('0411','0111')
-postAD = False
+postAD = True
 sel_case = (0,-1)
 name_case = ('ref', 'lombardozzi', 'falk')
 
