@@ -63,10 +63,30 @@ ax13.set_ylim(0,75)
 ax13.set_xlabel('Time (days)')
 ax13.legend(ncol=3)
 
-print("RMSE reconstruction: %1.2f" % np.sqrt(((reco_svanvik-data_svanvik_OzoNorClim['2018-07'])**2).sum()/reco_svanvik.size))
-print("RMSE regional reanalysis: %1.2f" % np.sqrt(((reco_svanvik-data_svanvik_rra.to_pandas())**2).sum()/reco_svanvik.size))
+test_length = len(data_svanvik_OzoNorClim['2018-07'].dropna())
+
+def simple_rms(truth, prediction):
+    test_length = len(truth.dropna())
+    result = np.sqrt(np.nansum((prediction-truth)**2)/test_length)
+    return(result)
+def percent_accuracy_ave(truth, prediction):
+    abs_dev = np.sqrt((prediction-truth)**2).sum()
+    abs_sample = np.sqrt(truth**2).sum()
+    return(100-abs_dev/abs_sample*100)
+
+print("RMSE reconstruction: %1.2f" % (simple_rms(data_svanvik_OzoNorClim['2018-07'], reco_svanvik)))
+print("RMSE regional reanalysis: %1.2f" % (simple_rms(data_svanvik_OzoNorClim['2018-07'], data_svanvik_rra.to_pandas())))
+print("RMSE Pallas: %1.2f" % (simple_rms(data_svanvik_OzoNorClim['2018-07'], data['Pallas']['2018-07'])))
+print("RMSE Svanvik 2019: %1.2f" % (simple_rms(data_svanvik_OzoNorClim['2018-07'], pd.Series(index=pd.date_range('2018-07','2018-08', freq='1H')[:-1], data=data_svanvik_OzoNorClim['2019-07'].values))))
+
+print("ACCRURACY reconstruction: %1.2f" % (percent_accuracy_ave(data_svanvik_OzoNorClim['2018-07'], reco_svanvik)))
+print("ACCRURACY regional reanalysis: %1.2f" % (percent_accuracy_ave(data_svanvik_OzoNorClim['2018-07'], data_svanvik_rra.to_pandas())))
+print("ACCRURACY Pallas: %1.2f" % (percent_accuracy_ave(data_svanvik_OzoNorClim['2018-07'], data['Pallas']['2018-07'])))
+print("ACCRURACY Svanvik 2019: %1.2f" % (percent_accuracy_ave(data_svanvik_OzoNorClim['2018-07'], pd.Series(index=pd.date_range('2018-07','2018-08', freq='1H')[:-1], data=data_svanvik_OzoNorClim['2019-07'].values))))
+
 
 plt.show(block=False)
+
 
 """
 ax12 = plt.subplot(212)
@@ -99,3 +119,5 @@ save_data = pd.concat((data_svanvik_OzoNorClim['2018-01':'2018-07-09 9:00'], rec
 save_data.to_csv("svanvik_ozone_2018.csv")
 data_svanvik_OzoNorClim['2019'].to_csv("svanvik_ozone_2019.csv")
 (sample_clim_hourly_svanvik[0]+bias_corr).to_csv("svanvik_ozone_corr-climatology.csv")
+
+
