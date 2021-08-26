@@ -8,6 +8,7 @@ from scipy.interpolate import InterpolatedUnivariateSpline, interp1d, interp2d
 import datetime as dt  # Python standard library datetime  module
 import matplotlib.pyplot as plt
 import cartopy as cp        # Globe projections
+from libcpp cimport bool
 
 class MidpointNormalize(Normalize):
     def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
@@ -328,7 +329,7 @@ def compute_column_density(press, atm_var, **kargs):
     '''
     # Keyword arguments
     unit = kargs.pop('unit', 'molecules/cm2')
-    cdef bool b_accu = kargs.pop('accumulate', True)
+    b_accu = kargs.pop('accumulate', True)
     # Conversion factors
     cdef double Mdry = 0.0289645    # molec. wt. of dry air, kg/mol
     cdef double constant = N_A/(g*Mdry) # molecules*s2/(m*kg)
