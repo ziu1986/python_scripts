@@ -16,10 +16,10 @@ from mytools.station_info import station_location
 
 #---------------------------------------------------------------------------------------------------------------------------------
 # Read data
-src = os.environ['DATA']+'/astra_data/observations/ozone/'
-src_svanvik_OzoNorClim = os.environ['DATA']+'/astra_data/observations/ozone/Svanvik/NO0047R.*ozone*.xls'
+src = os.environ['DATA']+'/astra/observations/ozone/'
+src_svanvik_OzoNorClim = os.environ['DATA']+'/astra/observations/ozone/Svanvik/NO0047R.*ozone*.xls'
 src_stations = ('Barrow', 'Esrange', 'Janiskoski', 'Jergul', 'Karasjok', 'Pallas', 'Prestebakke', 'Svanvik')
-src_rra = os.environ['DATA']+'/nird_data/reanalysis/Copernicus/ensemble_ozone/SCA_ENSa.2018.O3.yearlyrea.nc'
+src_rra = os.environ['DATA']+'/nird/reanalysis/Copernicus/ensemble_ozone/SCA_ENSa.2018.O3.yearlyrea.nc'
 
 try:
     data
