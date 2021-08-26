@@ -23,12 +23,6 @@ def read_date(input_files):
     data = xr.concat(data_list, dim='time')
     return(data)
 
-def select(ag_data, lat,lon):
-    ag_data_sel = {}
-    for each in ag_data:
-        ag_data_sel[each] = ag_data[each].sel(latitude=lat,longitude=lon, method='nearest')
-    return(ag_data_sel)
-
 try:
     data_macc
 except NameError:
