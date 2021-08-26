@@ -8,7 +8,7 @@ class JavisModel:
         self.vpd_min = karg.pop("Dmin")
         self.vpd_max = karg.pop("Dmax")
         self.alpha_light = karg.pop("alpha")
-        self.gmax = karg.pop("gmax")
+        self.gmax = karg.pop("gmax") # mmol O3 m-2 PLS s-1
         self.sgs = karg.pop('start_gs', 0)
         self.egs = karg.pop('end_gs', 366)
 
