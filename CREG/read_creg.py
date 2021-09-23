@@ -23,6 +23,7 @@ ax13 = plt.subplot(133)
 
 velo.min(dim='depthu').plot(ax=ax11)
 data_bath['mbathy'].plot(ax=ax12)
+# Select level based on bathometry and collaps to 2 dim
 velo.where(data_bath['mbathy']).sum(dim='depthu').plot(ax=ax13, vmax=20, vmin=-20, cmap=plt.cm.coolwarm)
 
 # Show it
