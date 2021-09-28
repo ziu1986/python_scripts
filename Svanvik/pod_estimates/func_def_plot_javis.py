@@ -117,9 +117,10 @@ def plot_optimal(results, **karg):
     
     fig = plt.figure(1, figsize=(10,12))
     fig.canvas.set_window_title("javis_func_opt_%s" % stats)
-    for i, iname, ilabel in zip((0,1,2), ('evergreen', 'birch', 'grassland'), ('(a)', '(b)', '(c)')):
+    for i, iname, ilabel in zip((0,1,2), ('coniferous', 'deciduous', 'grassland'), ('(a)', '(b)', '(c)')):
         ax = plt.subplot(3,1,i+1)
         ax.set_title(ilabel)
+        
         noon_results = results[::2][9*i:9*(i+1)]
         morning_results = results[1::2][9*i:9*(i+1)]
 
@@ -130,21 +131,24 @@ def plot_optimal(results, **karg):
             noon_err = None
             morning_err = None
         
-        ax.errorbar(np.arange(len(noon_results))-0.1, noon_results, yerr=noon_err, ls='None', marker='o', label='noon')
-        ax.errorbar(np.arange(len(morning_results))+0.1, morning_results, yerr=morning_err, ls='None', marker='o', fillstyle='none', label='morning')
+        ax.errorbar(np.arange(len(noon_results))-0.1, noon_results, yerr=noon_err, ls='None', marker='o', label='noon', zorder=2)
+        ax.errorbar(np.arange(len(morning_results))+0.1, morning_results, yerr=morning_err, ls='None', marker='o', fillstyle='none', label='morning', zorder=2)
     for ax in fig.axes:
         if stats == 'var':
             ax.set_ylim(0,0.11)
             ax.set_ylabel('Variance')
         else:
-            ax.set_ylim(0,1)
-            ax.set_ylabel('$<g_{sto}>/g_{max}$')
-            
+            ax.set_ylim(0,1.1)
+            ax.set_ylabel('$\\frac{\\left<g_{sto}\\right>}{g_{max}}$')
+
         ax.set_xticks(np.arange(9))
-        ax.set_xticklabels((r'boreal', r'PPFD0.8', r'PPFD1.2',
+        ax.set_xlim(-0.2,8.2)
+        ax.axvspan(-0.2, 2.5, color='linen', zorder=1)
+        ax.axvspan(5.5, 8.2, color='linen', zorder=1)
+        ax.set_xticklabels((r'subarctic', r'PPFD0.8', r'PPFD1.2',
                             r'cold', r'PPFD0.8', r'PPFD1.2',
                             r'MM', r'PPFD0.8', r'PPFD1.2'))
-        ax.legend(loc='upper left')
+        ax.legend(loc='lower left')
 
     ax.set_xlabel('Categories')
     
@@ -186,8 +190,8 @@ def plot_temperature_histogram(temperature, **karg):
     else:
         fig.canvas.set_window_title("javis_funcs_temp_hist_%s" % javis_model[0].name)
         plt.subplots_adjust(right=0.9)
-        temp_summer_90.dropna().hist(ax=ax1, density=True, bins=np.arange(-4, 40), label='May-Sep (1992-2000)')
-        temp_summer_10.dropna().hist(ax=ax1, density=True, bins=np.arange(-4, 40), histtype='step', hatch='\\', color='grey', linewidth=2, label='May-Sep (2011-2019)')
+        temp_summer_90.dropna().hist(ax=ax1, density=True, bins=np.arange(-4, 40), color='darkgrey', label='May-Sep (1992-2000)')
+        temp_summer_10.dropna().hist(ax=ax1, density=True, bins=np.arange(-4, 40), histtype='step', hatch='\\', color='black', linewidth=2, label='May-Sep (2011-2019)')
         ax11 = ax1.twinx()
         for each in javis_model:
             ax11.plot(np.arange(-4, 40), each.f_temp(np.arange(-4,40)), color='blue', linewidth=2, label='%s' % each.name.replace('_', ' '))
@@ -227,8 +231,8 @@ def plot_histogram(variable, **karg):
         
     fig.canvas.set_window_title("javis_funcs_%s_hist_%s" % (var_mod, javis_model[0].name))
     plt.subplots_adjust(right=0.9)
-    variable_summer_90.dropna().hist(ax=ax1, density=True, bins=var_range, label='May-Sep (1992-2000)')
-    variable_summer_10.dropna().hist(ax=ax1, density=True, bins=var_range, histtype='step', hatch='\\', color='grey', linewidth=2, label='May-Sep (2011-2019)')
+    variable_summer_90.dropna().hist(ax=ax1, density=True, bins=var_range, color='darkgrey', label='May-Sep (1992-2000)')
+    variable_summer_10.dropna().hist(ax=ax1, density=True, bins=var_range, histtype='step', hatch='\\', color='black', linewidth=2, label='May-Sep (2011-2019)')
     ax11 = ax1.twinx()
     for each in javis_model:
         if var_mod=='temperature':
@@ -247,7 +251,7 @@ def plot_histogram(variable, **karg):
                 
     elif var_mod=='light':
         ax11.set_ylabel('$f_{light}$', color='blue')
-        ax1.set_xlabel("$Q_0$ $(W\,m^{-2})$")
+        ax1.set_xlabel("$PPFD$ $(\mu mol\,m^{-2}\,s^{-1})$")
         ax1.set_ylim(0,0.006)
         ax1.set_xlim(var_range[0], var_range[-1])
         

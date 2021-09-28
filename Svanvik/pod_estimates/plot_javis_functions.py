@@ -5,27 +5,29 @@ src_svanvik = os.environ['DATA']+'/astra/observations/metdata_svanvik/Svanvik_te
 src_svanvik_rad = os.environ['DATA']+'/astra/observations/metdata_svanvik/svanvik_glob_rad_*.csv'
 
 # main
-alpha_var_decr_20 = {'evergreen':0.0075, 'birch':0.00525, 'grassland':0.01375}
-alpha_var_incr_20 = {'evergreen':0.005, 'birch':0.0035, 'grassland':0.0092}
+alpha_var_decr_20 = {'coniferous':0.0075, 'deciduous':0.00525, 'grassland':0.01375}
+alpha_var_incr_20 = {'coniferous':0.005, 'deciduous':0.0035, 'grassland':0.0092}
 
 # Set up the different species
-# Evergreen
-evergreen = JavisModel('evergreen', Tmin=0, Tmax=200, Topt=20, fmin=0.1, Dmax=0.8, Dmin=2.8, alpha=0.006, gmax=125)
-evergreen_boreal = JavisModel('evergreen_boreal', Tmin=0, Tmax=200, Topt=10, fmin=0.1, Dmax=0.8, Dmin=2.8, alpha=0.006, gmax=125)
-evergreen_cold = JavisModel('evergreen_cold', Tmin=0, Tmax=200, Topt=15, fmin=0.1, Dmax=0.8, Dmin=2.8, alpha=0.006, gmax=125)
-# Birch
-birch = JavisModel('birch', Tmin=5, Tmax=200, Topt=20, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
-birch_boreal = JavisModel('birch_boreal', Tmin=0, Tmax=200, Topt=10, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
-birch_cold = JavisModel('birch_cold', Tmin=5, Tmax=200, Topt=15, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
+# Coniferous
+coniferous = JavisModel('coniferous', Tmin=0, Tmax=200, Topt=20, fmin=0.1, Dmax=0.8, Dmin=2.8, alpha=0.006, gmax=125)
+coniferous_subarctic = JavisModel('coniferous_subarctic', Tmin=0, Tmax=200, Topt=10, fmin=0.1, Dmax=0.8, Dmin=2.8, alpha=0.006, gmax=125)
+coniferous_cold = JavisModel('coniferous_cold', Tmin=0, Tmax=200, Topt=15, fmin=0.1, Dmax=0.8, Dmin=2.8, alpha=0.006, gmax=125)
+# Deciduous
+deciduous = JavisModel('deciduous', Tmin=5, Tmax=200, Topt=20, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
+deciduous_subarctic = JavisModel('deciduous_subarctic', Tmin=0, Tmax=200, Topt=10, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
+deciduous_cold = JavisModel('deciduous_cold', Tmin=5, Tmax=200, Topt=15, fmin=0.1, Dmax=0.5, Dmin=2.7, alpha=0.0042, gmax=240)
 # Grassland
 grassland = JavisModel('grassland', Tmin=10, Tmax=36, Topt=24, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
-grassland_boreal = JavisModel('grassland_boreal', Tmin=0, Tmax=24, Topt=10, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
+grassland_subarctic = JavisModel('grassland_subarctic', Tmin=0, Tmax=24, Topt=10, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
 grassland_cold = JavisModel('grassland_cold', Tmin=5, Tmax=36, Topt=15, fmin=0.1, Dmax=1.75, Dmin=4.5, alpha=0.011, gmax=190)
 
 
 # Load data
+# Convert Wm^-2 to mumolm^-2s^-1
+conv_rad = 2.77e18 / 6.022141e23 * 1e6
 data_temp = import_data(src_svanvik)
-data_rad = import_data(src_svanvik_rad)
+data_rad = import_data(src_svanvik_rad)*conv_rad
 # Comput vpd
 vpd = VPD(data_temp.iloc[:,1], data_temp.iloc[:,0])/kilo
 
@@ -33,17 +35,17 @@ vpd = VPD(data_temp.iloc[:,1], data_temp.iloc[:,0])/kilo
 plt.close('all')
 
 # Loop through species and plot them
-#for species, i in zip((evergreen, birch, grassland, evergreen_boreal, birch_boreal, grassland_boreal, evergreen_cold, birch_cold, grassland_cold), np.arange(1,10)):
+#for species, i in zip((coniferous, deciduous, grassland, coniferous_subarctic, deciduous_subarctic, grassland_subarctic, coniferous_cold, deciduous_cold, grassland_cold), np.arange(1,10)):
 #    plot_f_functions(species, i)
 
 #print_all()
 #plt.close('all')
-"""
-for species in ((evergreen, evergreen_boreal, evergreen_cold), (birch, birch_boreal, birch_cold), (grassland, grassland_boreal, grassland_cold)):
+
+for species in ((coniferous, coniferous_subarctic, coniferous_cold), (deciduous, deciduous_subarctic, deciduous_cold), (grassland, grassland_subarctic, grassland_cold)):
     plot_temperature_histogram(data_temp.iloc[:,0], javis_model=species)
    
-for species in ([evergreen,], [birch,], [grassland,]):
-    for kind in ('evergreen', 'birch', 'grassland'):
+for species in ([coniferous,], [deciduous,], [grassland,]):
+    for kind in ('coniferous', 'deciduous', 'grassland'):
         if kind in species[0].name:
             for alpha_var, alpha_mode in zip((alpha_var_incr_20[kind], alpha_var_decr_20[kind]), ('PPFD1.2', 'PPFD0.8')):
                 temp = copy.deepcopy(species[0])
@@ -52,12 +54,12 @@ for species in ([evergreen,], [birch,], [grassland,]):
                 species.append(temp)
     plot_histogram(data_rad.iloc[:,0], javis_model=species, var='light')
 
-for species in ([evergreen,], [birch,], [grassland,]):
+for species in ([coniferous,], [deciduous,], [grassland,]):
     plot_histogram(vpd, javis_model=species, var='vpd')
-"""
+
 #print_all()
 #plt.close('all')
-#for species in (evergreen, evergreen_boreal, evergreen_cold, birch, birch_boreal, birch_cold, grassland, grassland_boreal, grassland_cold):
+#for species in (coniferous, coniferous_subarctic, coniferous_cold, deciduous, deciduous_subarctic, deciduous_cold, grassland, grassland_subarctic, grassland_cold):
 #    print(species.name)
 #    result = get_f_function(species)
 #    temp = result[-1].where((result[-1].index.month>=5)&(result[-1].index.month<9)).resample('1Y').sum()['2000':]
@@ -66,13 +68,13 @@ for species in ([evergreen,], [birch,], [grassland,]):
 #    print(temp.apply(lambda x: (x-temp_mean)/temp_std))
 
 
-
+"""
 list = []
 err_list = []
 midnight_sun_list = []
 # Loop through species and print variance
-for species in (birch_boreal, birch_cold, birch, evergreen_boreal, evergreen_cold, evergreen, grassland_boreal, grassland_cold, grassland):
-    for kind in ( 'birch', 'evergreen','grassland'):
+for species in (deciduous_subarctic, deciduous_cold, deciduous, coniferous_subarctic, coniferous_cold, coniferous, grassland_subarctic, grassland_cold, grassland):
+    for kind in ( 'deciduous', 'coniferous','grassland'):
         if kind in species.name:
             print(species.name)
             result = get_f_function(species, data_temp, vpd, data_rad)
@@ -109,7 +111,7 @@ for species in (birch_boreal, birch_cold, birch, evergreen_boreal, evergreen_col
             
     
 plot_optimal(list, err=err_list, stats='mean')   
-
+"""
 # Show it
 plt.show(block=False)
 

@@ -82,12 +82,12 @@ results_pod = []
 results_pod1 = []
 for species in (birch, evergreen, grassland):
     for idata, iname in zip((data_svanvik['O3 (ppb)'], shift_macc*1e9, shift_cams*1e9, shift_camsraq*1e9),("obs", "macc", "cams", "camsraq")):
-        tmp = get_f_function(species, data_temp, vpd, data_rad)[-1]['2018-05':'2018-09']*species.gmax*(idata*conversion)/60**2
-        tmp1 = tmp.apply(lambda x: x-1e-6)
+        tmp = get_f_function(species, data_temp, vpd, data_rad)[-1]['2018-05':'2018-09']*species.gmax*(idata*conversion)*60**2
+        #tmp1 = tmp.apply(lambda x: x-1e-6)
         print("POD0", species.name, iname, tmp.sum())
         results_pod.append(tmp.sum())
-        print("POD1", species.name, iname, tmp1[tmp1 > 0].sum())
-        results_pod1.append(tmp1[tmp1 > 0].sum())
+        #print("POD1", species.name, iname, tmp1[tmp1 > 0].sum())
+        #results_pod1.append(tmp1[tmp1 > 0].sum())
 
 for i in np.arange(1,4):
     print((np.array(results_pod[i::4])-np.array(results_pod[0::4]))/np.array(results_pod[0::4])*100)
