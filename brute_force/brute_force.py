@@ -17,5 +17,8 @@ for i in range(probe):
         penalty = weight.sum()
         result = assign
 
+if penalty <= 3*n:
+    print("OK")
+    
 print(penalty, result)
 
