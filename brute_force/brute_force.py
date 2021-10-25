@@ -23,7 +23,7 @@ for i in range(probe):
         weight[np.where(itest==assign)] = i
     if weight.sum() < penalty:
         penalty = weight.sum()
-        result = assign
+        result = (assign, weight)
 
 if penalty <= 3*n:
     print("OK")
