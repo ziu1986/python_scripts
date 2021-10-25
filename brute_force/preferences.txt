@@ -6,3 +6,4 @@ Ferdinand Uhl,4,2,1
 Linda Drescher,19,4,9
 Séverine Ehrhardt,15,16,17
 Matthias Knüttel,17,10,4
+Kaja Schultz,21,16,3
