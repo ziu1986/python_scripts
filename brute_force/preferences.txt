@@ -1,0 +1,8 @@
+Name,Pref1,Pref2,Pref3
+Paul Eisenschink,19,17,20
+Leon Brubacher,10,5,7
+Max Pentenrieder,17,15,18
+Ferdinand Uhl,4,2,1
+Linda Drescher,19,4,9
+Séverine Ehrhardt,15,16,17
+Matthias Knüttel,17,10,4
