@@ -7,7 +7,7 @@ kategories = 22
 probe = 10000
 penalty = 4*n
 
-test_src = pd.read_csv("preferences.txt")
+test_src = pd.read_csv("preferences.csv")
 test = [test_src['Pref%d' % i].to_numpy() for i in range(1,4)]
 
 
