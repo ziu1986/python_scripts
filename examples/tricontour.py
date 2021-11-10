@@ -22,3 +22,4 @@ cbar = plt.colorbar(img2, ax=ax[1])
 cbar.set_label("LAI")
 
 plt.show(block=False)
+plt.savefig("jsbach_standalone_test.png")
