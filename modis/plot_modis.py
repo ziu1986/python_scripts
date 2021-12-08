@@ -9,9 +9,9 @@ from mytools.plot_tools import print_all, plot_error_bands, get_month_name
 plt.close('all')
 
 # Source
-case = "brazil" #"svanvik"
-var =  'Lai' #'Gpp' #'Npp' #'Lai' # 'Psn'
-src = os.environ['DATA'] + "/astra_data/observations/MODIS/" + case +"/statistics*" + var + "*landcover*.csv"
+case = "svanvik" #"brazil"
+var =  'Gpp' #'Gpp' #'Npp' #'Lai' # 'Psn'
+src = os.environ['DATA'] + "/astra/observations/MODIS/" + case +"/statistics*" + var + "*landcover*.csv"
 
 #try:
 #    data_list
@@ -39,6 +39,8 @@ if case == "svanvik":
     def poly2(x, *m):
         return(m[0]*(x-m[1])**2+m[2])
     
+    results = {2018: np.array((0,0)), 2019: np.array((0,0))}
+
     for iyear, iax in zip((2018, 2019), (ax21, ax22)):
         print("Year: "); print(iyear)
         for each, imarker, icolor, ilabel in zip(data_list, ('v', '^'), ('blue', 'red'), ('AQUA', 'TERRA')):
@@ -52,24 +54,34 @@ if case == "svanvik":
             print('Unweighted fit parameters:', popt)
             print('Covariance matrix:'); print(pcov)
             print('Roots: '); print(np.abs(roots))
+
+            results[iyear] = results[iyear] + (np.abs(roots))
             fit_range = np.arange(0,366)
             yfit = poly2(fit_range, *popt)
             iax.plot(fit_range, yfit)
     
+    print("Mean:\n 2018 %s\n 2019 %s" % (results[2018]/2., results[2019]/2.))
     for ax in fig2.axes:
         if var=='Psn':
             ax.set_ylim(0,0.08)
         elif var=='Lai':
             ax.set_ylim(0,5)
+        elif var=='Gpp':
+            ax.set_ylim(-0.01, 0.1)
         ax.set_xlabel("")
         ax.set_xlim(0,366)
         ax.legend()
     
+    for i, iyear in zip((0,1), (2018,2019)):
+        fig2.axes[i].text(5,0.08,"$\left<root\\right> = (%3.0f, %3.0f)\,doy$" % (results[iyear][1]/2., results[iyear][0]/2.), size='x-large')
+
     ax22.set_xlabel("Time (day of year)")
     if var=="Psn":
-        ax22.set_ylabel("$A_{net}$ ($kgC\,m^{-2}$)", y=1)
+        ax22.set_ylabel("$A_{net}$ ($kgC\,m^{-2}\,8d^{-1}$)", y=1)
     elif var=="Lai":
         ax22.set_ylabel("$LAI$ $(m^{2}\,m^{-2})$", y=1)
+    elif var=="Gpp":
+        ax22.set_ylabel("$GPP$ $(kgC^{2}\,m^{-2}\,8d^{-1})$", y=1)
 
 if case == 'brazil':
     fig1 = plt.figure(1, figsize=(16,9))
