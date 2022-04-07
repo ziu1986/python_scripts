@@ -12,6 +12,7 @@ def plot_climate_diagram(temp, precip, **kwarg):
     verbose = kwarg.pop('verbose', False)
     temp_err = kwarg.pop('temp_err', None)
     precip_err = kwarg.pop('precip_err', None)
+    precip_plot_margin = kwarg.pop('pp_margin',0)
 
     fig1 = plt.figure(1, figsize=(12,8))
     fig1.subplots_adjust(right=0.9)
@@ -53,11 +54,11 @@ def plot_climate_diagram(temp, precip, **kwarg):
         print(temp_max, temp_min, precip_max)
         print(np.min((0,temp_min)), np.max((temp_max, precip_max*0.5)))
         
-    ax11.set_ylim(np.min((0,temp_min)), np.max((temp_max, precip_max*0.5)))
+    ax11.set_ylim(np.min((0,temp_min)), np.max((temp_max, (precip_max+precip_plot_margin)*0.5)))
     ax11.set_xticklabels([get_month_name(imonth, length=3) for imonth in np.arange(1,13)], size=18)
     ax11.set_ylabel("Temperature ($^\circ\,C$)", color='red')
     ax12.set_ylabel("Precipitation (mm)", color='blue')
-    ax12.set_ylim(np.min((0,temp_min*2)), np.max((temp_max*2, precip_max)))
+    ax12.set_ylim(np.min((0,temp_min*2)), np.max((temp_max*2, (precip_max+precip_plot_margin))))
 
     if bfrost:
         frost = np.where(temp<=0)[0]
@@ -105,7 +106,7 @@ plot_climate_diagram(temperature.mean().values,
                   precipitation.mean()['RR'],
                   temp_err=temperature.std().values, 
                   #precip_err=precipitation.std()['RR'].values, 
-                  verbose=True, frost=True)
+                  verbose=True, frost=True, pp_margin=5)
 ##/np.sqrt(data_svanvik_clim.index.year.unique().size), 
 ##/np.sqrt(data_svanvik_precip_clim.index.year.unique().size),
 # Show it
