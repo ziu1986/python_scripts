@@ -77,15 +77,17 @@ def plot_climate_diagram(temp, precip, **kwarg):
 
 def plot_climate_diagram_box(temp, precip, **kwarg):
 
+    notch = kwarg.pop('notch', False)
+
     fig1 = plt.figure(figsize=(16,6))
     fig1.canvas.set_window_title("climatediagram_box")
     ax11 = plt.subplot(121)
     ax12 = plt.subplot(122)
 
     box_temp = temp.boxplot(ax=ax11, by='month', showmeans=True,
-                return_type='dict')
+                notch=notch, bootstrap=1000, return_type='dict')
     box_precip = precip.boxplot(ax=ax12, by='month', showmeans=True,
-                return_type='dict')
+                notch=notch, bootstrap=1000, return_type='dict')
 
     
     [[item.set_color('r') for item in box_temp[key]['medians']] for key in box_temp.keys()]
@@ -99,7 +101,7 @@ def plot_climate_diagram_box(temp, precip, **kwarg):
 
     for ax, ititle in zip([ax11,ax12], ["(a)", "(b)"]):
         ax.set_xticklabels([get_month_name(imonth, length=3) for imonth in np.arange(1,13)], size=18)
-        ax.set_title(ititle,y=-0.14,size=18)
+        ax.set_title(ititle,y=-0.18,size=18)
         ax.set_xlabel("")
 
     ax11.set_ylabel("Temperature ($^\circ\,C$)")
@@ -144,6 +146,6 @@ plot_climate_diagram(temperature.mean().values,
 
 tmp_temp = pd.DataFrame({'temp': data_svanvik_clim.iloc[:,0]})
 tmp_temp.loc[:,'month'] = tmp_temp.index.month.values
-plot_climate_diagram_box(tmp_temp, precipitation)
+plot_climate_diagram_box(tmp_temp, precipitation, notch=True)
 # Show it
 plt.show(block=False)
